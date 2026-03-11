@@ -1,16 +1,18 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: CDA-11
-  Date: 11/03/2026
-  Time: 09:37
-  To change this template use File | Settings | File Templates.
---%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-    <title>Title</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Erreur</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-
+<div class="container mt-5 text-center">
+    <h2 class="text-danger">Une erreur est survenue</h2>
+    <p class="text-muted">La page demandée est introuvable ou une commande est inconnue.</p>
+    <a href="FrontController" class="btn btn-primary">Retour à l'accueil</a>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
