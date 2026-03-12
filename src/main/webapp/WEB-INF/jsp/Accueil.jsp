@@ -5,33 +5,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ENTREPRISE - Accueil</title>
+
     <link href="${pageContext.request.contextPath}/assets/css/bootstrap.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/assets/css/style.css" rel="stylesheet">
 </head>
 
 <body data-header="full" class="home-page">
 
-<div id="header"></div>
+<!-- HEADER dynamique -->
+<div id="tpl-header"></div>
 
+<!-- Décorations -->
 <div class="stars" id="stars"></div>
 <div class="tech-circle tech-circle-1"></div>
 <div class="tech-circle tech-circle-2"></div>
 <div class="tech-circle tech-circle-3"></div>
 <div class="hero-grid"></div>
 
-<main class="home-content text-center" role="main">
+<!-- Contenu principal -->
+<main class="home-content text-center">
     <h1 class="home-title">ENTREPRISE</h1>
-    <p class="home-subtitle">Gérez vos clients et prospects<br>depuis une interface unique et intuitive.</p>
+    <p class="home-subtitle" style="text-align:center; width:100%;">Gérez vos clients et prospects<br>depuis une interface unique et intuitive.</p>
+
     <div class="home-buttons">
         <a href="${pageContext.request.contextPath}/FrontController?cmd=clientListe" class="btn-home">Clients</a>
         <a href="${pageContext.request.contextPath}/FrontController?cmd=prospectListe" class="btn-home">Prospects</a>
     </div>
 </main>
 
-<div id="footer"></div>
+<!-- FOOTER dynamique -->
+<div id="tpl-footer"></div>
+
+<!-- URL du template -->
+<script>
+    const TEMPLATE_URL = "${pageContext.request.contextPath}/FrontController?cmd=template";
+</script>
 
 <script src="${pageContext.request.contextPath}/assets/js/template.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/bootstrap.bundle.js"></script>
+
+<!-- Étoiles -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const starsContainer = document.getElementById('stars');

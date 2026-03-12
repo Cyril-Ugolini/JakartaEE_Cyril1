@@ -79,6 +79,7 @@
 
 <!-- Scripts -->
 <script src="${pageContext.request.contextPath}/assets/js/template.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/validation.js"></script>
 
 </body>
 </html>

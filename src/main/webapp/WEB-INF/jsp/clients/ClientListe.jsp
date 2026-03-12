@@ -116,8 +116,11 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Tes scripts -->
+
+<script>
+    const TEMPLATE_URL = "${pageContext.request.contextPath}/FrontController?cmd=template";
+</script>
 <script src="${pageContext.request.contextPath}/assets/js/template.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/validation.js"></script>
-
 </body>
 </html>

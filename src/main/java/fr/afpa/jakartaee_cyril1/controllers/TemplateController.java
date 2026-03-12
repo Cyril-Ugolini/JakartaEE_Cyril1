@@ -9,6 +9,6 @@ public class TemplateController implements ICommand {
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 
-        return "/WEB-INF/jsp/template.jsp";
+        return "/WEB-INF/jsp/Template.jsp";
     }
 }

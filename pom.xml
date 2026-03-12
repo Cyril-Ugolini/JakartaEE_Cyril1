@@ -2,22 +2,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>fr.afpa</groupId>
     <artifactId>JakartaEE_Cyril1</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>JakartaEE_Cyril1</name>
     <packaging>war</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.target>25</maven.compiler.target>
         <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
         <junit.version>5.13.2</junit.version>
     </properties>
 
     <dependencies>
+
+        <!-- API Servlet Jakarta -->
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
@@ -25,6 +27,7 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- JUnit -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -38,19 +41,35 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
 
-            <!-- Plugin WAR -->
+            <!-- Plugin WAR : copie correctement src/main/webapp -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.4.0</version>
+                <configuration>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+
+                    <!-- Copie TOUT le contenu de webapp dans le WAR -->
+                    <webResources>
+                        <resource>
+                            <directory>src/main/webapp</directory>
+                            <targetPath>/</targetPath>
+                            <includes>
+                                <include>**/*.*</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                </configuration>
             </plugin>
 
-            <!-- Plugin Cargo -->
+            <!-- Cargo (tu le gardes) -->
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-maven3-plugin</artifactId>
@@ -68,12 +87,13 @@
                             <cargo.tomcat.context.reloadable>true</cargo.tomcat.context.reloadable>
                             <cargo.remote.username>${catalina.admin.username}</cargo.remote.username>
                             <cargo.remote.password>${catalina.admin.password}</cargo.remote.password>
-                            <cargo.tomcat.manager.url>${catalina.manager.url</cargo.tomcat.manager.url>
+                            <cargo.tomcat.manager.url>${catalina.manager.url}</cargo.tomcat.manager.url>
                         </properties>
                     </configuration>
                 </configuration>
             </plugin>
-<!-- Checkstyle -->
+
+            <!-- Checkstyle -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>

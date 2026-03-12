@@ -1,12 +1,6 @@
-/**
- * template.js
- * Version Jakarta EE – Cyril
- */
-
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ─── Protection des pages ─────────────────────────────────────────────────────
-
+    // Pages protégées
     const pagesProtegees = [
         'client-form.jsp',
         'prospect-form.jsp',
@@ -16,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const pageCourante = window.location.pathname.split('/').pop();
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-
     const params = new URLSearchParams(window.location.search);
     const mode = params.get('mode');
 
@@ -30,8 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    // ─── Chargement du template via FrontController ───────────────────────────────
-
+    // Chargement du template
     fetch(TEMPLATE_URL)
         .then(res => res.text())
         .then(html => {
@@ -42,54 +34,41 @@ document.addEventListener('DOMContentLoaded', function () {
             const headerType = document.body.getAttribute("data-header");
 
             // HEADER
-            const headerTarget = document.getElementById("header");
+            const headerTarget = document.getElementById("tpl-header");
             if (headerTarget) {
                 const headerSource = headerType === "retour"
                     ? doc.getElementById("tpl-header-retour")
                     : doc.getElementById("tpl-header");
 
-                if (headerSource) {
-                    headerTarget.replaceChildren(
-                        document.adoptNode(headerSource.cloneNode(true))
-                    );
-                }
+                headerTarget.replaceChildren(
+                    document.adoptNode(headerSource.cloneNode(true))
+                );
 
-                if (headerType !== "retour") {
-                    initBurgerMenu();
-                }
+                if (headerType !== "retour") initBurgerMenu();
             }
 
             // ASIDE
-            const asideTarget = document.getElementById("aside");
+            const asideTarget = document.getElementById("tpl-aside");
             if (asideTarget) {
                 const asideSource = doc.getElementById("tpl-aside");
-                if (asideSource) {
-                    asideTarget.replaceChildren(
-                        document.adoptNode(asideSource.cloneNode(true))
-                    );
-                }
+                asideTarget.replaceChildren(
+                    document.adoptNode(asideSource.cloneNode(true))
+                );
             }
 
             // FOOTER
-            const footerTarget = document.getElementById("footer");
+            const footerTarget = document.getElementById("tpl-footer");
             if (footerTarget) {
                 const footerSource = doc.getElementById("tpl-footer");
-                if (footerSource) {
-                    footerTarget.replaceChildren(
-                        document.adoptNode(footerSource.cloneNode(true))
-                    );
-                }
+                footerTarget.replaceChildren(
+                    document.adoptNode(footerSource.cloneNode(true))
+                );
             }
 
-            // Mise à jour connexion
             gererConnexion();
-        })
-        .catch(err => {
-            console.error("Erreur lors du chargement du template :", err);
         });
 
-    // ─── Menu burger ─────────────────────────────────────────────────────────────
-
+    // Menu burger
     function initBurgerMenu() {
         const burger = document.getElementById("burger-main");
         const panel = document.getElementById("panel-main");
@@ -117,8 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ─── Gestion de la connexion ──────────────────────────────────────────────────
-
+    // Connexion
     function gererConnexion() {
         const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
         const username = localStorage.getItem('username') || '';
@@ -128,23 +106,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (navConnexion) {
             navConnexion.replaceChildren();
             if (isLoggedIn) {
-                const p = document.createElement('p');
-                p.className = 'crm-username';
-                p.textContent = '👤 ' + username;
-
-                const a = document.createElement('a');
-                a.href = 'FrontController?cmd=logout';
-                a.className = 'crm-btn-connexion';
-                a.textContent = 'Déconnexion';
-
-                navConnexion.appendChild(p);
-                navConnexion.appendChild(a);
+                navConnexion.innerHTML = `
+                    <p class="crm-username">👤 ${username}</p>
+                    <a href="FrontController?cmd=logout" class="crm-btn-connexion">Déconnexion</a>
+                `;
             } else {
-                const a = document.createElement('a');
-                a.href = 'FrontController?cmd=login';
-                a.className = 'crm-btn-connexion';
-                a.textContent = 'Connexion';
-                navConnexion.appendChild(a);
+                navConnexion.innerHTML = `
+                    <a href="FrontController?cmd=login" class="crm-btn-connexion">Connexion</a>
+                `;
             }
         }
 
@@ -153,31 +122,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (asideConnexion) {
             asideConnexion.replaceChildren();
             if (isLoggedIn) {
-                const p = document.createElement('p');
-                p.className = 'mt-2 mb-1 small';
-                p.textContent = '👤 ' + username;
-
-                const a = document.createElement('a');
-                a.href = 'FrontController?cmd=logout';
-                a.className = 'btn btn-danger btn-sm w-100';
-                a.textContent = 'Déconnexion';
-
-                asideConnexion.appendChild(p);
-                asideConnexion.appendChild(a);
+                asideConnexion.innerHTML = `
+                    <p class="mt-2 mb-1 small">👤 ${username}</p>
+                    <a href="FrontController?cmd=logout" class="btn btn-danger btn-sm w-100">Déconnexion</a>
+                `;
             } else {
-                const a = document.createElement('a');
-                a.href = 'FrontController?cmd=login';
-                a.className = 'btn btn-primary btn-sm w-100 mt-2';
-                a.textContent = 'Connexion';
-                asideConnexion.appendChild(a);
+                asideConnexion.innerHTML = `
+                    <a href="FrontController?cmd=login" class="btn btn-primary btn-sm w-100 mt-2">Connexion</a>
+                `;
             }
-        }
-
-        // Masquage des boutons Modifier/Supprimer
-        if (!isLoggedIn) {
-            document.querySelectorAll('.btn-modifier, .btn-supprimer').forEach(btn => {
-                btn.classList.add('d-none');
-            });
         }
     }
 
