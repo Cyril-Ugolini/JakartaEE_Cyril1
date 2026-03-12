@@ -12,6 +12,7 @@ import fr.afpa.jakartaee_cyril1.prospects.ProspectFormController;
 import fr.afpa.jakartaee_cyril1.prospects.ProspectListeController;
 import fr.afpa.jakartaee_cyril1.prospects.ProspectSuppressionController;
 import fr.afpa.jakartaee_cyril1.prospects.ProspectViewController;
+
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +21,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * FrontController centralisant l'ensemble des requêtes de l'application.
@@ -44,18 +47,15 @@ import java.util.Map;
 @WebServlet(name = "FrontController", value = "/FrontController")
 public class FrontController extends HttpServlet {
 
+    private static final Logger LOG = Logger.getLogger(FrontController.class.getName());
+
     /** Map associant une commande (clé) à son contrôleur (valeur). */
     private Map<String, ICommand> commands = new HashMap<>();
 
-    /**
-     * Initialise la liste des commandes disponibles dans l'application.
-     *
-     * <p>Cette méthode est appelée automatiquement au démarrage du servlet.
-     * Elle enregistre toutes les commandes (clients, prospects, login, etc.)
-     * dans la map {@code commands}.</p>
-     */
     @Override
     public void init() {
+
+        LOG.info("Initialisation du FrontController…");
 
         // Accueil
         commands.put(null, new PageAccueilController());
@@ -76,47 +76,47 @@ public class FrontController extends HttpServlet {
         // Login / Logout
         commands.put("login",                new LoginController());
         commands.put("logout",               new LogoutController());
+
+        LOG.info("FrontController initialisé avec " + commands.size() + " commandes.");
     }
 
-    /**
-     * Traite une requête HTTP (GET ou POST) en exécutant la commande appropriée.
-     *
-     * <p>Le paramètre {@code cmd} est récupéré dans la requête. Il permet
-     * d'identifier la commande à exécuter. Si une erreur survient ou si la
-     * commande n'existe pas, l'utilisateur est redirigé vers une page d'erreur.</p>
-     *
-     * @param request  la requête HTTP reçue
-     * @param response la réponse HTTP à envoyer
-     * @throws IOException en cas d'erreur d'entrée/sortie
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
         String urlSuite = "";
+
         try {
             String cmd = request.getParameter("cmd");
+            LOG.info("Commande reçue : " + cmd);
+
             ICommand com = commands.get(cmd);
-            urlSuite = com.execute(request, response);
+
+            if (com == null) {
+                LOG.warning("Commande inconnue : " + cmd);
+                urlSuite = "/WEB-INF/jsp/erreur.jsp";
+            } else {
+                LOG.info("Exécution du contrôleur : " + com.getClass().getSimpleName());
+                urlSuite = com.execute(request, response);
+            }
+
         } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Erreur dans le FrontController", e);
             urlSuite = "/WEB-INF/jsp/erreur.jsp";
+
         } finally {
             try {
+                LOG.info("Forward vers : " + urlSuite);
                 request.getRequestDispatcher(urlSuite).forward(request, response);
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.log(Level.SEVERE, "Erreur lors du forward", e);
             }
         }
     }
 
-    /**
-     * Gère les requêtes HTTP GET en les déléguant à {@link #processRequest}.
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Gère les requêtes HTTP POST en les déléguant à {@link #processRequest}.
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         processRequest(request, response);
