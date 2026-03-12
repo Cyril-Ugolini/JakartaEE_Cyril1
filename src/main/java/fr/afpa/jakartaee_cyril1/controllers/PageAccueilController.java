@@ -30,6 +30,6 @@ public class PageAccueilController implements ICommand {
      */
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return "/WEB-INF/jsp/accueil.jsp";
+        return "/WEB-INF/jsp/Accueil.jsp";
     }
 }

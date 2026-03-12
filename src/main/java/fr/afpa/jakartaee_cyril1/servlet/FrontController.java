@@ -8,6 +8,7 @@ import fr.afpa.jakartaee_cyril1.clients.ClientSuppressionController;
 import fr.afpa.jakartaee_cyril1.clients.ClientViewController;
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import fr.afpa.jakartaee_cyril1.controllers.PageAccueilController;
+import fr.afpa.jakartaee_cyril1.controllers.TemplateController;
 import fr.afpa.jakartaee_cyril1.prospects.ProspectFormController;
 import fr.afpa.jakartaee_cyril1.prospects.ProspectListeController;
 import fr.afpa.jakartaee_cyril1.prospects.ProspectSuppressionController;
@@ -58,8 +59,9 @@ public class FrontController extends HttpServlet {
         LOG.info("Initialisation du FrontController…");
 
         // Accueil
-        commands.put(null, new PageAccueilController());
-        commands.put("accueil", new PageAccueilController());
+        commands.put(null,                 new PageAccueilController());
+        commands.put("accueil",            new PageAccueilController());
+        commands.put("template",           new TemplateController());
 
         // Clients
         commands.put("clientForm",         new ClientFormController());
