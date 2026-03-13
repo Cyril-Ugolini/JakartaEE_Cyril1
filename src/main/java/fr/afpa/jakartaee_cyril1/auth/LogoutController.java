@@ -5,33 +5,30 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Controller chargé de gérer la déconnexion de l'utilisateur.
+ * Contrôleur chargé d'afficher la page de déconnexion.
  *
- * <p>Ce contrôleur est invoqué par le FrontController lorsque la commande
- * {@code cmd=logout} est reçue. Il renvoie simplement la vue JSP confirmant
- * la déconnexion. La suppression de la session ou des attributs associés
- * pourra être ajoutée ultérieurement dans une couche service ou directement
- * dans ce contrôleur selon les besoins de l'application.</p>
+ * <p>Dans cette version (OPTION A), aucune session serveur n'est utilisée :
+ * l'état de connexion est simulé côté client via localStorage.
+ * Ce contrôleur se contente donc d'afficher la page Logout.jsp,
+ * qui demande confirmation et supprime localStorage côté client.</p>
  *
- * <p>Cette page permet d'informer l'utilisateur qu'il a bien été déconnecté
- * et peut proposer un lien de retour vers la page de connexion.</p>
+ * <p>Commande associée : {@code cmd=logout}</p>
  *
- * @author UGOLINI Cyril
- * @version 0.0.1
- * @since 11/03/2026
+ * @author Cyril
+ * @version 1.0
  */
 public class LogoutController implements ICommand {
 
     /**
-     * Exécute la commande et renvoie la page JSP de confirmation de déconnexion.
+     * Renvoie la page de confirmation de déconnexion.
      *
-     * @param request  l'objet {@link HttpServletRequest} contenant les données de la requête HTTP
-     * @param response l'objet {@link HttpServletResponse} permettant de construire la réponse HTTP
-     * @return le chemin de la JSP à afficher : {@code /WEB-INF/jsp/Logout.jsp}
-     * @throws Exception si une erreur survient lors du traitement
+     * @param request  requête HTTP
+     * @param response réponse HTTP
+     * @return chemin de la vue : /WEB-INF/jsp/Logout.jsp
+     * @throws Exception en cas d'erreur interne
      */
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return "WEB-INF/jsp/Logout.jsp";
+        return "/WEB-INF/jsp/auth/Logout.jsp";
     }
 }
