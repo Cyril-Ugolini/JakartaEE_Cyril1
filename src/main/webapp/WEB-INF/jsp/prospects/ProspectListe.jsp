@@ -4,49 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CRM - Liste des prospects</title>
+    <title>CRM – Liste des prospects</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
 </head>
 
-<body>
+<body data-header="full">
 
-<!-- HEADER -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="FrontController">CRM</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="nav">
-            <ul class="navbar-nav">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Clients</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="FrontController?cmd=clientListe">Liste</a></li>
-                        <li><a class="dropdown-item" href="FrontController?cmd=clientForm">Créer</a></li>
-                        <li><a class="dropdown-item" href="FrontController?cmd=clientSuppression">Supprimer</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Prospects</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="FrontController?cmd=prospectListe">Liste</a></li>
-                        <li><a class="dropdown-item" href="FrontController?cmd=prospectForm">Créer</a></li>
-                        <li><a class="dropdown-item" href="FrontController?cmd=prospectSuppression">Supprimer</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<div id="tpl-header"></div>
 
-<!-- LAYOUT -->
-<div class="container mt-4">
-    <div class="row">
+<div class="container-fluid">
+    <div class="row justify-content-center">
 
-        <!-- CONTENU PRINCIPAL -->
-        <main class="col-12 col-md-9">
+        <main class="col-12 col-md-7 p-4">
+
             <h1 class="mb-4">Liste des prospects</h1>
 
             <div class="d-flex justify-content-end mb-3">
@@ -115,27 +86,22 @@
                     </tbody>
                 </table>
             </div>
+
         </main>
 
-        <!-- ASIDE -->
-        <div class="col-md-3 d-none d-md-block">
-            <div class="p-3 border rounded">
-                <h5>Menu rapide</h5>
-                <ul class="list-unstyled">
-                    <li><a href="FrontController?cmd=clientListe">Clients</a></li>
-                    <li><a href="FrontController?cmd=prospectListe">Prospects</a></li>
-                </ul>
-            </div>
-        </div>
+        <div id="tpl-aside" class="col-md-3 d-none d-md-block"></div>
 
     </div>
 </div>
 
-<!-- FOOTER -->
-<footer class="text-center text-muted border-top mt-4 py-3">
-    © 2026 CRM Formation AFPA – Cyril
-</footer>
+<div id="tpl-footer"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const TEMPLATE_URL = "${pageContext.request.contextPath}/FrontController?cmd=template";
+</script>
+<script src="${pageContext.request.contextPath}/assets/js/template.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/validation.js"></script>
+
 </body>
 </html>

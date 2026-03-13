@@ -9,89 +9,55 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
 </head>
 
-<body>
+<body data-header="retour">
 
-<!-- HEADER -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="FrontController">CRM</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="nav">
-            <ul class="navbar-nav">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Clients</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="FrontController?cmd=clientListe">Liste</a></li>
-                        <li><a class="dropdown-item" href="FrontController?cmd=clientForm">Créer</a></li>
-                        <li><a class="dropdown-item" href="FrontController?cmd=clientSuppression">Supprimer</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Prospects</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="FrontController?cmd=prospectListe">Liste</a></li>
-                        <li><a class="dropdown-item" href="FrontController?cmd=prospectForm">Créer</a></li>
-                        <li><a class="dropdown-item" href="FrontController?cmd=prospectSuppression">Supprimer</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<div id="tpl-header"></div>
 
-<!-- LAYOUT -->
-<div class="container py-4">
-    <div class="row">
+<div class="container-fluid">
+    <div class="row justify-content-center">
 
-        <!-- CONTENU PRINCIPAL -->
-        <main class="col-12 col-md-9">
-            <h1 class="mb-4">Fiche prospect</h1>
+        <main class="col-12 col-md-7 p-4">
 
-            <div class="card mb-4">
-                <div class="card-body">
+            <h1 class="mb-4">Fiche client</h1>
 
-                    <h4 class="card-title mb-3">Nom Prénom</h4>
+                <div class="card shadow-sm">
+                    <div class="card-body">
 
-                    <p><strong>Adresse :</strong> </p>
-                    <p><strong>Ville :</strong> </p>
-                    <p><strong>Code postal :</strong> </p>
-                    <p><strong>Téléphone :</strong> </p>
-                    <p><strong>Email :</strong> </p>
-                    <p><strong>Nombre d'employés :</strong> </p>
-                    <p><strong>Chiffre d'affaires :</strong>  €</p>
-                    <p><strong>Intérêt :</strong> </p>
+                        <h4 class="card-title mb-3">
+                            <%= request.getAttribute("nom") %>
+                            <%= request.getAttribute("prenom") %>
+                        </h4>
 
-                    <div class="d-flex justify-content-between mt-4">
-                        <a href="FrontController?cmd=prospectListe" class="btn btn-secondary">Retour</a>
-                        <a href="FrontController?cmd=prospectForm" class="btn btn-warning">Modifier</a>
-                    </div>
+                        <p><strong>Adresse :</strong> <%= request.getAttribute("adresse") %></p>
+                        <p><strong>Ville :</strong> <%= request.getAttribute("ville") %></p>
+                        <p><strong>Code postal :</strong> <%= request.getAttribute("codePostal") %></p>
+                        <p><strong>Téléphone :</strong> <%= request.getAttribute("telephone") %></p>
+                        <p><strong>Email :</strong> <%= request.getAttribute("email") %></p>
+                        <p><strong>Chiffre d'affaires :</strong>
+                            <%= request.getAttribute("chiffreAffaires") != null ? request.getAttribute("chiffreAffaires") : "0" %> €
+                        </p>
 
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="FrontController?cmd=clientListe" class="btn btn-secondary">Retour</a>
+                            <a href="FrontController?cmd=clientForm&mode=modifier&id=<%= request.getAttribute("id") %>"
+                               class="btn btn-warning">Modifier</a>
+                        </div>
+                   </div>
                 </div>
-            </div>
-
         </main>
 
-        <!-- ASIDE -->
-        <div class="col-md-3 d-none d-md-block">
-            <div class="p-3 border rounded">
-                <h5>Menu rapide</h5>
-                <ul class="list-unstyled">
-                    <li><a href="FrontController?cmd=clientListe">Clients</a></li>
-                    <li><a href="FrontController?cmd=prospectListe">Prospects</a></li>
-                </ul>
-            </div>
-        </div>
+        <div id="tpl-aside" class="col-md-3 d-none d-md-block"></div>
 
     </div>
 </div>
 
-<!-- FOOTER -->
-<footer class="text-center text-muted border-top mt-4 py-3">
-    © 2026 CRM Formation AFPA – Cyril
-</footer>
+<div id="tpl-footer"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const TEMPLATE_URL = "${pageContext.request.contextPath}/FrontController?cmd=template";
+</script>
+<script src="${pageContext.request.contextPath}/assets/js/template.js"></script>
+
 </body>
 </html>

@@ -4,28 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CRM – Ajouter / Modifier un prospect</title>
-
-    <!-- Bootstrap -->
+    <title>CRM – Formulaire prospect</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Ton CSS -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
 </head>
 
 <body data-header="retour">
 
-<!-- HEADER dynamique -->
-<header id="header"></header>
+<div id="tpl-header"></div>
 
 <div class="container-fluid">
-    <div class="row">
+    <div class="row justify-content-center">
 
-        <!-- ASIDE dynamique -->
-        <aside id="aside" class="col-md-3 d-none d-md-block"></aside>
-
-        <!-- CONTENU PRINCIPAL -->
-        <main class="col-12 col-md-9 p-4" role="main">
+        <main class="col-12 col-md-7 p-4">
 
             <h1 class="mb-4">
                 <%= request.getAttribute("mode") != null && request.getAttribute("mode").equals("modifier")
@@ -36,7 +27,6 @@
             <form class="row g-3" method="post" action="FrontController" novalidate>
                 <input type="hidden" name="cmd" value="prospectForm">
 
-                <!-- NOM -->
                 <div class="col-md-6">
                     <label for="prospect-nom" class="form-label">Nom <span class="text-danger">*</span></label>
                     <input type="text" id="prospect-nom" name="nom" class="form-control"
@@ -45,7 +35,6 @@
                     <div class="invalid-feedback">Le nom est obligatoire.</div>
                 </div>
 
-                <!-- PRENOM -->
                 <div class="col-md-6">
                     <label for="prospect-prenom" class="form-label">Prénom <span class="text-danger">*</span></label>
                     <input type="text" id="prospect-prenom" name="prenom" class="form-control"
@@ -54,7 +43,6 @@
                     <div class="invalid-feedback">Le prénom est obligatoire.</div>
                 </div>
 
-                <!-- ADRESSE -->
                 <div class="col-md-6">
                     <label for="prospect-adresse" class="form-label">Adresse <span class="text-danger">*</span></label>
                     <input type="text" id="prospect-adresse" name="adresse" class="form-control"
@@ -63,7 +51,6 @@
                     <div class="invalid-feedback">L'adresse est obligatoire.</div>
                 </div>
 
-                <!-- VILLE -->
                 <div class="col-md-6">
                     <label for="prospect-ville" class="form-label">Ville <span class="text-danger">*</span></label>
                     <input type="text" id="prospect-ville" name="ville" class="form-control"
@@ -72,7 +59,6 @@
                     <div class="invalid-feedback">La ville est obligatoire.</div>
                 </div>
 
-                <!-- CODE POSTAL -->
                 <div class="col-md-6">
                     <label for="prospect-cp" class="form-label">Code postal <span class="text-danger">*</span></label>
                     <input type="text" id="prospect-cp" name="codePostal" class="form-control"
@@ -81,7 +67,6 @@
                     <div class="invalid-feedback">Le code postal doit contenir 5 chiffres.</div>
                 </div>
 
-                <!-- TELEPHONE -->
                 <div class="col-md-6">
                     <label for="prospect-tel" class="form-label">Téléphone <span class="text-danger">*</span></label>
                     <input type="tel" id="prospect-tel" name="telephone" class="form-control"
@@ -90,7 +75,6 @@
                     <div class="invalid-feedback">Format téléphone invalide.</div>
                 </div>
 
-                <!-- EMAIL -->
                 <div class="col-md-6">
                     <label for="prospect-email" class="form-label">Email <span class="text-danger">*</span></label>
                     <input type="email" id="prospect-email" name="email" class="form-control"
@@ -99,7 +83,6 @@
                     <div class="invalid-feedback">Adresse email invalide.</div>
                 </div>
 
-                <!-- NB EMPLOYÉS -->
                 <div class="col-md-6">
                     <label for="prospect-nb-employes" class="form-label">Nombre d'employés</label>
                     <input type="number" id="prospect-nb-employes" name="nbEmployes" class="form-control"
@@ -108,7 +91,6 @@
                     <div class="invalid-feedback">Le nombre d'employés ne peut pas être négatif.</div>
                 </div>
 
-                <!-- CA -->
                 <div class="col-md-6">
                     <label for="prospect-ca" class="form-label">Chiffre d'affaires (€)</label>
                     <input type="number" id="prospect-ca" name="chiffreAffaires" class="form-control"
@@ -117,7 +99,6 @@
                     <div class="invalid-feedback">Le CA ne peut pas être négatif.</div>
                 </div>
 
-                <!-- INTERET -->
                 <div class="col-md-6">
                     <label for="prospect-interesse" class="form-label">Intérêt <span class="text-danger">*</span></label>
                     <select id="prospect-interesse" name="interesse" class="form-select" required>
@@ -138,21 +119,20 @@
             </form>
 
         </main>
+
+        <div id="tpl-aside" class="col-md-3 d-none d-md-block"></div>
+
     </div>
 </div>
 
-<!-- FOOTER dynamique -->
-<footer id="footer"></footer>
+<div id="tpl-footer"></div>
 
-<!-- URL du template -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const TEMPLATE_URL = "${pageContext.request.contextPath}/FrontController?cmd=template";
 </script>
-
-<!-- Scripts -->
 <script src="${pageContext.request.contextPath}/assets/js/template.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/validation.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
