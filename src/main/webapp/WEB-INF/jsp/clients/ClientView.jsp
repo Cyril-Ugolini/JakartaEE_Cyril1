@@ -60,6 +60,6 @@
     const TEMPLATE_URL = "${pageContext.request.contextPath}/FrontController?cmd=template";
 </script>
 <script src="${pageContext.request.contextPath}/assets/js/template.js"></script>
-
+<script src="${pageContext.request.contextPath}/assets/js/validation.js"></script>
 </body>
 </html>
