@@ -3,6 +3,7 @@ package fr.afpa.jakartaee_cyril1.prospects;
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.logging.Logger;
 
 /**
  * Contrôleur chargé d'afficher la page de suppression d'un prospect.
@@ -15,6 +16,10 @@ import jakarta.servlet.http.HttpServletResponse;
  * @version 1.0
  */
 public final class ProspectSuppressionController implements ICommand {
+
+    /** Logger du ProspectSuppressionController. */
+    private static final Logger LOG =
+            Logger.getLogger(ProspectSuppressionController.class.getName());
 
     /**
      * Exécute la commande et renvoie la page de suppression.
@@ -30,6 +35,13 @@ public final class ProspectSuppressionController implements ICommand {
     public String execute(
             final HttpServletRequest request,
             final HttpServletResponse response) throws Exception {
-        return "/WEB-INF/jsp/prospects/ProspectSuppression.jsp";
+        LOG.info("Affichage de la page de suppression d'un prospect.");
+        try {
+            return "/WEB-INF/jsp/prospects/ProspectSuppression.jsp";
+        } catch (Exception e) {
+            LOG.severe("Erreur dans ProspectSuppressionController : "
+                    + e.getMessage());
+            throw e;
+        }
     }
 }

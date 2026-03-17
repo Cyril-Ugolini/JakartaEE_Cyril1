@@ -3,6 +3,7 @@ package fr.afpa.jakartaee_cyril1.prospects;
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.logging.Logger;
 
 /**
  * Contrôleur chargé d'afficher la liste complète des prospects.
@@ -15,6 +16,10 @@ import jakarta.servlet.http.HttpServletResponse;
  * @version 1.0
  */
 public final class ProspectListeController implements ICommand {
+
+    /** Logger du ProspectListeController. */
+    private static final Logger LOG =
+            Logger.getLogger(ProspectListeController.class.getName());
 
     /**
      * Exécute la commande et renvoie la liste des prospects.
@@ -30,6 +35,13 @@ public final class ProspectListeController implements ICommand {
     public String execute(
             final HttpServletRequest request,
             final HttpServletResponse response) throws Exception {
-        return "/WEB-INF/jsp/prospects/ProspectListe.jsp";
+        LOG.info("Affichage de la liste des prospects.");
+        try {
+            return "/WEB-INF/jsp/prospects/ProspectListe.jsp";
+        } catch (Exception e) {
+            LOG.severe("Erreur dans ProspectListeController : "
+                    + e.getMessage());
+            throw e;
+        }
     }
 }

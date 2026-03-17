@@ -3,6 +3,7 @@ package fr.afpa.jakartaee_cyril1.prospects;
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.logging.Logger;
 
 /**
  * Contrôleur chargé d'afficher le formulaire
@@ -16,6 +17,10 @@ import jakarta.servlet.http.HttpServletResponse;
  * @version 1.0
  */
 public final class ProspectFormController implements ICommand {
+
+    /** Logger du ProspectFormController. */
+    private static final Logger LOG =
+            Logger.getLogger(ProspectFormController.class.getName());
 
     /**
      * Exécute la commande et renvoie le formulaire prospect.
@@ -31,6 +36,13 @@ public final class ProspectFormController implements ICommand {
     public String execute(
             final HttpServletRequest request,
             final HttpServletResponse response) throws Exception {
-        return "/WEB-INF/jsp/prospects/ProspectForm.jsp";
+        LOG.info("Affichage du formulaire prospect.");
+        try {
+            return "/WEB-INF/jsp/prospects/ProspectForm.jsp";
+        } catch (Exception e) {
+            LOG.severe("Erreur dans ProspectFormController : "
+                    + e.getMessage());
+            throw e;
+        }
     }
 }

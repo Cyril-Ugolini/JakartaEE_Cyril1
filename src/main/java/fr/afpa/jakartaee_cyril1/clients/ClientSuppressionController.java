@@ -3,6 +3,7 @@ package fr.afpa.jakartaee_cyril1.clients;
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.logging.Logger;
 
 /**
  * Contrôleur chargé d'afficher la page de suppression d'un client.
@@ -15,6 +16,10 @@ import jakarta.servlet.http.HttpServletResponse;
  * @version 1.0
  */
 public final class ClientSuppressionController implements ICommand {
+
+    /** Logger du ClientSuppressionController. */
+    private static final Logger LOG =
+            Logger.getLogger(ClientSuppressionController.class.getName());
 
     /**
      * Exécute la commande et renvoie la page de suppression.
@@ -30,6 +35,13 @@ public final class ClientSuppressionController implements ICommand {
     public String execute(
             final HttpServletRequest request,
             final HttpServletResponse response) throws Exception {
-        return "/WEB-INF/jsp/clients/ClientSuppression.jsp";
+        LOG.info("Affichage de la page de suppression d'un client.");
+        try {
+            return "/WEB-INF/jsp/clients/ClientSuppression.jsp";
+        } catch (Exception e) {
+            LOG.severe("Erreur dans ClientSuppressionController : "
+                    + e.getMessage());
+            throw e;
+        }
     }
 }

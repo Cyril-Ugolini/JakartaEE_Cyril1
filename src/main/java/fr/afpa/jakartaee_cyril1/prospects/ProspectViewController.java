@@ -3,6 +3,7 @@ package fr.afpa.jakartaee_cyril1.prospects;
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.logging.Logger;
 
 /**
  * Contrôleur chargé d'afficher la visualisation détaillée
@@ -18,6 +19,10 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 public final class ProspectViewController implements ICommand {
 
+    /** Logger du ProspectViewController. */
+    private static final Logger LOG =
+            Logger.getLogger(ProspectViewController.class.getName());
+
     /**
      * Exécute la commande et renvoie les détails d'un prospect.
      *
@@ -32,6 +37,13 @@ public final class ProspectViewController implements ICommand {
     public String execute(
             final HttpServletRequest request,
             final HttpServletResponse response) throws Exception {
-        return "/WEB-INF/jsp/prospects/ProspectView.jsp";
+        LOG.info("Affichage des détails d'un prospect.");
+        try {
+            return "/WEB-INF/jsp/prospects/ProspectView.jsp";
+        } catch (Exception e) {
+            LOG.severe("Erreur dans ProspectViewController : "
+                    + e.getMessage());
+            throw e;
+        }
     }
 }

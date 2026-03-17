@@ -3,6 +3,7 @@ package fr.afpa.jakartaee_cyril1.clients;
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.logging.Logger;
 
 /**
  * Contrôleur chargé d'afficher le formulaire
@@ -18,8 +19,12 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 public final class ClientFormController implements ICommand {
 
+    /** Logger du ClientFormController. */
+    private static final Logger LOG =
+            Logger.getLogger(ClientFormController.class.getName());
+
     /**
-     * Exécute la commande et renvoie la page JSP du formulaire client.
+     * Exécute la commande et renvoie le formulaire client.
      *
      * @param request  l'objet {@link HttpServletRequest}
      *                 contenant les données de la requête HTTP
@@ -32,6 +37,13 @@ public final class ClientFormController implements ICommand {
     public String execute(
             final HttpServletRequest request,
             final HttpServletResponse response) throws Exception {
-        return "/WEB-INF/jsp/clients/ClientForm.jsp";
+        LOG.info("Affichage du formulaire client.");
+        try {
+            return "/WEB-INF/jsp/clients/ClientForm.jsp";
+        } catch (Exception e) {
+            LOG.severe("Erreur dans ClientFormController : "
+                    + e.getMessage());
+            throw e;
+        }
     }
 }
