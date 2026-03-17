@@ -7,9 +7,13 @@ import java.time.LocalDate;
  * Représente un prospect dans le CRM.
  *
  * @author Cyril
- * @version 1.0
+ * @version 1.1
  */
 public final class Prospect extends Societe {
+
+    /** Identifiant unique du prospect. */
+    @NotNull(message = "L'identifiant du prospect est obligatoire")
+    private Integer idProspect;
 
     /** Date de prospection. */
     @NotNull(message = "La date de prospection est obligatoire")
@@ -19,52 +23,43 @@ public final class Prospect extends Societe {
     @NotNull(message = "L'état d'intérêt est obligatoire")
     private Interesse interesse;
 
-    /**
-     * Constructeur vide obligatoire pour un JavaBean.
-     */
+    /** Constructeur vide obligatoire pour un JavaBean. */
     public Prospect() {
         // Constructeur vide
     }
 
-    /**
-     * Retourne la date de prospection.
-     * @return dateProspection
-     */
+    // -------------------------
+    // GETTERS / SETTERS
+    // -------------------------
+
+    public Integer getIdProspect() {
+        return idProspect;
+    }
+
+    public void setIdProspect(final Integer pIdProspect) {
+        this.idProspect = pIdProspect;
+    }
+
     public LocalDate getDateProspection() {
         return dateProspection;
     }
 
-    /**
-     * Définit la date de prospection.
-     * @param pDateProspection date de prospection
-     */
     public void setDateProspection(final LocalDate pDateProspection) {
         this.dateProspection = pDateProspection;
     }
 
-    /**
-     * Retourne l'état d'intérêt.
-     * @return interesse
-     */
     public Interesse getInteresse() {
         return interesse;
     }
 
-    /**
-     * Définit l'état d'intérêt.
-     * @param pInteresse état d'intérêt
-     */
     public void setInteresse(final Interesse pInteresse) {
         this.interesse = pInteresse;
     }
 
-    /**
-     * Retourne une représentation textuelle du prospect.
-     * @return chaîne de caractères
-     */
     @Override
     public String toString() {
         return super.toString() + "\n"
+                + "ID Prospect : " + idProspect + "\n"
                 + "Date prospection : " + dateProspection + "\n"
                 + "Intéressé : " + interesse;
     }

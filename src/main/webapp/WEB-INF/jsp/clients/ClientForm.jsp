@@ -1,10 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.util.Set" %>
+<%@ page import="jakarta.validation.ConstraintViolation" %>
+<%@ page import="models.Client" %>
+<%@ page import="models.Adresse" %>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CRM – Formulaire client</title>
+    <title>CRM – Formulaire Client</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
 </head>
@@ -13,91 +17,197 @@
 
 <div id="tpl-header"></div>
 
+<%
+    Client client = (Client) request.getAttribute("client");
+    Set<ConstraintViolation<Client>> errors =
+            (Set<ConstraintViolation<Client>>) request.getAttribute("errors");
+
+    if (client == null) {
+        client = new Client();
+        client.setAdresse(new Adresse());
+    }
+%>
+
 <div class="container-fluid">
     <div class="row justify-content-center">
 
         <main class="col-12 col-md-7 p-4">
-            <%
-                String mode = request.getParameter("mode");
-                boolean isEdit = "modifier".equals(mode);
-            %>
-            <h1 class="mb-4"><%= isEdit ? "Modifier un client" : "Créer un client" %></h1>
 
-            <form class="row g-3" method="post" action="FrontController?cmd=clientForm" novalidate>
-                <input type="hidden" name="id" value="<%= request.getAttribute("id") != null ? request.getAttribute("id") : "" %>">
+            <h1 class="mb-4">Créer / Modifier un client</h1>
 
+            <form class="row g-3" method="post" action="FrontController?cmd=clientForm">
+
+                <!-- ========================= -->
+                <!-- RAISON SOCIALE -->
+                <!-- ========================= -->
                 <div class="col-md-6">
-                    <label for="client-nom" class="form-label">Nom *</label>
-                    <input type="text" id="client-nom" name="nom" class="form-control"
-                           value="<%= request.getAttribute("nom") != null ? request.getAttribute("nom") : "" %>"
-                           required minlength="2" maxlength="100">
-                    <div class="invalid-feedback">Le nom est obligatoire.</div>
+                    <label class="form-label">Raison sociale *</label>
+                    <input type="text" name="raisonSociale" class="form-control"
+                           value="<%= client.getRaisonSociale() != null ? client.getRaisonSociale() : "" %>">
+
+                    <% if (errors != null) {
+                        for (ConstraintViolation<Client> err : errors) {
+                            if ("raisonSociale".equals(err.getPropertyPath().toString())) { %>
+                    <div class="text-danger small"><%= err.getMessage() %></div>
+                    <%      }
+                    }
+                    } %>
                 </div>
 
+                <!-- ========================= -->
+                <!-- TELEPHONE -->
+                <!-- ========================= -->
                 <div class="col-md-6">
-                    <label for="client-prenom" class="form-label">Prénom *</label>
-                    <input type="text" id="client-prenom" name="prenom" class="form-control"
-                           value="<%= request.getAttribute("prenom") != null ? request.getAttribute("prenom") : "" %>"
-                           required minlength="2" maxlength="100">
-                    <div class="invalid-feedback">Le prénom est obligatoire.</div>
+                    <label class="form-label">Téléphone *</label>
+                    <input type="text" name="telephone" class="form-control"
+                           value="<%= client.getTelephone() != null ? client.getTelephone() : "" %>">
+
+                    <% if (errors != null) {
+                        for (ConstraintViolation<Client> err : errors) {
+                            if ("telephone".equals(err.getPropertyPath().toString())) { %>
+                    <div class="text-danger small"><%= err.getMessage() %></div>
+                    <%      }
+                    }
+                    } %>
                 </div>
 
+                <!-- ========================= -->
+                <!-- ADRESSE MAIL -->
+                <!-- ========================= -->
                 <div class="col-md-6">
-                    <label for="client-adresse" class="form-label">Adresse *</label>
-                    <input type="text" id="client-adresse" name="adresse" class="form-control"
-                           value="<%= request.getAttribute("adresse") != null ? request.getAttribute("adresse") : "" %>"
-                           required>
-                    <div class="invalid-feedback">L'adresse est obligatoire.</div>
+                    <label class="form-label">Adresse mail *</label>
+                    <input type="email" name="adresseMail" class="form-control"
+                           value="<%= client.getAdresseMail() != null ? client.getAdresseMail() : "" %>">
+
+                    <% if (errors != null) {
+                        for (ConstraintViolation<Client> err : errors) {
+                            if ("adresseMail".equals(err.getPropertyPath().toString())) { %>
+                    <div class="text-danger small"><%= err.getMessage() %></div>
+                    <%      }
+                    }
+                    } %>
                 </div>
 
+                <!-- ========================= -->
+                <!-- CHIFFRE D'AFFAIRES -->
+                <!-- ========================= -->
                 <div class="col-md-6">
-                    <label for="client-ville" class="form-label">Ville *</label>
-                    <input type="text" id="client-ville" name="ville" class="form-control"
-                           value="<%= request.getAttribute("ville") != null ? request.getAttribute("ville") : "" %>"
-                           required>
-                    <div class="invalid-feedback">La ville est obligatoire.</div>
+                    <label class="form-label">Chiffre d'affaires (€)</label>
+                    <input type="number" name="chiffreAffaires" class="form-control"
+                           value="<%= client.getChiffreAffaires() %>">
+
+                    <% if (errors != null) {
+                        for (ConstraintViolation<Client> err : errors) {
+                            if ("chiffreAffaires".equals(err.getPropertyPath().toString())) { %>
+                    <div class="text-danger small"><%= err.getMessage() %></div>
+                    <%      }
+                    }
+                    } %>
                 </div>
 
+                <!-- ========================= -->
+                <!-- NOMBRE EMPLOYES -->
+                <!-- ========================= -->
                 <div class="col-md-6">
-                    <label for="client-cp" class="form-label">Code postal *</label>
-                    <input type="text" id="client-cp" name="codePostal" class="form-control"
-                           value="<%= request.getAttribute("codePostal") != null ? request.getAttribute("codePostal") : "" %>"
-                           required pattern="[0-9]{5}">
-                    <div class="invalid-feedback">Le code postal doit contenir 5 chiffres.</div>
+                    <label class="form-label">Nombre d'employés</label>
+                    <input type="number" name="nombreEmployes" class="form-control"
+                           value="<%= client.getNombreEmployes() %>">
+
+                    <% if (errors != null) {
+                        for (ConstraintViolation<Client> err : errors) {
+                            if ("nombreEmployes".equals(err.getPropertyPath().toString())) { %>
+                    <div class="text-danger small"><%= err.getMessage() %></div>
+                    <%      }
+                    }
+                    } %>
                 </div>
 
-                <div class="col-md-6">
-                    <label for="client-tel" class="form-label">Téléphone *</label>
-                    <input type="tel" id="client-tel" name="telephone" class="form-control"
-                           value="<%= request.getAttribute("telephone") != null ? request.getAttribute("telephone") : "" %>"
-                           required>
-                    <div class="invalid-feedback">Format téléphone invalide.</div>
+                <!-- ========================= -->
+                <!-- COMMENTAIRES -->
+                <!-- ========================= -->
+                <div class="col-12">
+                    <label class="form-label">Commentaires</label>
+                    <textarea name="commentaires" class="form-control" rows="3"><%= client.getCommentaires() != null ? client.getCommentaires() : "" %></textarea>
                 </div>
 
-                <div class="col-md-6">
-                    <label for="client-email" class="form-label">Email *</label>
-                    <input type="email" id="client-email" name="email" class="form-control"
-                           value="<%= request.getAttribute("email") != null ? request.getAttribute("email") : "" %>"
-                           required>
-                    <div class="invalid-feedback">Adresse email invalide.</div>
+                <!-- ========================= -->
+                <!-- ADRESSE : NUMERO RUE -->
+                <!-- ========================= -->
+                <h3 class="mt-4">Adresse</h3>
+
+                <div class="col-md-4">
+                    <label class="form-label">Numéro de rue *</label>
+                    <input type="text" name="numeroRue" class="form-control"
+                           value="<%= client.getAdresse().getNumeroRue() != null ? client.getAdresse().getNumeroRue() : "" %>">
+
+                    <% if (errors != null) {
+                        for (ConstraintViolation<Client> err : errors) {
+                            if ("adresse.numeroRue".equals(err.getPropertyPath().toString())) { %>
+                    <div class="text-danger small"><%= err.getMessage() %></div>
+                    <%      }
+                    }
+                    } %>
                 </div>
 
-                <div class="col-md-6">
-                    <label for="client-ca" class="form-label">Chiffre d'affaires (€)</label>
-                    <input type="number" id="client-ca" name="chiffreAffaires" class="form-control"
-                           value="<%= request.getAttribute("chiffreAffaires") != null ? request.getAttribute("chiffreAffaires") : "" %>"
-                           min="0">
-                    <div class="invalid-feedback">Le CA ne peut pas être négatif.</div>
+                <!-- ========================= -->
+                <!-- ADRESSE : NOM RUE -->
+                <!-- ========================= -->
+                <div class="col-md-8">
+                    <label class="form-label">Nom de rue *</label>
+                    <input type="text" name="nomRue" class="form-control"
+                           value="<%= client.getAdresse().getNomRue() != null ? client.getAdresse().getNomRue() : "" %>">
+
+                    <% if (errors != null) {
+                        for (ConstraintViolation<Client> err : errors) {
+                            if ("adresse.nomRue".equals(err.getPropertyPath().toString())) { %>
+                    <div class="text-danger small"><%= err.getMessage() %></div>
+                    <%      }
+                    }
+                    } %>
                 </div>
 
-                <p class="text-muted small mt-2"><span class="text-danger">*</span> Champs obligatoires</p>
+                <!-- ========================= -->
+                <!-- CODE POSTAL -->
+                <!-- ========================= -->
+                <div class="col-md-4">
+                    <label class="form-label">Code postal *</label>
+                    <input type="text" name="codePostal" class="form-control"
+                           value="<%= client.getAdresse().getCodePostal() != null ? client.getAdresse().getCodePostal() : "" %>">
 
+                    <% if (errors != null) {
+                        for (ConstraintViolation<Client> err : errors) {
+                            if ("adresse.codePostal".equals(err.getPropertyPath().toString())) { %>
+                    <div class="text-danger small"><%= err.getMessage() %></div>
+                    <%      }
+                    }
+                    } %>
+                </div>
+
+                <!-- ========================= -->
+                <!-- VILLE -->
+                <!-- ========================= -->
+                <div class="col-md-8">
+                    <label class="form-label">Ville *</label>
+                    <input type="text" name="ville" class="form-control"
+                           value="<%= client.getAdresse().getVille() != null ? client.getAdresse().getVille() : "" %>">
+
+                    <% if (errors != null) {
+                        for (ConstraintViolation<Client> err : errors) {
+                            if ("adresse.ville".equals(err.getPropertyPath().toString())) { %>
+                    <div class="text-danger small"><%= err.getMessage() %></div>
+                    <%      }
+                    }
+                    } %>
+                </div>
+
+                <!-- ========================= -->
+                <!-- BOUTONS -->
+                <!-- ========================= -->
                 <div class="col-12 d-flex justify-content-between mt-4">
                     <a href="FrontController?cmd=clientListe" class="btn btn-secondary">Retour</a>
-                    <button type="submit" class="btn btn-success">
-                        <%= isEdit ? "Enregistrer les modifications" : "Créer le client" %>
-                    </button>
+                    <button type="submit" class="btn btn-success">Enregistrer</button>
                 </div>
+
             </form>
         </main>
 
@@ -113,7 +223,6 @@
     const TEMPLATE_URL = "${pageContext.request.contextPath}/FrontController?cmd=template";
 </script>
 <script src="${pageContext.request.contextPath}/assets/js/template.js"></script>
-<script src="${pageContext.request.contextPath}/assets/js/validation.js"></script>
 
 </body>
 </html>

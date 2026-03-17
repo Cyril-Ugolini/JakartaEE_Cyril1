@@ -3,46 +3,103 @@ package fr.afpa.jakartaee_cyril1.prospects;
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+
+import models.Adresse;
+import models.Interesse;
+import models.Prospect;
+
+import java.time.LocalDate;
+import java.util.Set;
 import java.util.logging.Logger;
 
-/**
- * Contrôleur chargé d'afficher le formulaire
- * de création ou de modification d'un prospect.
- *
- * <p>Ce contrôleur est invoqué par le FrontController lorsque
- * la commande {@code cmd=prospectForm} est reçue. Il renvoie
- * la vue JSP contenant le formulaire prospect.</p>
- *
- * @author Cyril
- * @version 1.0
- */
 public final class ProspectFormController implements ICommand {
 
-    /** Logger du ProspectFormController. */
     private static final Logger LOG =
             Logger.getLogger(ProspectFormController.class.getName());
 
-    /**
-     * Exécute la commande et renvoie le formulaire prospect.
-     *
-     * @param request  l'objet {@link HttpServletRequest}
-     *                 contenant les données de la requête HTTP
-     * @param response l'objet {@link HttpServletResponse}
-     *                 permettant de construire la réponse HTTP
-     * @return le chemin de la JSP à afficher
-     * @throws Exception si une erreur survient lors du traitement
-     */
+    private final Validator validator;
+
+    public ProspectFormController() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        this.validator = factory.getValidator();
+    }
+
     @Override
     public String execute(
             final HttpServletRequest request,
             final HttpServletResponse response) throws Exception {
-        LOG.info("Affichage du formulaire prospect.");
-        try {
-            return "/WEB-INF/jsp/prospects/ProspectForm.jsp";
-        } catch (Exception e) {
-            LOG.severe("Erreur dans ProspectFormController : "
-                    + e.getMessage());
-            throw e;
+
+        LOG.info("ProspectFormController exécuté.");
+
+        if ("GET".equalsIgnoreCase(request.getMethod())) {
+            return afficherFormulaire(request);
         }
+
+        return traiterSoumission(request);
+    }
+
+    /**
+     * GET → affiche un prospect vide
+     */
+    private String afficherFormulaire(final HttpServletRequest request) {
+
+        Prospect prospect = new Prospect();
+        prospect.setAdresse(new Adresse()); // IMPORTANT : évite les NPE dans la JSP
+
+        request.setAttribute("prospect", prospect);
+
+        return "/WEB-INF/jsp/prospects/ProspectForm.jsp";
+    }
+
+    /**
+     * POST → traite la soumission + validation
+     */
+    private String traiterSoumission(final HttpServletRequest request) {
+
+        Prospect prospect = new Prospect();
+
+        // Champs hérités de Societe
+        prospect.setRaisonSociale(request.getParameter("raisonSociale"));
+        prospect.setTelephone(request.getParameter("telephone"));
+        prospect.setAdresseMail(request.getParameter("adresseMail"));
+
+        // Adresse
+        Adresse adr = new Adresse();
+        adr.setNumeroRue(request.getParameter("numeroRue"));
+        adr.setNomRue(request.getParameter("nomRue"));
+        adr.setCodePostal(request.getParameter("codePostal"));
+        adr.setVille(request.getParameter("ville"));
+        prospect.setAdresse(adr);
+
+        // Date prospection
+        String dateStr = request.getParameter("dateProspection");
+        if (dateStr != null && !dateStr.isBlank()) {
+            prospect.setDateProspection(LocalDate.parse(dateStr));
+        }
+
+        // Intérêt
+        String inter = request.getParameter("interesse");
+        if (inter != null && !inter.isBlank()) {
+            prospect.setInteresse(Interesse.valueOf(inter));
+        }
+
+        // Validation Jakarta
+        Set<ConstraintViolation<Prospect>> errors =
+                validator.validate(prospect);
+
+        if (!errors.isEmpty()) {
+
+            request.setAttribute("errors", errors);
+            request.setAttribute("prospect", prospect);
+
+            return "/WEB-INF/jsp/prospects/ProspectForm.jsp";
+        }
+
+        return "FrontController?cmd=prospectListe";
     }
 }
