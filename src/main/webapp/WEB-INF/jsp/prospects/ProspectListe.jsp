@@ -38,49 +38,73 @@
                     <tr>
                         <td>Bernard</td><td>Marseille</td><td>06 22 33 44 55</td>
                         <td class="text-end">
-                            <a href="FrontController?cmd=prospectView" class="btn btn-primary btn-sm">Voir</a>
-                            <a href="FrontController?cmd=prospectForm" class="btn btn-warning btn-sm">Modifier</a>
-                            <a href="FrontController?cmd=prospectSuppression" class="btn btn-danger btn-sm">Supprimer</a>
+                            <div class="d-flex flex-column gap-1 align-items-end">
+                                <a href="FrontController?cmd=prospectView" class="btn btn-primary btn-sm w-100">Voir</a>
+                                <div class="d-flex gap-1 w-100">
+                                    <a href="FrontController?cmd=prospectForm" class="btn btn-warning btn-sm flex-fill">Modifier</a>
+                                    <a href="FrontController?cmd=prospectSuppression" class="btn btn-danger btn-sm flex-fill">Supprimer</a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     <tr>
                         <td>Lefèvre</td><td>Bordeaux</td><td>07 55 66 77 88</td>
                         <td class="text-end">
-                            <a href="FrontController?cmd=prospectView" class="btn btn-primary btn-sm">Voir</a>
-                            <a href="FrontController?cmd=prospectForm" class="btn btn-warning btn-sm">Modifier</a>
-                            <a href="FrontController?cmd=prospectSuppression" class="btn btn-danger btn-sm">Supprimer</a>
+                            <div class="d-flex flex-column gap-1 align-items-end">
+                                <a href="FrontController?cmd=prospectView" class="btn btn-primary btn-sm w-100">Voir</a>
+                                <div class="d-flex gap-1 w-100">
+                                    <a href="FrontController?cmd=prospectForm" class="btn btn-warning btn-sm flex-fill">Modifier</a>
+                                    <a href="FrontController?cmd=prospectSuppression" class="btn btn-danger btn-sm flex-fill">Supprimer</a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     <tr>
                         <td>Rousseau</td><td>Lille</td><td>06 33 44 55 66</td>
                         <td class="text-end">
-                            <a href="FrontController?cmd=prospectView" class="btn btn-primary btn-sm">Voir</a>
-                            <a href="FrontController?cmd=prospectForm" class="btn btn-warning btn-sm">Modifier</a>
-                            <a href="FrontController?cmd=prospectSuppression" class="btn btn-danger btn-sm">Supprimer</a>
+                            <div class="d-flex flex-column gap-1 align-items-end">
+                                <a href="FrontController?cmd=prospectView" class="btn btn-primary btn-sm w-100">Voir</a>
+                                <div class="d-flex gap-1 w-100">
+                                    <a href="FrontController?cmd=prospectForm" class="btn btn-warning btn-sm flex-fill">Modifier</a>
+                                    <a href="FrontController?cmd=prospectSuppression" class="btn btn-danger btn-sm flex-fill">Supprimer</a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     <tr>
                         <td>Girard</td><td>Nice</td><td>07 44 55 66 77</td>
                         <td class="text-end">
-                            <a href="FrontController?cmd=prospectView" class="btn btn-primary btn-sm">Voir</a>
-                            <a href="FrontController?cmd=prospectForm" class="btn btn-warning btn-sm">Modifier</a>
-                            <a href="FrontController?cmd=prospectSuppression" class="btn btn-danger btn-sm">Supprimer</a>
+                            <div class="d-flex flex-column gap-1 align-items-end">
+                                <a href="FrontController?cmd=prospectView" class="btn btn-primary btn-sm w-100">Voir</a>
+                                <div class="d-flex gap-1 w-100">
+                                    <a href="FrontController?cmd=prospectForm" class="btn btn-warning btn-sm flex-fill">Modifier</a>
+                                    <a href="FrontController?cmd=prospectSuppression" class="btn btn-danger btn-sm flex-fill">Supprimer</a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     <tr>
                         <td>Fontaine</td><td>Rennes</td><td>06 55 66 77 88</td>
                         <td class="text-end">
-                            <a href="FrontController?cmd=prospectView" class="btn btn-primary btn-sm">Voir</a>
-                            <a href="FrontController?cmd=prospectForm" class="btn btn-warning btn-sm">Modifier</a>
-                            <a href="FrontController?cmd=prospectSuppression" class="btn btn-danger btn-sm">Supprimer</a>
+                            <div class="d-flex flex-column gap-1 align-items-end">
+                                <a href="FrontController?cmd=prospectView" class="btn btn-primary btn-sm w-100">Voir</a>
+                                <div class="d-flex gap-1 w-100">
+                                    <a href="FrontController?cmd=prospectForm" class="btn btn-warning btn-sm flex-fill">Modifier</a>
+                                    <a href="FrontController?cmd=prospectSuppression" class="btn btn-danger btn-sm flex-fill">Supprimer</a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     <tr>
                         <td>Chevalier</td><td>Montpellier</td><td>07 66 77 88 99</td>
                         <td class="text-end">
-                            <a href="FrontController?cmd=prospectView" class="btn btn-primary btn-sm">Voir</a>
-                            <a href="FrontController?cmd=prospectForm" class="btn btn-warning btn-sm">Modifier</a>
-                            <a href="FrontController?cmd=prospectSuppression" class="btn btn-danger btn-sm">Supprimer</a>
+                            <div class="d-flex flex-column gap-1 align-items-end">
+                                <a href="FrontController?cmd=prospectView" class="btn btn-primary btn-sm w-100">Voir</a>
+                                <div class="d-flex gap-1 w-100">
+                                    <a href="FrontController?cmd=prospectForm" class="btn btn-warning btn-sm flex-fill">Modifier</a>
+                                    <a href="FrontController?cmd=prospectSuppression" class="btn btn-danger btn-sm flex-fill">Supprimer</a>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     </tbody>

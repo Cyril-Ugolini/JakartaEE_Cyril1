@@ -28,7 +28,9 @@ public class LoginController implements ICommand {
      * @throws Exception en cas d'erreur interne
      */
     @Override
-    public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public String execute(final HttpServletRequest request,
+                          final HttpServletResponse response) throws Exception
+    {
         return "/WEB-INF/jsp/auth/Login.jsp";
     }
 }

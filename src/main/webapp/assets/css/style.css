@@ -571,9 +571,9 @@ table th, table td {
 }
 
 td.text-end {
-    min-width: 120px;
+    min-width: 140px;
+    width: 140px;
 }
-
 /* ============================================================
    CARDS
 ============================================================ */
@@ -599,8 +599,25 @@ td.text-end {
 .login-page .card {
     width: 100%;
     max-width: 450px;
+    padding: 2rem !important;
 }
 
+.login-page .mb-3 {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.login-page .form-control {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.login-page .btn {
+    display: block !important;
+    width: 100% !important;
+}
 /* ============================================================
    CARTE LEAFLET
 ============================================================ */
@@ -706,7 +723,17 @@ footer li {
         padding: 2px 6px;
     }
 
-    td.text-end { min-width: 80px; }
+    .table thead tr th:nth-child(2),
+    .table thead tr th:nth-child(3),
+    .table tbody tr td:nth-child(2),
+    .table tbody tr td:nth-child(3) {
+        display: none;
+    }
+
+    td.text-end {
+        min-width: 120px;
+        width: 120px;
+    }
 
     #carte { height: 220px; }
 

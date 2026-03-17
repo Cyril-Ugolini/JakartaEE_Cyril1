@@ -28,7 +28,9 @@ public class ProspectViewController implements ICommand {
      * @throws Exception si une erreur survient lors du traitement
      */
     @Override
-    public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public String execute(final HttpServletRequest request,
+                          final HttpServletResponse response) throws Exception
+    {
         return "WEB-INF/jsp/prospects/ProspectView.jsp";
     }
 }

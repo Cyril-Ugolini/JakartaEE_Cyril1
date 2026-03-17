@@ -27,5 +27,6 @@ public interface ICommand {
      * @return le chemin de la JSP à afficher (souvent sous {@code /WEB-INF/...})
      * @throws Exception si une erreur survient lors de l'exécution de la commande
      */
-    String execute(HttpServletRequest request, HttpServletResponse response) throws Exception;
+    String execute(final HttpServletRequest request,
+                   final HttpServletResponse response) throws Exception;
 }

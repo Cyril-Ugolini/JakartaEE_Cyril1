@@ -82,7 +82,9 @@ public class FrontController extends HttpServlet {
         LOG.info("FrontController initialisé avec " + commands.size() + " commandes.");
     }
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void processRequest(final HttpServletRequest request,
+                                  final HttpServletResponse response) throws IOException
+    {
 
         String urlSuite = "";
 
@@ -115,12 +117,16 @@ public class FrontController extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void doGet(final HttpServletRequest request,
+                         final HttpServletResponse response) throws IOException
+    {
         processRequest(request, response);
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void doPost(final HttpServletRequest request,
+                          final HttpServletResponse response) throws IOException
+    {
         processRequest(request, response);
     }
 }
