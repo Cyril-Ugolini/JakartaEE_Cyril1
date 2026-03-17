@@ -24,15 +24,17 @@ public class ProspectSuppressionController implements ICommand {
     /**
      * Exécute la commande et renvoie la page JSP de suppression d'un prospect.
      *
-     * @param request  l'objet {@link HttpServletRequest} contenant les informations de la requête HTTP
-     * @param response l'objet {@link HttpServletResponse} permettant de construire la réponse HTTP
-     * @return le chemin de la JSP à afficher : {@code /WEB-INF/jsp/prospects/ProspectSuppression.jsp}
+     * @param request  l'objet {@link HttpServletRequest}
+     *                 contenant les informations de la requête HTTP
+     * @param response l'objet {@link HttpServletResponse}
+     *                 permettant de construire la réponse HTTP
+     * @return le chemin de la JSP à afficher :
+     * {@code /WEB-INF/jsp/prospects/ProspectSuppression.jsp}
      * @throws Exception si une erreur survient lors du traitement
      */
     @Override
     public String execute(final HttpServletRequest request,
-                          final HttpServletResponse response) throws Exception
-    {
+                          final HttpServletResponse response) throws Exception {
         return "WEB-INF/jsp/prospects/ProspectSuppression.jsp";
     }
 }

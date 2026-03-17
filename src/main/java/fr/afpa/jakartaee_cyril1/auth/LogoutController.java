@@ -29,8 +29,7 @@ public class LogoutController implements ICommand {
      */
     @Override
     public String execute(final HttpServletRequest request,
-                          final HttpServletResponse response) throws Exception
-    {
+                          final HttpServletResponse response) throws Exception {
         return "/WEB-INF/jsp/auth/Logout.jsp";
     }
 }
