@@ -5,36 +5,31 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Controller chargé d'afficher la page de suppression d'un prospect.
+ * Contrôleur chargé d'afficher la page de suppression d'un prospect.
  *
- * <p>Ce contrôleur est invoqué par le FrontController lorsque la commande
- * {@code cmd=prospectSuppression} est reçue. Il renvoie simplement la vue JSP
- * permettant à l'utilisateur de sélectionner ou confirmer la suppression
- * d'un prospect.</p>
+ * <p>Ce contrôleur est invoqué par le FrontController lorsque
+ * la commande {@code cmd=prospectSuppression} est reçue. Il
+ * renvoie la vue JSP de confirmation de suppression.</p>
  *
- * <p>Aucun traitement métier n'est effectué ici. La logique de suppression
- * pourra être ajoutée ultérieurement dans un contrôleur dédié ou dans une
- * couche service/DAO.</p>
- *
- * @version 1.0
  * @author Cyril
+ * @version 1.0
  */
-public class ProspectSuppressionController implements ICommand {
+public final class ProspectSuppressionController implements ICommand {
 
     /**
-     * Exécute la commande et renvoie la page JSP de suppression d'un prospect.
+     * Exécute la commande et renvoie la page de suppression.
      *
      * @param request  l'objet {@link HttpServletRequest}
      *                 contenant les informations de la requête HTTP
      * @param response l'objet {@link HttpServletResponse}
      *                 permettant de construire la réponse HTTP
-     * @return le chemin de la JSP à afficher :
-     * {@code /WEB-INF/jsp/prospects/ProspectSuppression.jsp}
+     * @return le chemin de la JSP à afficher
      * @throws Exception si une erreur survient lors du traitement
      */
     @Override
-    public String execute(final HttpServletRequest request,
-                          final HttpServletResponse response) throws Exception {
-        return "WEB-INF/jsp/prospects/ProspectSuppression.jsp";
+    public String execute(
+            final HttpServletRequest request,
+            final HttpServletResponse response) throws Exception {
+        return "/WEB-INF/jsp/prospects/ProspectSuppression.jsp";
     }
 }
