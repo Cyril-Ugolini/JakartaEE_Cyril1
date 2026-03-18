@@ -12,18 +12,27 @@ import jakarta.validation.constraints.NotNull;
 public final class Client extends Societe {
 
     /** Identifiant unique du client. */
-    @NotNull
+    @NotNull(message = "L'identifiant du client est obligatoire")
     private Integer idClient;
 
-    /** Chiffre d'affaires minimum. */
+    /** Chiffre d'affaires minimum autorisé. */
     private static final int MIN_CHIFFRE_AFFAIRES = 200;
 
     /** Chiffre d'affaires du client. */
-    @Min(MIN_CHIFFRE_AFFAIRES)
+    @Min(
+            value = MIN_CHIFFRE_AFFAIRES,
+
+            message = "Le chiffre d'affaires doit être"
+                    + " supérieur à 200 €"
+    )
     private long chiffreAffaires;
 
     /** Nombre d'employés du client. */
-    @Min(1)
+    @Min(
+            value = 1,
+            message = "Le nombre d'employés doit être"
+                    + " supérieur à 0"
+    )
     private int nombreEmployes;
 
     /**
