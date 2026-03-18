@@ -19,7 +19,7 @@
 
     <dependencies>
 
-        <!-- API Servlet Jakarta -->
+        <!-- Jakarta Servlet API (Tomcat fournit l'implémentation) -->
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
@@ -27,7 +27,28 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- JUnit -->
+        <!-- Jakarta Bean Validation API -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+
+        <!-- Hibernate Validator (implémentation officielle Jakarta EE 9/10) -->
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>7.0.5.Final</version>
+        </dependency>
+
+        <!-- Expression Language (obligatoire pour Hibernate Validator) -->
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>jakarta.el</artifactId>
+            <version>4.0.2</version>
+        </dependency>
+
+        <!-- JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -42,32 +63,11 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Checkstyle -->
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
             <version>3.1.2</version>
-        </dependency>
-
-        <!-- Source: https://mvnrepository.com/artifact/org.hibernate/hibernate-validator -->
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>7.0.5.Final</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- Source: https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>7.0.5.Final</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>jakarta.el</artifactId>
-            <version>4.0.2</version>
         </dependency>
 
     </dependencies>
@@ -76,7 +76,7 @@
 
         <plugins>
 
-            <!-- Plugin WAR : copie correctement src/main/webapp -->
+            <!-- Plugin WAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -85,7 +85,6 @@
                     <warSourceDirectory>src/main/webapp</warSourceDirectory>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
 
-                    <!-- Copie TOUT le contenu de webapp dans le WAR -->
                     <webResources>
                         <resource>
                             <directory>src/main/webapp</directory>
@@ -98,7 +97,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Cargo (tu le gardes) -->
+            <!-- Cargo : déploiement Tomcat 10 -->
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-maven3-plugin</artifactId>

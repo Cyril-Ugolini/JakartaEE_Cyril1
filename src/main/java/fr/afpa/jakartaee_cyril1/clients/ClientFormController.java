@@ -119,7 +119,6 @@ public final class ClientFormController implements ICommand {
 
         LOG.info("Traitement du formulaire client (POST).");
 
-        // 1. Reconstruction du bean Client
         Client client = new Client();
 
         client.setIdClient(parseInt(request.getParameter("idClient")));
