@@ -28,6 +28,6 @@ public final class MentionsLegalesController implements ICommand {
             final HttpServletRequest request,
             final HttpServletResponse response) {
         LOG.info("Affichage des mentions légales.");
-        return "/WEB-INF/jsp/mentionsLegales.jsp";
+        return "/WEB-INF/jsp/MentionsLegales.jsp";
     }
 }

@@ -52,31 +52,33 @@ public class FrontController extends HttpServlet {
     public void init() {
         LOG.info("Initialisation du FrontController…");
 
-        commands.put(null,                new PageAccueilController());
-        commands.put("accueil",           new PageAccueilController());
-        commands.put("template",          new TemplateController());
-        commands.put("clientForm",        new ClientFormController());
-        commands.put("clientView",        new ClientViewController());
-        commands.put("clientListe",       new ClientListeController());
-        commands.put("clientSuppression", new ClientSuppressionController());
-        commands.put("prospectForm",      new ProspectFormController());
-        commands.put("prospectView",      new ProspectViewController());
-        commands.put("prospectListe",     new ProspectListeController());
-        commands.put("prospectSuppression",
-                new ProspectSuppressionController()
-        );
-        commands.put("login",  new LoginController());
-        commands.put("logout", new LogoutController());
+        commands.put(null,                  new PageAccueilController());
+        commands.put("accueil",             new PageAccueilController());
+        commands.put("template",            new TemplateController());
+        commands.put("clientForm",          new ClientFormController());
+        commands.put("clientView",          new ClientViewController());
+        commands.put("clientListe",         new ClientListeController());
+        commands.put("clientSuppression",   new ClientSuppressionController());
+        commands.put("prospectForm",        new ProspectFormController());
+        commands.put("prospectView",        new ProspectViewController());
+        commands.put("prospectListe",       new ProspectListeController());
+        commands.put("prospectSuppression", new ProspectSuppressionController());
+        commands.put("login",               new LoginController());
+        commands.put("logout",              new LogoutController());
+        commands.put("mentionsLegales",     new MentionsLegalesController());
+        commands.put("confidentialite",     new PolitiqueConfidentialiteController());
 
-        LOG.info(
-                "FrontController initialisé avec "
-                        + commands.size() + " commandes."
-        );
-        commands.put("mentionsLegales",
-                new MentionsLegalesController());
-        commands.put("politiqueConfidentialite",
-                new PolitiqueConfidentialiteController()
-        );
+        LOG.info("FrontController initialisé avec "
+                + commands.size() + " commandes.");
+    }
+
+    /**
+     * Libère les ressources lors de la destruction du servlet.
+     */
+    @Override
+    public void destroy() {
+        LOG.info("Destruction du FrontController.");
+        commands.clear();
     }
 
     /**
@@ -97,10 +99,7 @@ public class FrontController extends HttpServlet {
                 LOG.warning("Commande inconnue : " + cmd);
                 urlSuite = "/WEB-INF/jsp/erreur.jsp";
             } else {
-                LOG.info(
-                        "Exécution : "
-                                + com.getClass().getSimpleName()
-                );
+                LOG.info("Exécution : " + com.getClass().getSimpleName());
                 urlSuite = com.execute(request, response);
             }
         } catch (Exception e) {

@@ -28,6 +28,6 @@ public final class PolitiqueConfidentialiteController implements ICommand {
             final HttpServletRequest request,
             final HttpServletResponse response) {
         LOG.info("Affichage de la politique de confidentialité.");
-        return "/WEB-INF/jsp/politiqueConfidentialite.jsp";
+        return "/WEB-INF/jsp/PolitiqueConfidentialite.jsp";
     }
 }

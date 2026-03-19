@@ -1,15 +1,18 @@
 package fr.afpa.jakartaee_cyril1.DAO;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.logging.Logger;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 /**
  * Gestionnaire de connexion à la base de données MySQL.
  *
- * <p>Implémente le pattern Singleton pour garantir
- * une seule instance de connexion.</p>
+ * <p>Utilise une DataSource JNDI configurée dans Tomcat
+ * pour obtenir les connexions depuis un pool.</p>
  *
  * @author Cyril
  * @version 1.0
@@ -20,17 +23,9 @@ public final class ConnexionManager {
     private static final Logger LOG =
             Logger.getLogger(ConnexionManager.class.getName());
 
-    /** URL de connexion à la base de données. */
-    private static final String URL =
-            "jdbc:mysql://localhost:3306/clients_prospects"
-                    + "?useSSL=false&serverTimezone=Europe/Paris"
-                    + "&characterEncoding=UTF-8";
-
-    /** Utilisateur de la base de données. */
-    private static final String USER = "root";
-
-    /** Mot de passe de la base de données. */
-    private static final String PASSWORD = "";
+    /** Nom JNDI de la DataSource. */
+    private static final String JNDI_NAME =
+            "java:comp/env/jdbc/clientsProspects";
 
     /** Instance unique du ConnexionManager. */
     private static ConnexionManager instance;
@@ -39,19 +34,21 @@ public final class ConnexionManager {
     private Connection connection;
 
     /**
-     * Constructeur privé — initialise la connexion.
+     * Constructeur privé — obtient une connexion via la DataSource JNDI.
      *
      * @throws SQLException en cas d'erreur de connexion
      */
     private ConnexionManager() throws SQLException {
-        LOG.info("Connexion à la base de données...");
+        LOG.info("Connexion via DataSource JNDI...");
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            Context initCtx = new InitialContext();
+            Context envCtx = (Context) initCtx.lookup("java:comp/env");
+            DataSource ds = (DataSource) envCtx.lookup("jdbc/clientsProspects");
+            this.connection = ds.getConnection();
             LOG.info("Connexion établie avec succès.");
-        } catch (ClassNotFoundException e) {
-            LOG.severe("Driver MySQL introuvable : " + e.getMessage());
-            throw new SQLException("Driver MySQL introuvable", e);
+        } catch (NamingException e) {
+            LOG.severe("Erreur JNDI : " + e.getMessage());
+            throw new SQLException("Erreur DataSource JNDI", e);
         } catch (SQLException e) {
             LOG.severe("ERREUR CONNEXION : " + e.getMessage());
             throw e;
