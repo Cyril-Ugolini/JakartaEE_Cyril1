@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const params = new URLSearchParams(window.location.search);
     const mode = params.get('mode');
+    const cmd = params.get('cmd');
 
     if (pagesProtegees.includes(pageCourante) && !isLoggedIn) {
         window.location.href = "FrontController?cmd=login";
@@ -19,6 +20,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if ((mode === 'modifier' || mode === 'supprimer') && !isLoggedIn) {
+        window.location.href = "FrontController?cmd=login";
+        return;
+    }
+
+    if ((cmd === 'clientSuppression' || cmd === 'prospectSuppression') && !isLoggedIn) {
+        window.location.href = "FrontController?cmd=login";
+        return;
+    }
+
+    if ((cmd === 'clientForm' || cmd === 'prospectForm') && !isLoggedIn) {
         window.location.href = "FrontController?cmd=login";
         return;
     }

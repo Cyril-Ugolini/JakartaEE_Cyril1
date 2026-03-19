@@ -22,7 +22,7 @@ public final class ConnexionManager {
 
     /** URL de connexion à la base de données. */
     private static final String URL =
-            "jdbc:mysql://127.0.0.1:3306/clients_prospects"
+            "jdbc:mysql://localhost:3306/clients_prospects"
                     + "?useSSL=false&serverTimezone=Europe/Paris"
                     + "&characterEncoding=UTF-8";
 
@@ -45,10 +45,17 @@ public final class ConnexionManager {
      */
     private ConnexionManager() throws SQLException {
         LOG.info("Connexion à la base de données...");
-        this.connection = DriverManager.getConnection(
-                URL, USER, PASSWORD
-        );
-        LOG.info("Connexion établie avec succès.");
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            LOG.info("Connexion établie avec succès.");
+        } catch (ClassNotFoundException e) {
+            LOG.severe("Driver MySQL introuvable : " + e.getMessage());
+            throw new SQLException("Driver MySQL introuvable", e);
+        } catch (SQLException e) {
+            LOG.severe("ERREUR CONNEXION : " + e.getMessage());
+            throw e;
+        }
     }
 
     /**

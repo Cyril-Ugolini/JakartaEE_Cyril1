@@ -1,8 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.Set" %>
-<%@ page import="jakarta.validation.ConstraintViolation" %>
-<%@ page import="models.Client" %>
-<%@ page import="models.Adresse" %>
+<%@ include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -17,17 +14,6 @@
 
 <div id="tpl-header"></div>
 
-<%
-    Client client = (Client) request.getAttribute("client");
-    Set<ConstraintViolation<Client>> errors =
-            (Set<ConstraintViolation<Client>>) request.getAttribute("errors");
-
-    if (client == null) {
-        client = new Client();
-        client.setAdresse(new Adresse());
-    }
-%>
-
 <div class="container-fluid">
     <div class="row justify-content-center">
 
@@ -37,21 +23,24 @@
 
             <form class="row g-3" method="post" action="FrontController?cmd=clientForm">
 
+                <!-- ID CLIENT (caché si modification) -->
+                <c:if test="${not empty client.idClient}">
+                    <input type="hidden" name="idClient" value="${client.idClient}">
+                </c:if>
+
                 <!-- ========================= -->
                 <!-- RAISON SOCIALE -->
                 <!-- ========================= -->
                 <div class="col-md-6">
                     <label class="form-label">Raison sociale *</label>
                     <input type="text" name="raisonSociale" class="form-control"
-                           value="<%= client.getRaisonSociale() != null ? client.getRaisonSociale() : "" %>">
+                           value="${client.raisonSociale}"/>
 
-                    <% if (errors != null) {
-                        for (ConstraintViolation<Client> err : errors) {
-                            if ("raisonSociale".equals(err.getPropertyPath().toString())) { %>
-                    <div class="text-danger small"><%= err.getMessage() %></div>
-                    <%      }
-                    }
-                    } %>
+                    <c:forEach var="err" items="${errors}">
+                        <c:if test="${err.propertyPath == 'raisonSociale'}">
+                            <div class="text-danger small">${err.message}</div>
+                        </c:if>
+                    </c:forEach>
                 </div>
 
                 <!-- ========================= -->
@@ -60,15 +49,13 @@
                 <div class="col-md-6">
                     <label class="form-label">Téléphone *</label>
                     <input type="text" name="telephone" class="form-control"
-                           value="<%= client.getTelephone() != null ? client.getTelephone() : "" %>">
+                           value="${client.telephone}"/>
 
-                    <% if (errors != null) {
-                        for (ConstraintViolation<Client> err : errors) {
-                            if ("telephone".equals(err.getPropertyPath().toString())) { %>
-                    <div class="text-danger small"><%= err.getMessage() %></div>
-                    <%      }
-                    }
-                    } %>
+                    <c:forEach var="err" items="${errors}">
+                        <c:if test="${err.propertyPath == 'telephone'}">
+                            <div class="text-danger small">${err.message}</div>
+                        </c:if>
+                    </c:forEach>
                 </div>
 
                 <!-- ========================= -->
@@ -77,15 +64,13 @@
                 <div class="col-md-6">
                     <label class="form-label">Adresse mail *</label>
                     <input type="email" name="adresseMail" class="form-control"
-                           value="<%= client.getAdresseMail() != null ? client.getAdresseMail() : "" %>">
+                           value="${client.adresseMail}"/>
 
-                    <% if (errors != null) {
-                        for (ConstraintViolation<Client> err : errors) {
-                            if ("adresseMail".equals(err.getPropertyPath().toString())) { %>
-                    <div class="text-danger small"><%= err.getMessage() %></div>
-                    <%      }
-                    }
-                    } %>
+                    <c:forEach var="err" items="${errors}">
+                        <c:if test="${err.propertyPath == 'adresseMail'}">
+                            <div class="text-danger small">${err.message}</div>
+                        </c:if>
+                    </c:forEach>
                 </div>
 
                 <!-- ========================= -->
@@ -94,15 +79,13 @@
                 <div class="col-md-6">
                     <label class="form-label">Chiffre d'affaires (€)</label>
                     <input type="number" name="chiffreAffaires" class="form-control"
-                           value="<%= client.getChiffreAffaires() %>">
+                           value="${client.chiffreAffaires}"/>
 
-                    <% if (errors != null) {
-                        for (ConstraintViolation<Client> err : errors) {
-                            if ("chiffreAffaires".equals(err.getPropertyPath().toString())) { %>
-                    <div class="text-danger small"><%= err.getMessage() %></div>
-                    <%      }
-                    }
-                    } %>
+                    <c:forEach var="err" items="${errors}">
+                        <c:if test="${err.propertyPath == 'chiffreAffaires'}">
+                            <div class="text-danger small">${err.message}</div>
+                        </c:if>
+                    </c:forEach>
                 </div>
 
                 <!-- ========================= -->
@@ -111,15 +94,13 @@
                 <div class="col-md-6">
                     <label class="form-label">Nombre d'employés</label>
                     <input type="number" name="nombreEmployes" class="form-control"
-                           value="<%= client.getNombreEmployes() %>">
+                           value="${client.nombreEmployes}"/>
 
-                    <% if (errors != null) {
-                        for (ConstraintViolation<Client> err : errors) {
-                            if ("nombreEmployes".equals(err.getPropertyPath().toString())) { %>
-                    <div class="text-danger small"><%= err.getMessage() %></div>
-                    <%      }
-                    }
-                    } %>
+                    <c:forEach var="err" items="${errors}">
+                        <c:if test="${err.propertyPath == 'nombreEmployes'}">
+                            <div class="text-danger small">${err.message}</div>
+                        </c:if>
+                    </c:forEach>
                 </div>
 
                 <!-- ========================= -->
@@ -127,77 +108,65 @@
                 <!-- ========================= -->
                 <div class="col-12">
                     <label class="form-label">Commentaires</label>
-                    <textarea name="commentaires" class="form-control" rows="3"><%= client.getCommentaires() != null ? client.getCommentaires() : "" %></textarea>
+                    <textarea name="commentaires" class="form-control" rows="3">${client.commentaires}</textarea>
                 </div>
 
                 <!-- ========================= -->
-                <!-- ADRESSE : NUMERO RUE -->
+                <!-- ADRESSE -->
                 <!-- ========================= -->
                 <h3 class="mt-4">Adresse</h3>
+
+                <!-- ID ADRESSE (si modification) -->
+                <c:if test="${not empty client.adresse.idAdresse}">
+                    <input type="hidden" name="idAdresse" value="${client.adresse.idAdresse}">
+                </c:if>
 
                 <div class="col-md-4">
                     <label class="form-label">Numéro de rue *</label>
                     <input type="text" name="numeroRue" class="form-control"
-                           value="<%= client.getAdresse().getNumeroRue() != null ? client.getAdresse().getNumeroRue() : "" %>">
+                           value="${client.adresse.numeroRue}"/>
 
-                    <% if (errors != null) {
-                        for (ConstraintViolation<Client> err : errors) {
-                            if ("adresse.numeroRue".equals(err.getPropertyPath().toString())) { %>
-                    <div class="text-danger small"><%= err.getMessage() %></div>
-                    <%      }
-                    }
-                    } %>
+                    <c:forEach var="err" items="${errors}">
+                        <c:if test="${err.propertyPath == 'adresse.numeroRue'}">
+                            <div class="text-danger small">${err.message}</div>
+                        </c:if>
+                    </c:forEach>
                 </div>
 
-                <!-- ========================= -->
-                <!-- ADRESSE : NOM RUE -->
-                <!-- ========================= -->
                 <div class="col-md-8">
                     <label class="form-label">Nom de rue *</label>
                     <input type="text" name="nomRue" class="form-control"
-                           value="<%= client.getAdresse().getNomRue() != null ? client.getAdresse().getNomRue() : "" %>">
+                           value="${client.adresse.nomRue}"/>
 
-                    <% if (errors != null) {
-                        for (ConstraintViolation<Client> err : errors) {
-                            if ("adresse.nomRue".equals(err.getPropertyPath().toString())) { %>
-                    <div class="text-danger small"><%= err.getMessage() %></div>
-                    <%      }
-                    }
-                    } %>
+                    <c:forEach var="err" items="${errors}">
+                        <c:if test="${err.propertyPath == 'adresse.nomRue'}">
+                            <div class="text-danger small">${err.message}</div>
+                        </c:if>
+                    </c:forEach>
                 </div>
 
-                <!-- ========================= -->
-                <!-- CODE POSTAL -->
-                <!-- ========================= -->
                 <div class="col-md-4">
                     <label class="form-label">Code postal *</label>
                     <input type="text" name="codePostal" class="form-control"
-                           value="<%= client.getAdresse().getCodePostal() != null ? client.getAdresse().getCodePostal() : "" %>">
+                           value="${client.adresse.codePostal}"/>
 
-                    <% if (errors != null) {
-                        for (ConstraintViolation<Client> err : errors) {
-                            if ("adresse.codePostal".equals(err.getPropertyPath().toString())) { %>
-                    <div class="text-danger small"><%= err.getMessage() %></div>
-                    <%      }
-                    }
-                    } %>
+                    <c:forEach var="err" items="${errors}">
+                        <c:if test="${err.propertyPath == 'adresse.codePostal'}">
+                            <div class="text-danger small">${err.message}</div>
+                        </c:if>
+                    </c:forEach>
                 </div>
 
-                <!-- ========================= -->
-                <!-- VILLE -->
-                <!-- ========================= -->
                 <div class="col-md-8">
                     <label class="form-label">Ville *</label>
                     <input type="text" name="ville" class="form-control"
-                           value="<%= client.getAdresse().getVille() != null ? client.getAdresse().getVille() : "" %>">
+                           value="${client.adresse.ville}"/>
 
-                    <% if (errors != null) {
-                        for (ConstraintViolation<Client> err : errors) {
-                            if ("adresse.ville".equals(err.getPropertyPath().toString())) { %>
-                    <div class="text-danger small"><%= err.getMessage() %></div>
-                    <%      }
-                    }
-                    } %>
+                    <c:forEach var="err" items="${errors}">
+                        <c:if test="${err.propertyPath == 'adresse.ville'}">
+                            <div class="text-danger small">${err.message}</div>
+                        </c:if>
+                    </c:forEach>
                 </div>
 
                 <!-- ========================= -->

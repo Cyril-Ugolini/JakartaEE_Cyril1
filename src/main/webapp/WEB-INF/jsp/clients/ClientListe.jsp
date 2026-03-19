@@ -1,7 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.List" %>
-<%@ page import="models.Client" %>
-<%@ page import="models.Adresse" %>
+<%@ include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -15,10 +13,6 @@
 <body data-header="retour">
 
 <div id="tpl-header"></div>
-
-<%
-    List<Client> clients = (List<Client>) request.getAttribute("clients");
-%>
 
 <div class="container-fluid">
     <div class="row justify-content-center">
@@ -45,48 +39,50 @@
                     </thead>
 
                     <tbody>
-                    <% if (clients != null && !clients.isEmpty()) {
-                        for (Client c : clients) {
-                            Adresse adr = c.getAdresse();
-                    %>
-                    <tr>
-                        <td><%= c.getRaisonSociale() %></td>
-                        <td><%= adr != null ? adr.getVille() : "" %></td>
-                        <td><%= c.getTelephone() %></td>
 
-                        <td class="text-center">
+                    <!-- Si la liste n'est pas vide -->
+                    <c:if test="${not empty clients}">
+                        <c:forEach var="c" items="${clients}">
+                            <tr>
+                                <td><c:out value="${c.raisonSociale}"/></td>
+                                <td><c:out value="${c.adresse.ville}"/></td>
+                                <td><c:out value="${c.telephone}"/></td>
 
-                            <!-- Voir -->
-                            <a href="FrontController?cmd=clientForm&mode=voir&id=<%= c.getIdClient() %>"
-                               class="btn btn-sm btn-primary me-1">
-                                Voir
-                            </a>
+                                <td class="text-center">
 
-                            <!-- Modifier -->
-                            <a href="FrontController?cmd=clientForm&mode=modifier&id=<%= c.getIdClient() %>"
-                               class="btn btn-sm btn-warning me-1">
-                                Modifier
-                            </a>
+                                    <!-- Voir -->
+                                    <a href="FrontController?cmd=clientForm&mode=voir&idClient=${c.idClient}"
+                                       class="btn btn-sm btn-primary me-1">
+                                        Voir
+                                    </a>
 
-                            <!-- Supprimer -->
-                            <a href="FrontController?cmd=clientSuppression&id=<%= c.getIdClient() %>"
-                               class="btn btn-sm btn-danger"
-                               onclick="return confirm('Supprimer ce client ?');">
-                                Supprimer
-                            </a>
+                                    <!-- Modifier -->
+                                    <a href="FrontController?cmd=clientForm&mode=modifier&idClient=${c.idClient}"
+                                       class="btn btn-sm btn-warning me-1">
+                                        Modifier
+                                    </a>
 
-                        </td>
-                    </tr>
-                    <%  }
-                    } else { %>
+                                    <!-- Supprimer -->
+                                    <a href="FrontController?cmd=clientSuppression&id=${c.idClient}"
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Supprimer ce client ?');">
+                                        Supprimer
+                                    </a>
 
-                    <tr>
-                        <td colspan="4" class="text-center text-muted">
-                            Aucun client enregistré.
-                        </td>
-                    </tr>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </c:if>
 
-                    <% } %>
+                    <!-- Si la liste est vide -->
+                    <c:if test="${empty clients}">
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">
+                                Aucun client enregistré.
+                            </td>
+                        </tr>
+                    </c:if>
+
                     </tbody>
                 </table>
             </div>

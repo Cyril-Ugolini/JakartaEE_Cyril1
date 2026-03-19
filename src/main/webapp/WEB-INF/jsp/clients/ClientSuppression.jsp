@@ -25,9 +25,9 @@
 
                     <h4 class="card-title mb-3">Voulez-vous vraiment supprimer ce client ?</h4>
 
-                    <p><strong>Nom :</strong> <%= request.getAttribute("nom") %></p>
-                    <p><strong>Ville :</strong> <%= request.getAttribute("ville") %></p>
-                    <p><strong>Téléphone :</strong> <%= request.getAttribute("telephone") %></p>
+                    <p><strong>Nom :</strong> ${client.raisonSociale}</p>
+                    <p><strong>Ville :</strong> ${client.adresse.ville}</p>
+                    <p><strong>Téléphone :</strong> ${client.telephone}</p>
 
                     <div class="alert alert-danger mt-4">
                         Cette action est <strong>définitive</strong> et ne peut pas être annulée.
@@ -36,7 +36,7 @@
                     <div class="d-flex justify-content-between mt-4">
                         <a href="FrontController?cmd=clientListe" class="btn btn-secondary">Annuler</a>
                         <form method="post" action="FrontController?cmd=clientSuppression" class="d-inline">
-                            <input type="hidden" name="id" value="<%= request.getAttribute("id") %>">
+                            <input type="hidden" name="id" value="${client.idClient}">
                             <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
                         </form>
                     </div>

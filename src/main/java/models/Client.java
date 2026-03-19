@@ -12,7 +12,6 @@ import jakarta.validation.constraints.NotNull;
 public final class Client extends Societe {
 
     /** Identifiant unique du client. */
-    @NotNull(message = "L'identifiant du client est obligatoire")
     private Integer idClient;
 
     /** Chiffre d'affaires minimum autorisé. */

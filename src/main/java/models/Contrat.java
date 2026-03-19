@@ -17,7 +17,6 @@ public final class Contrat {
     private Integer identifiant;
 
     /** Identifiant du client associé. */
-    @NotNull(message = "L'identifiant du client est obligatoire")
     private Integer idClient;
 
     /** Nom du contrat. */

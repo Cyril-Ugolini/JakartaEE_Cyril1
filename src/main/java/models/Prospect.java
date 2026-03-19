@@ -12,7 +12,6 @@ import java.time.LocalDate;
 public final class Prospect extends Societe {
 
     /** Identifiant unique du prospect. */
-    @NotNull(message = "L'identifiant du prospect est obligatoire")
     private Integer idProspect;
 
     /** Date de prospection. */

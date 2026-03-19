@@ -64,8 +64,7 @@ public class FrontController extends HttpServlet {
         commands.put("prospectForm",      new ProspectFormController());
         commands.put("prospectView",      new ProspectViewController());
         commands.put("prospectListe",     new ProspectListeController());
-        commands.put(
-                "prospectSuppression",
+        commands.put("prospectSuppression",
                 new ProspectSuppressionController()
         );
         commands.put("login",  new LoginController());

@@ -20,7 +20,6 @@ public final class Adresse {
     private static final int MAX_NOM = 100;
 
     /** Identifiant unique de l'adresse. */
-    @NotNull(message = "L'identifiant de l'adresse est obligatoire")
     private Integer idAdresse;
 
     /** Numéro de rue. */
