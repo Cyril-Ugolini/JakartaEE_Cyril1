@@ -6,9 +6,7 @@ import fr.afpa.jakartaee_cyril1.clients.ClientFormController;
 import fr.afpa.jakartaee_cyril1.clients.ClientListeController;
 import fr.afpa.jakartaee_cyril1.clients.ClientSuppressionController;
 import fr.afpa.jakartaee_cyril1.clients.ClientViewController;
-import fr.afpa.jakartaee_cyril1.controllers.ICommand;
-import fr.afpa.jakartaee_cyril1.controllers.PageAccueilController;
-import fr.afpa.jakartaee_cyril1.controllers.TemplateController;
+import fr.afpa.jakartaee_cyril1.controllers.*;
 import fr.afpa.jakartaee_cyril1.prospects.ProspectFormController;
 import fr.afpa.jakartaee_cyril1.prospects.ProspectListeController;
 import fr.afpa.jakartaee_cyril1.prospects.ProspectSuppressionController;
@@ -73,6 +71,11 @@ public class FrontController extends HttpServlet {
         LOG.info(
                 "FrontController initialisé avec "
                         + commands.size() + " commandes."
+        );
+        commands.put("mentionsLegales",
+                new MentionsLegalesController());
+        commands.put("politiqueConfidentialite",
+                new PolitiqueConfidentialiteController()
         );
     }
 
