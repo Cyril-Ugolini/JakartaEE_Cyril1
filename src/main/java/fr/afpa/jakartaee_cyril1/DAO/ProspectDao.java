@@ -144,8 +144,8 @@ public final class ProspectDao {
                 stmt.setString(5, prospect.getCommentaires());
                 stmt.setDate(6, java.sql.Date.valueOf(
                         prospect.getDateProspection()));
-                stmt.setString(7,
-                        prospect.getInteresse().name());
+                stmt.setInt(7,
+                        prospect.getInteresse() == Interesse.OUI ? 1 : 0);
 
                 final int rows = stmt.executeUpdate();
                 if (rows > 0) {
@@ -204,6 +204,9 @@ public final class ProspectDao {
                 stmt.setInt(
                         5, prospect.getAdresse().getIdAdresse());
                 stmt.executeUpdate();
+
+                stmt.setString(
+                        6, prospect.getInteresse().name());
             }
 
             final String sql =
@@ -350,9 +353,10 @@ public final class ProspectDao {
         prospect.setCommentaires(rs.getString("commentaires"));
         prospect.setDateProspection(
                 rs.getDate("date_prospection").toLocalDate());
+
         prospect.setInteresse(
-                Interesse.valueOf(rs.getString("interesse")));
-        prospect.setAdresse(adresse);
+                rs.getInt("interesse") == 1
+                        ? Interesse.OUI : Interesse.NON);
         return prospect;
     }
 }

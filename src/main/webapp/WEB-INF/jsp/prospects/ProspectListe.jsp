@@ -1,7 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.List" %>
-<%@ page import="models.Prospect" %>
-<%@ page import="models.Adresse" %>
+<%@ include file="/WEB-INF/jsp/taglibs.jsp" %>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -16,10 +14,6 @@
 
 <div id="tpl-header"></div>
 
-<%
-    List<Prospect> prospects = (List<Prospect>) request.getAttribute("prospects");
-%>
-
 <div class="container-fluid">
     <div class="row justify-content-center">
 
@@ -28,7 +22,8 @@
             <h1 class="mb-4">Liste des prospects</h1>
 
             <div class="d-flex justify-content-end mb-3">
-                <a href="FrontController?cmd=prospectForm" class="btn btn-success">
+                <a href="FrontController?cmd=prospectForm"
+                   class="btn btn-success">
                     Ajouter un prospect
                 </a>
             </div>
@@ -43,45 +38,51 @@
                         <th class="text-center">Actions</th>
                     </tr>
                     </thead>
-
                     <tbody>
-                    <% if (prospects != null && !prospects.isEmpty()) {
-                        for (Prospect p : prospects) {
-                            Adresse adr = p.getAdresse();
-                    %>
 
-                    <tr>
-                        <td><%= p.getRaisonSociale() %></td>
-                        <td><%= adr != null ? adr.getVille() : "" %></td>
-                        <td><%= p.getTelephone() %></td>
+                    <c:if test="${not empty prospects}">
+                        <c:forEach var="p" items="${prospects}">
+                            <tr>
+                                <td>
+                                    <c:out value="${p.raisonSociale}"/>
+                                </td>
+                                <td>
+                                    <c:out value="${p.adresse.ville}"/>
+                                </td>
+                                <td>
+                                    <c:out value="${p.telephone}"/>
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-flex flex-column gap-1 align-items-end">
+                                        <a href="FrontController?cmd=prospectView&id=${p.idProspect}"
+                                           class="btn btn-primary btn-sm w-100">
+                                            Voir
+                                        </a>
+                                        <div class="d-flex gap-1 w-100">
+                                            <a href="FrontController?cmd=prospectForm&mode=modifier&id=${p.idProspect}"
+                                               class="btn btn-warning btn-sm flex-fill">
+                                                Modifier
+                                            </a>
+                                            <a href="FrontController?cmd=prospectSuppression&id=${p.idProspect}"
+                                               class="btn btn-danger btn-sm flex-fill"
+                                               onclick="return confirm('Supprimer ce prospect ?');">
+                                                Supprimer
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </c:if>
 
-                        <td class="text-center">
+                    <c:if test="${empty prospects}">
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">
+                                Aucun prospect enregistré.
+                            </td>
+                        </tr>
+                    </c:if>
 
-                            <a href="FrontController?cmd=prospectForm&mode=voir&id=<%= p.getIdProspect() %>"
-                               class="btn btn-sm btn-primary me-1">Voir</a>
-
-                            <a href="FrontController?cmd=prospectForm&mode=modifier&id=<%= p.getIdProspect() %>"
-                               class="btn btn-sm btn-warning me-1">Modifier</a>
-
-                            <a href="FrontController?cmd=prospectSuppression&id=<%= p.getIdProspect() %>"
-                               class="btn btn-sm btn-danger"
-                               onclick="return confirm('Supprimer ce prospect ?');">
-                                Supprimer
-                            </a>
-
-                        </td>
-                    </tr>
-
-                    <%  }
-                    } else { %>
-
-                    <tr>
-                        <td colspan="4" class="text-center text-muted">
-                            Aucun prospect enregistré.
-                        </td>
-                    </tr>
-
-                    <% } %>
                     </tbody>
                 </table>
             </div>

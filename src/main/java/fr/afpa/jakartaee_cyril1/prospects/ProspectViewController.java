@@ -1,9 +1,11 @@
 package fr.afpa.jakartaee_cyril1.prospects;
 
+import fr.afpa.jakartaee_cyril1.DAO.ProspectDao;
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.logging.Logger;
+import models.Prospect;
 
 /**
  * Contrôleur chargé d'afficher la visualisation détaillée
@@ -39,6 +41,13 @@ public final class ProspectViewController implements ICommand {
             final HttpServletResponse response) throws Exception {
         LOG.info("Affichage des détails d'un prospect.");
         try {
+            final String idParam = request.getParameter("id");
+            if (idParam != null && !idParam.isBlank()) {
+                final ProspectDao dao = new ProspectDao();
+                final Prospect prospect =
+                        dao.findById(Integer.parseInt(idParam));
+                request.setAttribute("prospect", prospect);
+            }
             return "/WEB-INF/jsp/prospects/ProspectView.jsp";
         } catch (Exception e) {
             LOG.severe("Erreur dans ProspectViewController : "

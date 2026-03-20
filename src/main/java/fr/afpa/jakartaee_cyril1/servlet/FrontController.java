@@ -97,14 +97,14 @@ public class FrontController extends HttpServlet {
             final ICommand com = commands.get(cmd);
             if (com == null) {
                 LOG.warning("Commande inconnue : " + cmd);
-                urlSuite = "/WEB-INF/jsp/erreur.jsp";
+                urlSuite = "/erreur.jsp";
             } else {
                 LOG.info("Exécution : " + com.getClass().getSimpleName());
                 urlSuite = com.execute(request, response);
             }
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Erreur dans le FrontController", e);
-            urlSuite = "/WEB-INF/jsp/erreur.jsp";
+            urlSuite = "/erreur.jsp";
         } finally {
             try {
                 LOG.info("Forward vers : " + urlSuite);
