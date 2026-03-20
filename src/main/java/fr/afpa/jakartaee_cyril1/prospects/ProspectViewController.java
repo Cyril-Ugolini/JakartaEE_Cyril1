@@ -48,7 +48,7 @@ public final class ProspectViewController implements ICommand {
                         dao.findById(Integer.parseInt(idParam));
                 request.setAttribute("prospect", prospect);
             }
-            return "/WEB-INF/jsp/prospects/ProspectView.jsp";
+            return "/WEB-INF/prospects/ProspectView.jsp";
         } catch (Exception e) {
             LOG.severe("Erreur dans ProspectViewController : "
                     + e.getMessage());

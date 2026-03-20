@@ -60,7 +60,7 @@
                     <div class="d-flex justify-content-between mt-4">
                         <a href="FrontController?cmd=clientListe"
                            class="btn btn-secondary">Retour</a>
-                        <a href="FrontController?cmd=clientForm&mode=modifier&id=<%= client.getIdClient() %>"
+                        <a href="FrontController?cmd=clientForm&mode=modifier&idClient=<%= client.getIdClient() %>"
                            class="btn btn-warning">Modifier</a>
                     </div>
                 </div>

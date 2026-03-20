@@ -15,7 +15,7 @@ import models.Client;
  * vue JSP affichant les informations complètes d'un client.</p>
  *
  * @author Cyril
- * @version 1.0
+ * @version 1.1
  */
 public final class ClientViewController implements ICommand {
 
@@ -23,33 +23,34 @@ public final class ClientViewController implements ICommand {
     private static final Logger LOG =
             Logger.getLogger(ClientViewController.class.getName());
 
-    /**
-     * Exécute la commande et renvoie les détails d'un client.
-     *
-     * @param request  l'objet {@link HttpServletRequest}
-     *                 contenant les informations de la requête HTTP
-     * @param response l'objet {@link HttpServletResponse}
-     *                 permettant de construire la réponse HTTP
-     * @return le chemin de la JSP à afficher
-     * @throws Exception si une erreur survient lors du traitement
-     */
     @Override
     public String execute(
             final HttpServletRequest request,
             final HttpServletResponse response) throws Exception {
+
         LOG.info("Affichage des détails d'un client.");
+
         try {
-            final String idParam = request.getParameter("id");
+            //  Correction : on lit bien idClient
+            final String idParam = request.getParameter("idClient");
+
             if (idParam != null && !idParam.isBlank()) {
-                final ClientDao dao = new ClientDao();
-                final Client client =
-                        dao.findById(Integer.parseInt(idParam));
+
+                int id = Integer.parseInt(idParam);
+                LOG.info("Chargement du client ID=" + id);
+
+                ClientDao dao = new ClientDao();
+                Client client = dao.findById(id);
+
                 request.setAttribute("client", client);
+            } else {
+                LOG.warning("Aucun idClient reçu dans la requête.");
             }
+
             return "/WEB-INF/jsp/clients/ClientView.jsp";
+
         } catch (Exception e) {
-            LOG.severe("Erreur dans ClientViewController : "
-                    + e.getMessage());
+            LOG.severe("Erreur dans ClientViewController : " + e.getMessage());
             throw e;
         }
     }

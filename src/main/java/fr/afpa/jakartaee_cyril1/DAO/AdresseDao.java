@@ -14,20 +14,21 @@ import models.Adresse;
 /**
  * DAO pour la gestion des adresses en base de données.
  *
+ * <p>Cette classe permet d'effectuer les opérations CRUD sur la table
+ * {@code adresse}. Elle intègre une gestion d'erreurs SQL basée sur les
+ * codes d'erreurs MySQL afin de fournir des messages techniques précis
+ * dans les logs, sans exposer ces détails à l'utilisateur.</p>
+ *
  * @author Cyril
- * @version 1.0
+ * @version 2.0
  */
 public final class AdresseDao {
 
-    /**
-     * Logger du DAO.
-     */
+    /** Logger du DAO. */
     private static final Logger LOG =
             Logger.getLogger(AdresseDao.class.getName());
 
-    /**
-     * Gestionnaire de connexion.
-     */
+    /** Gestionnaire de connexion. */
     private final ConnexionManager db;
 
     /**
@@ -45,7 +46,7 @@ public final class AdresseDao {
     // ============================================================
 
     /**
-     * Retourne toutes les adresses.
+     * Retourne toutes les adresses présentes en base.
      *
      * @return liste d'adresses
      * @throws SQLException en cas d'erreur SQL
@@ -53,13 +54,10 @@ public final class AdresseDao {
     public List<Adresse> findAll() throws SQLException {
 
         final List<Adresse> liste = new ArrayList<>();
-
         final String sql =
-                "SELECT id_adresse, numero_rue, nom_rue, code_postal, ville "
-                        + "FROM adresse";
+                "SELECT id_adresse, numero_rue, nom_rue, code_postal, ville FROM adresse";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql);
+        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -69,8 +67,15 @@ public final class AdresseDao {
             LOG.info("findAll() : " + liste.size() + " adresse(s).");
 
         } catch (SQLException e) {
-            LOG.severe("Erreur findAll() : " + e.getMessage());
-            throw e;
+
+            int code = e.getErrorCode();
+            String message = switch (code) {
+                case 1064 -> "Erreur SQL dans findAll() : syntaxe incorrecte (code=1064)";
+                default -> "Erreur SQL dans findAll() (code=" + code + ")";
+            };
+
+            LOG.severe(message + " | " + e.getMessage());
+            throw new SQLException(message, e);
         }
 
         return liste;
@@ -84,23 +89,20 @@ public final class AdresseDao {
      * Retourne une adresse par son identifiant.
      *
      * @param id identifiant de l'adresse
-     * @return adresse ou null si non trouvée
+     * @return adresse ou {@code null} si non trouvée
      * @throws SQLException en cas d'erreur SQL
      */
     public Adresse findById(final int id) throws SQLException {
 
         final String sql =
                 "SELECT id_adresse, numero_rue, nom_rue, code_postal, ville "
-                        + "FROM adresse "
-                        + "WHERE id_adresse = ?";
+                        + "FROM adresse WHERE id_adresse = ?";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
 
             stmt.setInt(1, id);
 
             try (ResultSet rs = stmt.executeQuery()) {
-
                 if (rs.next()) {
                     LOG.fine("findById(" + id + ") : trouvée");
                     return mapResultSet(rs);
@@ -111,8 +113,15 @@ public final class AdresseDao {
             return null;
 
         } catch (SQLException e) {
-            LOG.severe("Erreur findById(" + id + ") : " + e.getMessage());
-            throw e;
+
+            int code = e.getErrorCode();
+            String message = switch (code) {
+                case 1064 -> "Erreur SQL dans findById(" + id + ") : syntaxe incorrecte (code=1064)";
+                default -> "Erreur SQL dans findById(" + id + ") (code=" + code + ")";
+            };
+
+            LOG.severe(message + " | " + e.getMessage());
+            throw new SQLException(message, e);
         }
     }
 
@@ -121,17 +130,17 @@ public final class AdresseDao {
     // ============================================================
 
     /**
-     * Crée une nouvelle adresse.
+     * Crée une nouvelle adresse en base.
      *
      * @param a adresse à créer
-     * @return true si création OK
+     * @return {@code true} si la création a réussi
      * @throws SQLException en cas d'erreur SQL
      */
     public boolean create(final Adresse a) throws SQLException {
 
         final String sql =
-                "INSERT INTO adresse (numero_rue, nom_rue, code_postal, ville) "
-                        + "VALUES (?, ?, ?, ?)";
+                "INSERT INTO adresse (numero_rue, nom_rue, code_postal, ville)"
+                        + " VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement stmt =
                      db.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -156,8 +165,16 @@ public final class AdresseDao {
             return false;
 
         } catch (SQLException e) {
-            LOG.severe("Erreur create() : " + e.getMessage());
-            throw e;
+
+            int code = e.getErrorCode();
+            String message = switch (code) {
+                case 1048 -> "Champ obligatoire manquant lors de la création d'adresse (code=1048)";
+                case 1062 -> "Doublon détecté lors de la création d'adresse (code=1062)";
+                default -> "Erreur SQL dans create() (code=" + code + ")";
+            };
+
+            LOG.severe(message + " | " + e.getMessage());
+            throw new SQLException(message, e);
         }
     }
 
@@ -169,7 +186,7 @@ public final class AdresseDao {
      * Met à jour une adresse existante.
      *
      * @param a adresse à mettre à jour
-     * @return true si mise à jour OK
+     * @return {@code true} si la mise à jour a réussi
      * @throws SQLException en cas d'erreur SQL
      */
     public boolean update(final Adresse a) throws SQLException {
@@ -178,8 +195,7 @@ public final class AdresseDao {
                 "UPDATE adresse SET numero_rue=?, nom_rue=?, code_postal=?, ville=? "
                         + "WHERE id_adresse=?";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
 
             stmt.setString(1, a.getNumeroRue());
             stmt.setString(2, a.getNomRue());
@@ -198,8 +214,16 @@ public final class AdresseDao {
             return false;
 
         } catch (SQLException e) {
-            LOG.severe("Erreur update() : " + e.getMessage());
-            throw e;
+
+            int code = e.getErrorCode();
+            String message = switch (code) {
+                case 1048 -> "Champ obligatoire manquant lors de la mise à jour (code=1048)";
+                case 1062 -> "Doublon détecté lors de la mise à jour (code=1062)";
+                default -> "Erreur SQL dans update() (code=" + code + ")";
+            };
+
+            LOG.severe(message + " | " + e.getMessage());
+            throw new SQLException(message, e);
         }
     }
 
@@ -211,7 +235,7 @@ public final class AdresseDao {
      * Supprime une adresse par son identifiant.
      *
      * @param id identifiant de l'adresse
-     * @return true si suppression OK
+     * @return {@code true} si la suppression a réussi
      * @throws SQLException en cas d'erreur SQL
      */
     public boolean delete(final int id) throws SQLException {
@@ -238,8 +262,15 @@ public final class AdresseDao {
 
             } catch (SQLException e) {
                 conn.rollback();
-                LOG.severe("Erreur delete() : " + e.getMessage());
-                throw e;
+
+                int code = e.getErrorCode();
+                String message = switch (code) {
+                    case 1451 -> "Suppression impossible : contrainte étrangère (code=1451)";
+                    default -> "Erreur SQL dans delete() (code=" + code + ")";
+                };
+
+                LOG.severe(message + " | " + e.getMessage());
+                throw new SQLException(message, e);
             }
 
         } finally {

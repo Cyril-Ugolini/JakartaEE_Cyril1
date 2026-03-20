@@ -14,8 +14,13 @@ import models.Contrat;
 /**
  * DAO pour la gestion des contrats en base de données.
  *
+ * <p>Cette classe permet d'effectuer les opérations CRUD sur la table
+ * {@code contrat}. Elle intègre une gestion d'erreurs SQL basée sur les
+ * codes d'erreurs MySQL afin de fournir des messages techniques précis
+ * dans les logs, sans exposer ces détails à l'utilisateur.</p>
+ *
  * @author Cyril
- * @version 1.0
+ * @version 2.0
  */
 public final class ContratDao {
 
@@ -41,7 +46,7 @@ public final class ContratDao {
     // ============================================================
 
     /**
-     * Retourne tous les contrats.
+     * Retourne tous les contrats présents en base.
      *
      * @return liste de contrats
      * @throws SQLException en cas d'erreur SQL
@@ -49,13 +54,10 @@ public final class ContratDao {
     public List<Contrat> findAll() throws SQLException {
 
         final List<Contrat> liste = new ArrayList<>();
-
         final String sql =
-                "SELECT identifiant, id_client, nom_contrat, montant "
-                        + "FROM contrat";
+                "SELECT identifiant, id_client, nom_contrat, montant FROM contrat";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql);
+        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -65,8 +67,15 @@ public final class ContratDao {
             LOG.info("findAll() : " + liste.size() + " contrat(s).");
 
         } catch (SQLException e) {
-            LOG.severe("Erreur findAll() : " + e.getMessage());
-            throw e;
+
+            int code = e.getErrorCode();
+            String message = switch (code) {
+                case 1064 -> "Erreur SQL dans findAll() : syntaxe incorrecte (code=1064)";
+                default -> "Erreur SQL dans findAll() (code=" + code + ")";
+            };
+
+            LOG.severe(message + " | " + e.getMessage());
+            throw new SQLException(message, e);
         }
 
         return liste;
@@ -80,23 +89,20 @@ public final class ContratDao {
      * Retourne un contrat par son identifiant.
      *
      * @param id identifiant du contrat
-     * @return contrat ou null si non trouvé
+     * @return contrat ou {@code null} si non trouvé
      * @throws SQLException en cas d'erreur SQL
      */
     public Contrat findById(final int id) throws SQLException {
 
         final String sql =
                 "SELECT identifiant, id_client, nom_contrat, montant "
-                        + "FROM contrat "
-                        + "WHERE identifiant = ?";
+                        + "FROM contrat WHERE identifiant = ?";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
 
             stmt.setInt(1, id);
 
             try (ResultSet rs = stmt.executeQuery()) {
-
                 if (rs.next()) {
                     LOG.fine("findById(" + id + ") : trouvé");
                     return mapResultSet(rs);
@@ -107,8 +113,15 @@ public final class ContratDao {
             return null;
 
         } catch (SQLException e) {
-            LOG.severe("Erreur findById(" + id + ") : " + e.getMessage());
-            throw e;
+
+            int code = e.getErrorCode();
+            String message = switch (code) {
+                case 1064 -> "Erreur SQL dans findById(" + id + ") : syntaxe incorrecte (code=1064)";
+                default -> "Erreur SQL dans findById(" + id + ") (code=" + code + ")";
+            };
+
+            LOG.severe(message + " | " + e.getMessage());
+            throw new SQLException(message, e);
         }
     }
 
@@ -117,17 +130,16 @@ public final class ContratDao {
     // ============================================================
 
     /**
-     * Crée un nouveau contrat.
+     * Crée un nouveau contrat en base.
      *
      * @param c contrat à créer
-     * @return true si création OK
+     * @return {@code true} si la création a réussi
      * @throws SQLException en cas d'erreur SQL
      */
     public boolean create(final Contrat c) throws SQLException {
 
         final String sql =
-                "INSERT INTO contrat (id_client, nom_contrat, montant) "
-                        + "VALUES (?, ?, ?)";
+                "INSERT INTO contrat (id_client, nom_contrat, montant) VALUES (?, ?, ?)";
 
         try (PreparedStatement stmt =
                      db.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -151,8 +163,17 @@ public final class ContratDao {
             return false;
 
         } catch (SQLException e) {
-            LOG.severe("Erreur create() : " + e.getMessage());
-            throw e;
+
+            int code = e.getErrorCode();
+            String message = switch (code) {
+                case 1048 -> "Champ obligatoire manquant lors de la création du contrat (code=1048)";
+                case 1452 -> "Contrainte étrangère violée : client inexistant (code=1452)";
+                case 1062 -> "Doublon détecté lors de la création du contrat (code=1062)";
+                default -> "Erreur SQL dans create() (code=" + code + ")";
+            };
+
+            LOG.severe(message + " | " + e.getMessage());
+            throw new SQLException(message, e);
         }
     }
 
@@ -164,7 +185,7 @@ public final class ContratDao {
      * Met à jour un contrat existant.
      *
      * @param c contrat à mettre à jour
-     * @return true si mise à jour OK
+     * @return {@code true} si la mise à jour a réussi
      * @throws SQLException en cas d'erreur SQL
      */
     public boolean update(final Contrat c) throws SQLException {
@@ -173,8 +194,7 @@ public final class ContratDao {
                 "UPDATE contrat SET id_client=?, nom_contrat=?, montant=? "
                         + "WHERE identifiant=?";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
 
             stmt.setInt(1, c.getIdClient());
             stmt.setString(2, c.getNomContrat());
@@ -192,8 +212,17 @@ public final class ContratDao {
             return false;
 
         } catch (SQLException e) {
-            LOG.severe("Erreur update() : " + e.getMessage());
-            throw e;
+
+            int code = e.getErrorCode();
+            String message = switch (code) {
+                case 1048 -> "Champ obligatoire manquant lors de la mise à jour (code=1048)";
+                case 1452 -> "Contrainte étrangère violée : client inexistant (code=1452)";
+                case 1062 -> "Doublon détecté lors de la mise à jour (code=1062)";
+                default -> "Erreur SQL dans update() (code=" + code + ")";
+            };
+
+            LOG.severe(message + " | " + e.getMessage());
+            throw new SQLException(message, e);
         }
     }
 
@@ -205,7 +234,7 @@ public final class ContratDao {
      * Supprime un contrat par son identifiant.
      *
      * @param id identifiant du contrat
-     * @return true si suppression OK
+     * @return {@code true} si la suppression a réussi
      * @throws SQLException en cas d'erreur SQL
      */
     public boolean delete(final int id) throws SQLException {
@@ -232,8 +261,15 @@ public final class ContratDao {
 
             } catch (SQLException e) {
                 conn.rollback();
-                LOG.severe("Erreur delete() : " + e.getMessage());
-                throw e;
+
+                int code = e.getErrorCode();
+                String message = switch (code) {
+                    case 1451 -> "Suppression impossible : contrainte étrangère (code=1451)";
+                    default -> "Erreur SQL dans delete() (code=" + code + ")";
+                };
+
+                LOG.severe(message + " | " + e.getMessage());
+                throw new SQLException(message, e);
             }
 
         } finally {

@@ -54,20 +54,28 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="d-flex flex-column gap-1 align-items-end">
-                                        <a href="FrontController?cmd=clientView&id=${c.idClient}"
+
+                                        <!-- Voir -->
+                                        <a href="FrontController?cmd=clientView&idClient=${c.idClient}"
                                            class="btn btn-primary btn-sm w-100">
                                             Voir
                                         </a>
+
                                         <div class="d-flex gap-1 w-100">
-                                            <a href="FrontController?cmd=clientForm&mode=modifier&id=${c.idClient}"
+
+                                            <!-- Modifier -->
+                                            <a href="FrontController?cmd=clientForm&mode=modifier&idClient=${c.idClient}"
                                                class="btn btn-warning btn-sm flex-fill">
                                                 Modifier
                                             </a>
-                                            <a href="FrontController?cmd=clientSuppression&id=${c.idClient}"
+
+                                            <!-- Supprimer -->
+                                            <a href="FrontController?cmd=clientSuppression&idClient=${c.idClient}"
                                                class="btn btn-danger btn-sm flex-fill"
                                                onclick="return confirm('Supprimer ce client ?');">
                                                 Supprimer
                                             </a>
+
                                         </div>
                                     </div>
                                 </td>

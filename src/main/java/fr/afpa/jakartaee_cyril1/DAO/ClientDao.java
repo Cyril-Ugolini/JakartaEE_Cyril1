@@ -117,27 +117,22 @@ public final class ClientDao {
      */
     public boolean create(final Client client) throws SQLException {
         final Connection conn = db.getConnection();
+
         try {
             conn.setAutoCommit(false);
 
             // 1. Créer l'adresse
-            final int idAdresse = creerAdresse(
-                    conn, client.getAdresse()
-            );
+            final int idAdresse = creerAdresse(conn, client.getAdresse());
             client.getAdresse().setIdAdresse(idAdresse);
 
             // 2. Créer le client
             final String sql =
-                    "INSERT INTO client (raison_sociale,"
-                            + " id_adresse, telephone, adresse_mail,"
-                            + " commentaires, chiffre_affaires,"
-                            + " nombre_employes)"
+                    "INSERT INTO client (raison_sociale, id_adresse, telephone, adresse_mail,"
+                            + " commentaires, chiffre_affaires, nombre_employes)"
                             + " VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-            try (PreparedStatement stmt =
-                         conn.prepareStatement(
-                                 sql, Statement.RETURN_GENERATED_KEYS
-                         )) {
+            try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
                 stmt.setString(1, client.getRaisonSociale());
                 stmt.setInt(2, idAdresse);
                 stmt.setString(3, client.getTelephone());
@@ -147,26 +142,36 @@ public final class ClientDao {
                 stmt.setInt(7, client.getNombreEmployes());
 
                 final int rows = stmt.executeUpdate();
+
                 if (rows > 0) {
-                    try (ResultSet keys =
-                                 stmt.getGeneratedKeys()) {
+                    try (ResultSet keys = stmt.getGeneratedKeys()) {
                         if (keys.next()) {
                             client.setIdClient(keys.getInt(1));
                         }
                     }
                     conn.commit();
-                    LOG.info("Client créé : ID="
-                            + client.getIdClient());
+                    LOG.info("Client créé : ID=" + client.getIdClient());
                     return true;
                 }
             }
+
             conn.commit();
             return false;
 
         } catch (SQLException e) {
             conn.rollback();
-            LOG.severe("Erreur create() : " + e.getMessage());
-            throw e;
+
+            int code = e.getErrorCode();
+            String message = switch (code) {
+                case 1062 -> "Doublon détecté lors de la création du client (code=1062)";
+                case 1048 -> "Champ obligatoire manquant lors de la création du client (code=1048)";
+                case 1452 -> "Contrainte étrangère violée lors de la création du client (code=1452)";
+                default -> "Erreur SQL dans create() (code=" + code + ")";
+            };
+
+            LOG.severe(message + " | " + e.getMessage());
+            throw new SQLException(message, e);
+
         } finally {
             conn.setAutoCommit(true);
         }
@@ -181,38 +186,31 @@ public final class ClientDao {
      */
     public boolean update(final Client client) throws SQLException {
         final Connection conn = db.getConnection();
+
         try {
             conn.setAutoCommit(false);
 
             // 1. Mettre à jour l'adresse
             final String sqlAdr =
-                    "UPDATE adresse SET numero_rue=?,"
-                            + " nom_rue=?, code_postal=?, ville=?"
+                    "UPDATE adresse SET numero_rue=?, nom_rue=?, code_postal=?, ville=?"
                             + " WHERE id_adresse=?";
-            try (PreparedStatement stmt =
-                         conn.prepareStatement(sqlAdr)) {
-                stmt.setString(
-                        1, client.getAdresse().getNumeroRue());
-                stmt.setString(
-                        2, client.getAdresse().getNomRue());
-                stmt.setString(
-                        3, client.getAdresse().getCodePostal());
-                stmt.setString(
-                        4, client.getAdresse().getVille());
-                stmt.setInt(
-                        5, client.getAdresse().getIdAdresse());
+
+            try (PreparedStatement stmt = conn.prepareStatement(sqlAdr)) {
+                stmt.setString(1, client.getAdresse().getNumeroRue());
+                stmt.setString(2, client.getAdresse().getNomRue());
+                stmt.setString(3, client.getAdresse().getCodePostal());
+                stmt.setString(4, client.getAdresse().getVille());
+                stmt.setInt(5, client.getAdresse().getIdAdresse());
                 stmt.executeUpdate();
             }
 
             // 2. Mettre à jour le client
             final String sql =
-                    "UPDATE client SET raison_sociale=?,"
-                            + " telephone=?, adresse_mail=?,"
-                            + " commentaires=?, chiffre_affaires=?,"
-                            + " nombre_employes=?"
+                    "UPDATE client SET raison_sociale=?, telephone=?, adresse_mail=?,"
+                            + " commentaires=?, chiffre_affaires=?, nombre_employes=?"
                             + " WHERE id_client=?";
-            try (PreparedStatement stmt =
-                         conn.prepareStatement(sql)) {
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, client.getRaisonSociale());
                 stmt.setString(2, client.getTelephone());
                 stmt.setString(3, client.getAdresseMail());
@@ -220,17 +218,27 @@ public final class ClientDao {
                 stmt.setLong(5, client.getChiffreAffaires());
                 stmt.setInt(6, client.getNombreEmployes());
                 stmt.setInt(7, client.getIdClient());
+
                 final int rows = stmt.executeUpdate();
                 conn.commit();
-                LOG.info("Client modifié : ID="
-                        + client.getIdClient());
+
+                LOG.info("Client modifié : ID=" + client.getIdClient());
                 return rows > 0;
             }
 
         } catch (SQLException e) {
             conn.rollback();
-            LOG.severe("Erreur update() : " + e.getMessage());
-            throw e;
+
+            int code = e.getErrorCode();
+            String message = switch (code) {
+                case 1048 -> "Champ obligatoire manquant lors de la mise à jour (code=1048)";
+                case 1062 -> "Doublon détecté lors de la mise à jour (code=1062)";
+                default -> "Erreur SQL dans update() (code=" + code + ")";
+            };
+
+            LOG.severe(message + " | " + e.getMessage());
+            throw new SQLException(message, e);
+
         } finally {
             conn.setAutoCommit(true);
         }
@@ -245,33 +253,28 @@ public final class ClientDao {
      */
     public boolean delete(final int id) throws SQLException {
         final Connection conn = db.getConnection();
+
         try {
             conn.setAutoCommit(false);
 
             final Client client = findById(id);
             if (client == null) {
-                LOG.warning("delete() : client ID="
-                        + id + " non trouvé.");
+                LOG.warning("delete() : client ID=" + id + " non trouvé.");
                 return false;
             }
 
-            final int idAdresse =
-                    client.getAdresse().getIdAdresse();
+            final int idAdresse = client.getAdresse().getIdAdresse();
 
             // 1. Supprimer le client
-            final String sqlClient =
-                    "DELETE FROM client WHERE id_client=?";
-            try (PreparedStatement stmt =
-                         conn.prepareStatement(sqlClient)) {
+            final String sqlClient = "DELETE FROM client WHERE id_client=?";
+            try (PreparedStatement stmt = conn.prepareStatement(sqlClient)) {
                 stmt.setInt(1, id);
                 stmt.executeUpdate();
             }
 
             // 2. Supprimer l'adresse
-            final String sqlAdr =
-                    "DELETE FROM adresse WHERE id_adresse=?";
-            try (PreparedStatement stmt =
-                         conn.prepareStatement(sqlAdr)) {
+            final String sqlAdr = "DELETE FROM adresse WHERE id_adresse=?";
+            try (PreparedStatement stmt = conn.prepareStatement(sqlAdr)) {
                 stmt.setInt(1, idAdresse);
                 stmt.executeUpdate();
             }
@@ -282,8 +285,16 @@ public final class ClientDao {
 
         } catch (SQLException e) {
             conn.rollback();
-            LOG.severe("Erreur delete() : " + e.getMessage());
-            throw e;
+
+            int code = e.getErrorCode();
+            String message = switch (code) {
+                case 1451 -> "Suppression impossible : contrainte étrangère (code=1451)";
+                default -> "Erreur SQL dans delete() (code=" + code + ")";
+            };
+
+            LOG.severe(message + " | " + e.getMessage());
+            throw new SQLException(message, e);
+
         } finally {
             conn.setAutoCommit(true);
         }
@@ -297,31 +308,38 @@ public final class ClientDao {
      * @return identifiant généré
      * @throws SQLException en cas d'erreur SQL
      */
-    private int creerAdresse(
-            final Connection conn,
-            final Adresse adresse) throws SQLException {
+    private int creerAdresse(final Connection conn, final Adresse adresse) throws SQLException {
         final String sql =
-                "INSERT INTO adresse"
-                        + " (numero_rue, nom_rue, code_postal, ville)"
+                "INSERT INTO adresse (numero_rue, nom_rue, code_postal, ville)"
                         + " VALUES (?, ?, ?, ?)";
-        try (PreparedStatement stmt =
-                     conn.prepareStatement(
-                             sql, Statement.RETURN_GENERATED_KEYS
-                     )) {
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
             stmt.setString(1, adresse.getNumeroRue());
             stmt.setString(2, adresse.getNomRue());
             stmt.setString(3, adresse.getCodePostal());
             stmt.setString(4, adresse.getVille());
             stmt.executeUpdate();
+
             try (ResultSet keys = stmt.getGeneratedKeys()) {
                 if (keys.next()) {
                     return keys.getInt(1);
                 }
             }
+
+        } catch (SQLException e) {
+
+            int code = e.getErrorCode();
+            String message = switch (code) {
+                case 1048 -> "Champ obligatoire manquant lors de la création d'adresse (code=1048)";
+                default -> "Erreur SQL dans creerAdresse() (code=" + code + ")";
+            };
+
+            LOG.severe(message + " | " + e.getMessage());
+            throw new SQLException(message, e);
         }
-        throw new SQLException(
-                "Impossible de récupérer l'ID adresse."
-        );
+
+        throw new SQLException("Impossible de récupérer l'ID adresse.");
     }
 
     /**
