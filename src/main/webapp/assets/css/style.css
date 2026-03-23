@@ -497,7 +497,16 @@ aside a:hover {
     color: var(--cyan) !important;
     text-decoration: none;
 }
+/* Cache l'aside sur mobile */
+#tpl-aside aside {
+    display: none;
+}
 
+@media (min-width: 768px) {
+    #tpl-aside aside {
+        display: block;
+    }
+}
 /* ============================================================
    FORMULAIRES
 ============================================================ */

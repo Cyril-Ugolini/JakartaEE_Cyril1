@@ -89,7 +89,7 @@
 
         </main>
 
-        <div id="tpl-aside" class="col-md-3 d-none d-md-block"></div>
+        <div id="tpl-aside" class="col-md-3"></div>
 
     </div>
 </div>

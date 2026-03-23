@@ -55,9 +55,11 @@ public final class AdresseDao {
 
         final List<Adresse> liste = new ArrayList<>();
         final String sql =
-                "SELECT id_adresse, numero_rue, nom_rue, code_postal, ville FROM adresse";
+                "SELECT id_adresse, numero_rue, nom_rue, code_postal, ville "
+                        + "FROM adresse";
 
-        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql);
+        try (PreparedStatement stmt =
+                     db.getConnection().prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -68,9 +70,10 @@ public final class AdresseDao {
 
         } catch (SQLException e) {
 
-            int code = e.getErrorCode();
-            String message = switch (code) {
-                case 1064 -> "Erreur SQL dans findAll() : syntaxe incorrecte (code=1064)";
+            final int code = e.getErrorCode();
+            final String message = switch (code) {
+                case 1064 -> "Erreur SQL dans findAll() : syntaxe incorrecte "
+                        + "(code=1064)";
                 default -> "Erreur SQL dans findAll() (code=" + code + ")";
             };
 
@@ -98,7 +101,8 @@ public final class AdresseDao {
                 "SELECT id_adresse, numero_rue, nom_rue, code_postal, ville "
                         + "FROM adresse WHERE id_adresse = ?";
 
-        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement stmt =
+                     db.getConnection().prepareStatement(sql)) {
 
             stmt.setInt(1, id);
 
@@ -114,10 +118,12 @@ public final class AdresseDao {
 
         } catch (SQLException e) {
 
-            int code = e.getErrorCode();
-            String message = switch (code) {
-                case 1064 -> "Erreur SQL dans findById(" + id + ") : syntaxe incorrecte (code=1064)";
-                default -> "Erreur SQL dans findById(" + id + ") (code=" + code + ")";
+            final int code = e.getErrorCode();
+            final String message = switch (code) {
+                case 1064 -> "Erreur SQL dans findById(" + id
+                        + ") : syntaxe incorrecte (code=1064)";
+                default -> "Erreur SQL dans findById(" + id + ") (code="
+                        + code + ")";
             };
 
             LOG.severe(message + " | " + e.getMessage());
@@ -139,11 +145,11 @@ public final class AdresseDao {
     public boolean create(final Adresse a) throws SQLException {
 
         final String sql =
-                "INSERT INTO adresse (numero_rue, nom_rue, code_postal, ville)"
-                        + " VALUES (?, ?, ?, ?)";
+                "INSERT INTO adresse (numero_rue, nom_rue, code_postal, ville) "
+                        + "VALUES (?, ?, ?, ?)";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement stmt = db.getConnection().prepareStatement(
+                sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, a.getNumeroRue());
             stmt.setString(2, a.getNomRue());
@@ -166,10 +172,12 @@ public final class AdresseDao {
 
         } catch (SQLException e) {
 
-            int code = e.getErrorCode();
-            String message = switch (code) {
-                case 1048 -> "Champ obligatoire manquant lors de la création d'adresse (code=1048)";
-                case 1062 -> "Doublon détecté lors de la création d'adresse (code=1062)";
+            final int code = e.getErrorCode();
+            final String message = switch (code) {
+                case 1048 -> "Champ obligatoire manquant lors de la création "
+                        + "(code=1048)";
+                case 1062 -> "Doublon détecté lors de la création "
+                        + "(code=1062)";
                 default -> "Erreur SQL dans create() (code=" + code + ")";
             };
 
@@ -192,10 +200,11 @@ public final class AdresseDao {
     public boolean update(final Adresse a) throws SQLException {
 
         final String sql =
-                "UPDATE adresse SET numero_rue=?, nom_rue=?, code_postal=?, ville=? "
-                        + "WHERE id_adresse=?";
+                "UPDATE adresse SET numero_rue=?, nom_rue=?, code_postal=?, "
+                        + "ville=? WHERE id_adresse=?";
 
-        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement stmt =
+                     db.getConnection().prepareStatement(sql)) {
 
             stmt.setString(1, a.getNumeroRue());
             stmt.setString(2, a.getNomRue());
@@ -215,10 +224,12 @@ public final class AdresseDao {
 
         } catch (SQLException e) {
 
-            int code = e.getErrorCode();
-            String message = switch (code) {
-                case 1048 -> "Champ obligatoire manquant lors de la mise à jour (code=1048)";
-                case 1062 -> "Doublon détecté lors de la mise à jour (code=1062)";
+            final int code = e.getErrorCode();
+            final String message = switch (code) {
+                case 1048 -> "Champ obligatoire manquant lors de la mise à "
+                        + "jour (code=1048)";
+                case 1062 -> "Doublon détecté lors de la mise à jour "
+                        + "(code=1062)";
                 default -> "Erreur SQL dans update() (code=" + code + ")";
             };
 
@@ -263,9 +274,10 @@ public final class AdresseDao {
             } catch (SQLException e) {
                 conn.rollback();
 
-                int code = e.getErrorCode();
-                String message = switch (code) {
-                    case 1451 -> "Suppression impossible : contrainte étrangère (code=1451)";
+                final int code = e.getErrorCode();
+                final String message = switch (code) {
+                    case 1451 -> "Suppression impossible : contrainte "
+                            + "étrangère (code=1451)";
                     default -> "Erreur SQL dans delete() (code=" + code + ")";
                 };
 

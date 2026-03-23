@@ -2,12 +2,14 @@ package fr.afpa.jakartaee_cyril1.clients;
 
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import fr.afpa.jakartaee_cyril1.DAO.ClientDao;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+
 import models.Adresse;
 import models.Client;
 
@@ -40,19 +42,22 @@ public final class ClientFormController implements ICommand {
      * Constructeur : initialise Validator + DAO.
      */
     public ClientFormController() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        final ValidatorFactory factory =
+                Validation.buildDefaultValidatorFactory();
         this.validator = factory.getValidator();
 
         try {
             this.clientDao = new ClientDao();
         } catch (SQLException e) {
-            throw new RuntimeException("Impossible d'initialiser ClientDao", e);
+            throw new RuntimeException(
+                    "Impossible d'initialiser ClientDao", e);
         }
     }
 
     @Override
-    public String execute(HttpServletRequest request,
-                          HttpServletResponse response) throws Exception {
+    public String execute(final HttpServletRequest request,
+                          final HttpServletResponse response)
+            throws Exception {
 
         LOG.info("ClientFormController exécuté.");
 
@@ -63,19 +68,28 @@ public final class ClientFormController implements ICommand {
         return traiterSoumission(request);
     }
 
-    /* ============================================================
-       GET : AFFICHAGE DU FORMULAIRE
-       ============================================================ */
+    // ============================================================
+    // GET : AFFICHAGE DU FORMULAIRE
+    // ============================================================
 
-    private String afficherFormulaire(HttpServletRequest request) {
+    /**
+     * Affiche le formulaire de création ou modification.
+     *
+     * @param request requête HTTP
+     * @return chemin JSP
+     */
+    private String afficherFormulaire(final HttpServletRequest request) {
 
         LOG.info("Affichage du formulaire client (GET).");
 
-        Integer idClient = parseInt(request.getParameter("idClient"));
+        final Integer idClient =
+                parseInt(request.getParameter("idClient"));
+
         Client client;
 
         if (idClient != null) {
             LOG.info("Mode édition : chargement du client ID=" + idClient);
+
             try {
                 client = clientDao.findById(idClient);
             } catch (SQLException e) {
@@ -87,6 +101,7 @@ public final class ClientFormController implements ICommand {
                 client = new Client();
                 client.setAdresse(new Adresse());
             }
+
         } else {
             LOG.info("Mode création : nouveau client.");
             client = new Client();
@@ -97,33 +112,43 @@ public final class ClientFormController implements ICommand {
         return "/WEB-INF/jsp/clients/ClientForm.jsp";
     }
 
-    /* ============================================================
-       POST : TRAITEMENT DU FORMULAIRE
-       ============================================================ */
+    // ============================================================
+    // POST : TRAITEMENT DU FORMULAIRE
+    // ============================================================
 
-    private String traiterSoumission(HttpServletRequest request) {
+    /**
+     * Traite la soumission du formulaire client.
+     *
+     * @param request requête HTTP
+     * @return redirection ou JSP en cas d'erreur
+     */
+    private String traiterSoumission(final HttpServletRequest request) {
 
         LOG.info("Traitement du formulaire client (POST).");
 
-        Client client = new Client();
+        final Client client = new Client();
         client.setIdClient(parseInt(getParam(request, "idClient")));
         client.setRaisonSociale(getParam(request, "raisonSociale"));
         client.setTelephone(getParam(request, "telephone"));
         client.setAdresseMail(getParam(request, "adresseMail"));
         client.setCommentaires(getParam(request, "commentaires"));
-        client.setChiffreAffaires(parseLong(getParam(request, "chiffreAffaires")));
-        client.setNombreEmployes(parseInt(getParam(request, "nombreEmployes")));
+        client.setChiffreAffaires(
+                parseLong(getParam(request, "chiffreAffaires")));
+        client.setNombreEmployes(
+                parseInt(getParam(request, "nombreEmployes")));
 
-        Adresse adr = new Adresse();
+        final Adresse adr = new Adresse();
         adr.setIdAdresse(parseInt(getParam(request, "idAdresse")));
         adr.setNumeroRue(getParam(request, "numeroRue"));
         adr.setNomRue(getParam(request, "nomRue"));
         adr.setCodePostal(getParam(request, "codePostal"));
         adr.setVille(getParam(request, "ville"));
+
         client.setAdresse(adr);
 
         // Validation Jakarta
-        Set<ConstraintViolation<Client>> erreurs = validator.validate(client);
+        final Set<ConstraintViolation<Client>> erreurs =
+                validator.validate(client);
 
         if (!erreurs.isEmpty()) {
             LOG.warning("Erreurs de validation : " + erreurs.size());
@@ -138,36 +163,61 @@ public final class ClientFormController implements ICommand {
                 LOG.info("Création du client.");
                 clientDao.create(client);
             } else {
-                LOG.info("Mise à jour du client ID=" + client.getIdClient());
+                LOG.info("Mise à jour du client ID="
+                        + client.getIdClient());
                 clientDao.update(client);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur lors de la sauvegarde du client", e);
+            throw new RuntimeException(
+                    "Erreur lors de la sauvegarde du client", e);
         }
 
         return "FrontController?cmd=clientListe";
     }
 
-    /* ============================================================
-       HELPERS
-       ============================================================ */
+    // ============================================================
+    // HELPERS
+    // ============================================================
 
-    private String getParam(HttpServletRequest request, String name) {
-        String val = request.getParameter(name);
+    /**
+     * Récupère un paramètre trim() ou chaîne vide.
+     *
+     * @param request requête HTTP
+     * @param name nom du paramètre
+     * @return valeur nettoyée
+     */
+    private String getParam(final HttpServletRequest request,
+                            final String name) {
+
+        final String val = request.getParameter(name);
         return val != null ? val.trim() : "";
     }
 
-    private Integer parseInt(String v) {
+    /**
+     * Convertit une chaîne en Integer.
+     *
+     * @param v valeur brute
+     * @return entier ou null
+     */
+    private Integer parseInt(final String v) {
         try {
-            return (v == null || v.isBlank()) ? null : Integer.parseInt(v);
+            return (v == null || v.isBlank())
+                    ? null : Integer.parseInt(v);
         } catch (Exception e) {
             return null;
         }
     }
 
-    private long parseLong(String v) {
+    /**
+     * Convertit une chaîne en long.
+     *
+     * @param v valeur brute
+     * @return long ou 0
+     */
+    private long parseLong(final String v) {
         try {
-            return (v == null || v.isBlank()) ? 0L : Long.parseLong(v);
+            return (v == null || v.isBlank())
+                    ? 0L : Long.parseLong(v);
         } catch (Exception e) {
             return 0L;
         }

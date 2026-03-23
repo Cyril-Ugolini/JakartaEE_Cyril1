@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ENTREPRISE - Accueil</title>
 
-    <link href="${pageContext.request.contextPath}/assets/css/bootstrap.css" rel="stylesheet">
+    <!-- Bootstrap CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Ton style perso -->
     <link href="${pageContext.request.contextPath}/assets/css/style.css" rel="stylesheet">
 </head>
 
@@ -25,7 +28,10 @@
 <!-- Contenu principal -->
 <main class="home-content text-center">
     <h1 class="home-title">ENTREPRISE</h1>
-    <p class="home-subtitle" style="text-align:center; width:100%;">Gérez vos clients et prospects<br>depuis une interface unique et intuitive.</p>
+    <p class="home-subtitle" style="text-align:center; width:100%;">
+        Gérez vos clients et prospects<br>
+        depuis une interface unique et intuitive.
+    </p>
 
     <div class="home-buttons">
         <a href="${pageContext.request.contextPath}/FrontController?cmd=clientListe" class="btn-home">Clients</a>
@@ -41,8 +47,11 @@
     const TEMPLATE_URL = "${pageContext.request.contextPath}/FrontController?cmd=template";
 </script>
 
+<!-- Template dynamique -->
 <script src="${pageContext.request.contextPath}/assets/js/template.js"></script>
-<script src="${pageContext.request.contextPath}/assets/js/bootstrap.bundle.js"></script>
+
+<!-- Bootstrap JS (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Étoiles -->
 <script>

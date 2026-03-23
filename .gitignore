@@ -43,22 +43,38 @@ target/
 build/
 .gradle/
 .mvn/
+.mvn/wrapper/maven-wrapper.jar
 *.class
 *.jar
 *.war
 *.ear
 
 ########################################
+# Serveurs locaux (Tomcat / Payara / Jetty)
+########################################
+work/
+temp/
+logs/
+*.pid
+*.log
+
+########################################
+# JSP compilées
+########################################
+*.jsp.java
+
+########################################
 # Fichiers sensibles
 ########################################
 **/database.properties
+**/config.properties
+**/secret.key
 
 ########################################
-# Logs et documentation générée
+# Documentation générée
 ########################################
 logsAppli/
 javaDoc/
-*.log
 
 ########################################
 # Node.js
@@ -87,3 +103,4 @@ desktop.ini
 ########################################
 *.zip
 *.tar.gz
+*.rar

@@ -56,14 +56,17 @@ public final class ProspectDao {
     public List<Prospect> findAll() throws SQLException {
 
         final List<Prospect> liste = new ArrayList<>();
-        final String sql =
-                "SELECT p.id_prospect, p.raison_sociale, p.telephone, p.adresse_mail,"
-                        + " p.commentaires, p.date_prospection, p.interesse,"
-                        + " a.id_adresse, a.numero_rue, a.nom_rue, a.code_postal, a.ville"
-                        + " FROM prospect p"
-                        + " INNER JOIN adresse a ON p.id_adresse = a.id_adresse";
 
-        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql);
+        final String sql =
+                "SELECT p.id_prospect, p.raison_sociale, p.telephone, "
+                        + "p.adresse_mail, p.commentaires, p.date_prospection, "
+                        + "p.interesse, a.id_adresse, a.numero_rue, a.nom_rue, "
+                        + "a.code_postal, a.ville "
+                        + "FROM prospect p "
+                        + "INNER JOIN adresse a ON p.id_adresse = a.id_adresse";
+
+        try (PreparedStatement stmt =
+                     db.getConnection().prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -74,9 +77,10 @@ public final class ProspectDao {
 
         } catch (SQLException e) {
 
-            int code = e.getErrorCode();
-            String message = switch (code) {
-                case 1064 -> "Erreur SQL dans findAll() : syntaxe incorrecte (code=1064)";
+            final int code = e.getErrorCode();
+            final String message = switch (code) {
+                case 1064 -> "Erreur SQL dans findAll() : syntaxe incorrecte "
+                        + "(code=1064)";
                 default -> "Erreur SQL dans findAll() (code=" + code + ")";
             };
 
@@ -101,14 +105,16 @@ public final class ProspectDao {
     public Prospect findById(final int id) throws SQLException {
 
         final String sql =
-                "SELECT p.id_prospect, p.raison_sociale, p.telephone, p.adresse_mail,"
-                        + " p.commentaires, p.date_prospection, p.interesse,"
-                        + " a.id_adresse, a.numero_rue, a.nom_rue, a.code_postal, a.ville"
-                        + " FROM prospect p"
-                        + " INNER JOIN adresse a ON p.id_adresse = a.id_adresse"
-                        + " WHERE p.id_prospect = ?";
+                "SELECT p.id_prospect, p.raison_sociale, p.telephone, "
+                        + "p.adresse_mail, p.commentaires, p.date_prospection, "
+                        + "p.interesse, a.id_adresse, a.numero_rue, a.nom_rue, "
+                        + "a.code_postal, a.ville "
+                        + "FROM prospect p "
+                        + "INNER JOIN adresse a ON p.id_adresse = a.id_adresse "
+                        + "WHERE p.id_prospect = ?";
 
-        try (PreparedStatement stmt = db.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement stmt =
+                     db.getConnection().prepareStatement(sql)) {
 
             stmt.setInt(1, id);
 
@@ -121,10 +127,12 @@ public final class ProspectDao {
 
         } catch (SQLException e) {
 
-            int code = e.getErrorCode();
-            String message = switch (code) {
-                case 1064 -> "Erreur SQL dans findById(" + id + ") : syntaxe incorrecte (code=1064)";
-                default -> "Erreur SQL dans findById(" + id + ") (code=" + code + ")";
+            final int code = e.getErrorCode();
+            final String message = switch (code) {
+                case 1064 -> "Erreur SQL dans findById(" + id
+                        + ") : syntaxe incorrecte (code=1064)";
+                default -> "Erreur SQL dans findById(" + id + ") (code="
+                        + code + ")";
             };
 
             LOG.severe(message + " | " + e.getMessage());
@@ -159,20 +167,24 @@ public final class ProspectDao {
 
             // 2. Création du prospect
             final String sql =
-                    "INSERT INTO prospect (raison_sociale, id_adresse, telephone, adresse_mail,"
-                            + " commentaires, date_prospection, interesse)"
-                            + " VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    "INSERT INTO prospect (raison_sociale, id_adresse, "
+                            + "telephone, adresse_mail, commentaires, "
+                            + "date_prospection, interesse) "
+                            + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement stmt =
-                         conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                         conn.prepareStatement(sql,
+                                 Statement.RETURN_GENERATED_KEYS)) {
 
                 stmt.setString(1, prospect.getRaisonSociale());
                 stmt.setInt(2, idAdresse);
                 stmt.setString(3, prospect.getTelephone());
                 stmt.setString(4, prospect.getAdresseMail());
                 stmt.setString(5, prospect.getCommentaires());
-                stmt.setDate(6, java.sql.Date.valueOf(prospect.getDateProspection()));
-                stmt.setInt(7, prospect.getInteresse() == Interesse.OUI ? 1 : 0);
+                stmt.setDate(6,
+                        java.sql.Date.valueOf(prospect.getDateProspection()));
+                stmt.setInt(7,
+                        prospect.getInteresse() == Interesse.OUI ? 1 : 0);
 
                 final int rows = stmt.executeUpdate();
 
@@ -183,7 +195,8 @@ public final class ProspectDao {
                         }
                     }
                     conn.commit();
-                    LOG.info("Prospect créé : ID=" + prospect.getIdProspect());
+                    LOG.info("Prospect créé : ID="
+                            + prospect.getIdProspect());
                     return true;
                 }
             }
@@ -192,13 +205,17 @@ public final class ProspectDao {
             return false;
 
         } catch (SQLException e) {
+
             conn.rollback();
 
-            int code = e.getErrorCode();
-            String message = switch (code) {
-                case 1048 -> "Champ obligatoire manquant lors de la création du prospect (code=1048)";
-                case 1452 -> "Contrainte étrangère violée lors de la création du prospect (code=1452)";
-                case 1062 -> "Doublon détecté lors de la création du prospect (code=1062)";
+            final int code = e.getErrorCode();
+            final String message = switch (code) {
+                case 1048 -> "Champ obligatoire manquant lors de la création "
+                        + "du prospect (code=1048)";
+                case 1452 -> "Contrainte étrangère violée lors de la création "
+                        + "du prospect (code=1452)";
+                case 1062 -> "Doublon détecté lors de la création du prospect "
+                        + "(code=1062)";
                 default -> "Erreur SQL dans create() (code=" + code + ")";
             };
 
@@ -230,49 +247,60 @@ public final class ProspectDao {
 
             // 1. Mise à jour de l'adresse
             final String sqlAdr =
-                    "UPDATE adresse SET numero_rue=?, nom_rue=?, code_postal=?, ville=?"
-                            + " WHERE id_adresse=?";
+                    "UPDATE adresse SET numero_rue=?, nom_rue=?, "
+                            + "code_postal=?, ville=? WHERE id_adresse=?";
 
-            try (PreparedStatement stmt = conn.prepareStatement(sqlAdr)) {
+            try (PreparedStatement stmt =
+                         conn.prepareStatement(sqlAdr)) {
+
                 stmt.setString(1, prospect.getAdresse().getNumeroRue());
                 stmt.setString(2, prospect.getAdresse().getNomRue());
                 stmt.setString(3, prospect.getAdresse().getCodePostal());
                 stmt.setString(4, prospect.getAdresse().getVille());
                 stmt.setInt(5, prospect.getAdresse().getIdAdresse());
+
                 stmt.executeUpdate();
             }
 
             // 2. Mise à jour du prospect
             final String sql =
-                    "UPDATE prospect SET raison_sociale=?, telephone=?, adresse_mail=?,"
-                            + " commentaires=?, date_prospection=?, interesse=?"
-                            + " WHERE id_prospect=?";
+                    "UPDATE prospect SET raison_sociale=?, telephone=?, "
+                            + "adresse_mail=?, commentaires=?, date_prospection=?, "
+                            + "interesse=? WHERE id_prospect=?";
 
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement stmt =
+                         conn.prepareStatement(sql)) {
 
                 stmt.setString(1, prospect.getRaisonSociale());
                 stmt.setString(2, prospect.getTelephone());
                 stmt.setString(3, prospect.getAdresseMail());
                 stmt.setString(4, prospect.getCommentaires());
-                stmt.setDate(5, java.sql.Date.valueOf(prospect.getDateProspection()));
-                stmt.setInt(6, prospect.getInteresse() == Interesse.OUI ? 1 : 0);
+                stmt.setDate(5,
+                        java.sql.Date.valueOf(prospect.getDateProspection()));
+                stmt.setInt(6,
+                        prospect.getInteresse() == Interesse.OUI ? 1 : 0);
                 stmt.setInt(7, prospect.getIdProspect());
 
                 final int rows = stmt.executeUpdate();
                 conn.commit();
 
-                LOG.info("Prospect modifié : ID=" + prospect.getIdProspect());
+                LOG.info("Prospect modifié : ID="
+                        + prospect.getIdProspect());
                 return rows > 0;
             }
 
         } catch (SQLException e) {
+
             conn.rollback();
 
-            int code = e.getErrorCode();
-            String message = switch (code) {
-                case 1048 -> "Champ obligatoire manquant lors de la mise à jour (code=1048)";
-                case 1452 -> "Contrainte étrangère violée lors de la mise à jour (code=1452)";
-                case 1062 -> "Doublon détecté lors de la mise à jour (code=1062)";
+            final int code = e.getErrorCode();
+            final String message = switch (code) {
+                case 1048 -> "Champ obligatoire manquant lors de la mise à "
+                        + "jour (code=1048)";
+                case 1452 -> "Contrainte étrangère violée lors de la mise à "
+                        + "jour (code=1452)";
+                case 1062 -> "Doublon détecté lors de la mise à jour "
+                        + "(code=1062)";
                 default -> "Erreur SQL dans update() (code=" + code + ")";
             };
 
@@ -303,6 +331,7 @@ public final class ProspectDao {
             conn.setAutoCommit(false);
 
             final Prospect prospect = findById(id);
+
             if (prospect == null) {
                 LOG.warning("delete() : prospect ID=" + id + " non trouvé.");
                 return false;
@@ -311,15 +340,23 @@ public final class ProspectDao {
             final int idAdresse = prospect.getAdresse().getIdAdresse();
 
             // 1. Suppression du prospect
-            final String sqlProspect = "DELETE FROM prospect WHERE id_prospect=?";
-            try (PreparedStatement stmt = conn.prepareStatement(sqlProspect)) {
+            final String sqlProspect =
+                    "DELETE FROM prospect WHERE id_prospect=?";
+
+            try (PreparedStatement stmt =
+                         conn.prepareStatement(sqlProspect)) {
+
                 stmt.setInt(1, id);
                 stmt.executeUpdate();
             }
 
             // 2. Suppression de l'adresse
-            final String sqlAdr = "DELETE FROM adresse WHERE id_adresse=?";
-            try (PreparedStatement stmt = conn.prepareStatement(sqlAdr)) {
+            final String sqlAdr =
+                    "DELETE FROM adresse WHERE id_adresse=?";
+
+            try (PreparedStatement stmt =
+                         conn.prepareStatement(sqlAdr)) {
+
                 stmt.setInt(1, idAdresse);
                 stmt.executeUpdate();
             }
@@ -329,11 +366,13 @@ public final class ProspectDao {
             return true;
 
         } catch (SQLException e) {
+
             conn.rollback();
 
-            int code = e.getErrorCode();
-            String message = switch (code) {
-                case 1451 -> "Suppression impossible : contrainte étrangère (code=1451)";
+            final int code = e.getErrorCode();
+            final String message = switch (code) {
+                case 1451 -> "Suppression impossible : contrainte étrangère "
+                        + "(code=1451)";
                 default -> "Erreur SQL dans delete() (code=" + code + ")";
             };
 
@@ -352,25 +391,27 @@ public final class ProspectDao {
     /**
      * Crée une adresse en base et retourne son identifiant.
      *
-     * @param conn    connexion SQL
+     * @param conn connexion SQL
      * @param adresse adresse à créer
      * @return identifiant généré
      * @throws SQLException en cas d'erreur SQL
      */
-    private int creerAdresse(final Connection conn, final Adresse adresse)
-            throws SQLException {
+    private int creerAdresse(final Connection conn,
+                             final Adresse adresse) throws SQLException {
 
         final String sql =
-                "INSERT INTO adresse (numero_rue, nom_rue, code_postal, ville)"
-                        + " VALUES (?, ?, ?, ?)";
+                "INSERT INTO adresse (numero_rue, nom_rue, code_postal, ville) "
+                        + "VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement stmt =
-                     conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                     conn.prepareStatement(sql,
+                             Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, adresse.getNumeroRue());
             stmt.setString(2, adresse.getNomRue());
             stmt.setString(3, adresse.getCodePostal());
             stmt.setString(4, adresse.getVille());
+
             stmt.executeUpdate();
 
             try (ResultSet keys = stmt.getGeneratedKeys()) {
@@ -381,9 +422,10 @@ public final class ProspectDao {
 
         } catch (SQLException e) {
 
-            int code = e.getErrorCode();
-            String message = switch (code) {
-                case 1048 -> "Champ obligatoire manquant lors de la création d'adresse (code=1048)";
+            final int code = e.getErrorCode();
+            final String message = switch (code) {
+                case 1048 -> "Champ obligatoire manquant lors de la création "
+                        + "d'adresse (code=1048)";
                 default -> "Erreur SQL dans creerAdresse() (code=" + code + ")";
             };
 
@@ -420,8 +462,11 @@ public final class ProspectDao {
         prospect.setTelephone(rs.getString("telephone"));
         prospect.setAdresseMail(rs.getString("adresse_mail"));
         prospect.setCommentaires(rs.getString("commentaires"));
-        prospect.setDateProspection(rs.getDate("date_prospection").toLocalDate());
-        prospect.setInteresse(rs.getInt("interesse") == 1 ? Interesse.OUI : Interesse.NON);
+        prospect.setDateProspection(
+                rs.getDate("date_prospection").toLocalDate());
+        prospect.setInteresse(
+                rs.getInt("interesse") == 1 ? Interesse.OUI : Interesse.NON);
+        prospect.setAdresse(adresse);
 
         return prospect;
     }
