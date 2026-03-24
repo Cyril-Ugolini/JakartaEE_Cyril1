@@ -15,7 +15,7 @@ import models.Client;
  * vue JSP affichant les informations complètes d'un client.</p>
  *
  * @author Cyril
- * @version 1.1
+ * @version 1.2
  */
 public final class ClientViewController implements ICommand {
 
@@ -23,6 +23,32 @@ public final class ClientViewController implements ICommand {
     private static final Logger LOG =
             Logger.getLogger(ClientViewController.class.getName());
 
+    /** DAO permettant la récupération des données client. */
+    private final ClientDao clientDao;
+
+    /**
+     * Constructeur : initialise le DAO client.
+     */
+    public ClientViewController() {
+        try {
+            this.clientDao = new ClientDao();
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Impossible d'initialiser ClientDao", e);
+        }
+    }
+
+    /**
+     * Affiche les détails d’un client identifié par son id.
+     *
+     * <p>Vérifie la présence et la validité du paramètre {@code idClient},
+     * charge le client correspondant, puis transmet l'objet à la JSP.</p>
+     *
+     * @param request  requête HTTP contenant l'identifiant du client
+     * @param response réponse HTTP
+     * @return chemin de la JSP de visualisation ou null en cas d’erreur
+     * @throws Exception en cas d’erreur interne
+     */
     @Override
     public String execute(
             final HttpServletRequest request,
@@ -31,26 +57,50 @@ public final class ClientViewController implements ICommand {
         LOG.info("Affichage des détails d'un client.");
 
         try {
-            //  Correction : on lit bien idClient
+            // Lecture du paramètre idClient
             final String idParam = request.getParameter("idClient");
 
-            if (idParam != null && !idParam.isBlank()) {
-
-                int id = Integer.parseInt(idParam);
-                LOG.info("Chargement du client ID=" + id);
-
-                ClientDao dao = new ClientDao();
-                Client client = dao.findById(id);
-
-                request.setAttribute("client", client);
-            } else {
+            if (idParam == null || idParam.isBlank()) {
                 LOG.warning("Aucun idClient reçu dans la requête.");
+                response.sendError(
+                        HttpServletResponse.SC_BAD_REQUEST,
+                        "Paramètre idClient manquant");
+                return null;
             }
+
+            // Conversion sécurisée
+            int id;
+            try {
+                id = Integer.parseInt(idParam);
+            } catch (NumberFormatException e) {
+                LOG.warning("Format idClient invalide : " + idParam);
+                response.sendError(
+                        HttpServletResponse.SC_BAD_REQUEST,
+                        "Format idClient invalide");
+                return null;
+            }
+
+            LOG.info("Chargement du client ID=" + id);
+
+            // Récupération du client
+            Client client = clientDao.findById(id);
+
+            if (client == null) {
+                LOG.warning("Client introuvable pour ID=" + id);
+                response.sendError(
+                        HttpServletResponse.SC_NOT_FOUND,
+                        "Client introuvable");
+                return null;
+            }
+
+            // Envoi à la JSP
+            request.setAttribute("client", client);
 
             return "/WEB-INF/jsp/clients/ClientView.jsp";
 
         } catch (Exception e) {
-            LOG.severe("Erreur dans ClientViewController : " + e.getMessage());
+            LOG.severe("Erreur dans ClientViewController : "
+                    + e.getMessage());
             throw e;
         }
     }

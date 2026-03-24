@@ -9,25 +9,51 @@ import models.Client;
 import java.util.logging.Logger;
 
 /**
- * Controller responsible for handling client deletion.
+ * Contrôleur chargé de gérer la suppression d'un client.
  *
- * <p>Workflow:
+ * <p>Workflow :</p>
  * <ul>
- *     <li>GET  -> Display confirmation page</li>
- *     <li>POST -> Validate CSRF token, delete client, redirect to list</li>
+ *     <li>GET  → affichage de la page de confirmation</li>
+ *     <li>POST → validation du token CSRF, suppression, redirection</li>
  * </ul>
  *
- * <p>Security:
+ * <p>Sécurité :</p>
  * <ul>
- *     <li>CSRF token validation required for POST</li>
- *     <li>Client ID must be provided</li>
+ *     <li>Validation CSRF obligatoire pour POST</li>
+ *     <li>L'identifiant du client doit être fourni</li>
  * </ul>
  */
 public final class ClientSuppressionController implements ICommand {
 
+    /** Logger du contrôleur de suppression client. */
     private static final Logger LOG =
             Logger.getLogger(ClientSuppressionController.class.getName());
 
+    /** DAO permettant la recherche et la suppression de clients. */
+    private final ClientDao clientDao;
+
+    /**
+     * Constructeur : initialise le DAO client.
+     */
+    public ClientSuppressionController() {
+        try {
+            this.clientDao = new ClientDao();
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to initialize ClientDao", e);
+        }
+    }
+
+    /**
+     * Traite la requête HTTP pour la suppression d'un client.
+     *
+     * <p>GET : affiche la page de confirmation.<br>
+     * POST : vérifie le token CSRF, supprime le client et redirige.</p>
+     *
+     * @param request  requête HTTP
+     * @param response réponse HTTP
+     * @return chemin de la vue ou redirection
+     * @throws Exception en cas d’erreur interne
+     */
     @Override
     public String execute(
             final HttpServletRequest request,
@@ -35,28 +61,40 @@ public final class ClientSuppressionController implements ICommand {
 
         LOG.info("ClientSuppressionController executed.");
 
-        ClientDao clientDao = new ClientDao();
-
         // Retrieve client ID
         String idParam = request.getParameter("idClient");
-        if (idParam == null) {
+        if (idParam == null || idParam.isBlank()) {
             LOG.warning("Missing idClient parameter.");
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing idClient parameter");
+            response.sendError(
+                    HttpServletResponse.SC_BAD_REQUEST,
+                    "Missing idClient parameter");
             return null;
         }
 
-        int id = Integer.parseInt(idParam);
+        int id;
+        try {
+            id = Integer.parseInt(idParam);
+        } catch (NumberFormatException e) {
+            LOG.warning("Invalid idClient format: " + idParam);
+            response.sendError(
+                    HttpServletResponse.SC_BAD_REQUEST,
+                    "Invalid idClient format");
+            return null;
+        }
 
         // POST = deletion request
         if ("POST".equalsIgnoreCase(request.getMethod())) {
 
             // CSRF validation
-            String tokenSession = (String) request.getSession().getAttribute("csrfToken");
+            String tokenSession =
+                    (String) request.getSession().getAttribute("csrfToken");
             String tokenForm = request.getParameter("csrfToken");
 
             if (tokenSession == null || !tokenSession.equals(tokenForm)) {
                 LOG.warning("Invalid CSRF token.");
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "CSRF token invalide");
+                response.sendError(
+                        HttpServletResponse.SC_FORBIDDEN,
+                        "CSRF token invalide");
                 return null;
             }
 
@@ -64,8 +102,8 @@ public final class ClientSuppressionController implements ICommand {
             clientDao.delete(id);
             LOG.info("Client deleted: ID=" + id);
 
-            // Redirect to client list
-            return "redirect:FrontController?cmd=clientListe";
+            return "redirect:" + request.getContextPath()
+                    + "/FrontController?cmd=clientListe";
         }
 
         // GET = display confirmation page

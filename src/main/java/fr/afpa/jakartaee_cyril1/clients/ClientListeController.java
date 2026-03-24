@@ -16,7 +16,7 @@ import models.Client;
  * la liste des clients via la DAO et la passe à la JSP.</p>
  *
  * @author Cyril
- * @version 1.0
+ * @version 1.1
  */
 public final class ClientListeController implements ICommand {
 
@@ -24,31 +24,35 @@ public final class ClientListeController implements ICommand {
     private static final Logger LOG =
             Logger.getLogger(ClientListeController.class.getName());
 
-    /**
-     * Exécute la commande et renvoie la liste des clients.
-     *
-     * @param request  l'objet {@link HttpServletRequest}
-     *                 contenant les informations de la requête HTTP
-     * @param response l'objet {@link HttpServletResponse}
-     *                 permettant de construire la réponse HTTP
-     * @return le chemin de la JSP à afficher
-     * @throws Exception si une erreur survient lors du traitement
-     */
+    /** DAO Client (instancié une seule fois). */
+    private final ClientDao clientDao;
+
+    /** Constructeur. */
+    public ClientListeController() {
+        try {
+            this.clientDao = new ClientDao();
+        } catch (Exception e) {
+            throw new RuntimeException("Impossible d'initialiser ClientDao", e);
+        }
+    }
+
     @Override
     public String execute(
             final HttpServletRequest request,
             final HttpServletResponse response) throws Exception {
+
         LOG.info("Affichage de la liste des clients.");
+
         try {
-            final ClientDao clientDao = new ClientDao();
             final List<Client> clients = clientDao.findAll();
             request.setAttribute("clients", clients);
-            LOG.info("Nombre de clients chargés : "
-                    + clients.size());
+
+            LOG.info("Nombre de clients chargés : " + clients.size());
+
             return "/WEB-INF/jsp/clients/ClientListe.jsp";
+
         } catch (Exception e) {
-            LOG.severe("Erreur dans ClientListeController : "
-                    + e.getMessage());
+            LOG.severe("Erreur dans ClientListeController : " + e.getMessage());
             throw e;
         }
     }

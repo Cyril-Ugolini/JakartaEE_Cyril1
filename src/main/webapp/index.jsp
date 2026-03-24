@@ -1,2 +1,4 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
-<% response.sendRedirect(request.getContextPath() + "/FrontController"); %>
+<%
+    response.sendRedirect(request.getContextPath() + "/FrontController?cmd=accueil");
+%>

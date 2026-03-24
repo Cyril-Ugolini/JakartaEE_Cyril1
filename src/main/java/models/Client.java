@@ -1,7 +1,6 @@
 package models;
 
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 
 /**
  * Représente un client dans le CRM.
