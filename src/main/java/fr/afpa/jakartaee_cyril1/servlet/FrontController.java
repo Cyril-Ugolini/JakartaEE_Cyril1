@@ -1,5 +1,6 @@
 package fr.afpa.jakartaee_cyril1.servlet;
 
+import fr.afpa.jakartaee_cyril1.controllers.InitAdminController;
 import fr.afpa.jakartaee_cyril1.auth.LoginController;
 import fr.afpa.jakartaee_cyril1.auth.LogoutController;
 import fr.afpa.jakartaee_cyril1.clients.ClientFormController;
@@ -67,7 +68,7 @@ public class FrontController extends HttpServlet {
         commands.put("mentionsLegales", new MentionsLegalesController());
         commands.put("confidentialite",
                 new PolitiqueConfidentialiteController());
-
+        commands.put("initAdmin", new InitAdminController());
         LOG.info("FrontController initialisé avec "
                 + commands.size() + " commandes.");
     }

@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
 <!-- HEADER COMPLET -->
 <div id="tpl-header">
@@ -42,7 +43,22 @@
             </div>
 
             <!-- Connexion -->
-            <div class="crm-nav-connexion" id="nav-connexion"></div>
+            <div class="crm-nav-connexion" id="nav-connexion">
+                <c:choose>
+                    <c:when test="${not empty sessionScope.user}">
+                        <a class="crm-btn-connexion"
+                           href="${pageContext.request.contextPath}/FrontController?cmd=logout">
+                            Déconnexion
+                        </a>
+                    </c:when>
+                    <c:otherwise>
+                        <a class="crm-btn-connexion"
+                           href="${pageContext.request.contextPath}/FrontController?cmd=login">
+                            Connexion
+                        </a>
+                    </c:otherwise>
+                </c:choose>
+            </div>
 
         </nav>
     </header>
@@ -68,7 +84,25 @@
                 <li><a href="${pageContext.request.contextPath}/FrontController?cmd=clientListe">Clients</a></li>
                 <li><a href="${pageContext.request.contextPath}/FrontController?cmd=prospectListe">Prospects</a></li>
             </ul>
-            <div id="aside-connexion"></div>
+
+            <!-- Connexion dans l’aside (optionnel) -->
+            <div id="aside-connexion">
+                <c:choose>
+                    <c:when test="${not empty sessionScope.user}">
+                        <a class="crm-btn-connexion"
+                           href="${pageContext.request.contextPath}/FrontController?cmd=logout">
+                            Déconnexion
+                        </a>
+                    </c:when>
+                    <c:otherwise>
+                        <a class="crm-btn-connexion"
+                           href="${pageContext.request.contextPath}/FrontController?cmd=login">
+                            Connexion
+                        </a>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+
         </div>
     </aside>
 </div>
