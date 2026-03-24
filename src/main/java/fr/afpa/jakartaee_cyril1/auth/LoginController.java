@@ -3,46 +3,52 @@ package fr.afpa.jakartaee_cyril1.auth;
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
- * Contrôleur chargé d'afficher la page de connexion.
+ * Controller responsible for displaying the login page
+ * and initializing the CSRF token after login.
  *
- * <p>Ce contrôleur ne réalise aucune logique d'authentification :
- * il se contente d'afficher la vue Login.jsp. La validation
- * et la vérification des identifiants sont gérées côté client
- * dans la page JSP (compte admin fictif pour l'ECF).</p>
+ * <p>This controller does not validate credentials (ECF context).
+ * It only displays the login form (GET) and initializes the
+ * session after a fake login (POST).</p>
  *
- * <p>Commande associée : {@code cmd=login}</p>
- *
- * @author Cyril
- * @version 1.0
+ * <p>Command: cmd=login</p>
  */
 public final class LoginController implements ICommand {
 
-    /** Logger du LoginController. */
+    /** Logger. */
     private static final Logger LOG =
             Logger.getLogger(LoginController.class.getName());
 
-    /**
-     * Renvoie simplement la page JSP du formulaire de connexion.
-     *
-     * @param request  requête HTTP
-     * @param response réponse HTTP
-     * @return chemin de la vue : /WEB-INF/jsp/auth/Login.jsp
-     * @throws Exception en cas d'erreur interne
-     */
     @Override
     public String execute(
             final HttpServletRequest request,
             final HttpServletResponse response) throws Exception {
-        LOG.info("Affichage de la page de connexion.");
-        try {
+
+        LOG.info("LoginController executed.");
+
+        // --------------------------------------------------------
+        // GET : display login page
+        // --------------------------------------------------------
+        if ("GET".equalsIgnoreCase(request.getMethod())) {
             return "/WEB-INF/jsp/auth/Login.jsp";
-        } catch (Exception e) {
-            LOG.severe("Erreur dans LoginController : "
-                    + e.getMessage());
-            throw e;
         }
+
+        // --------------------------------------------------------
+        // POST : fake login + CSRF token creation
+        // --------------------------------------------------------
+        LOG.info("Fake login accepted. Initializing session.");
+
+        // Create CSRF token
+        String csrf = UUID.randomUUID().toString();
+        request.getSession().setAttribute("csrfToken", csrf);
+
+        LOG.info("CSRF token generated: " + csrf);
+
+        // Redirect to home page
+        return "redirect:FrontController?cmd=accueil";
     }
 }

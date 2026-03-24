@@ -65,7 +65,7 @@ public final class ClientFormController implements ICommand {
             return afficherFormulaire(request);
         }
 
-        return traiterSoumission(request);
+        return traiterSoumission(request, response);
     }
 
     // ============================================================
@@ -120,22 +120,41 @@ public final class ClientFormController implements ICommand {
      * Traite la soumission du formulaire client.
      *
      * @param request requête HTTP
+     * @param response réponse HTTP
      * @return redirection ou JSP en cas d'erreur
      */
-    private String traiterSoumission(final HttpServletRequest request) {
+    private String traiterSoumission(final HttpServletRequest request,
+                                     final HttpServletResponse response) {
 
         LOG.info("Traitement du formulaire client (POST).");
 
+        // ============================
+        // Vérification CSRF
+        // ============================
+        String sessionToken = (String) request.getSession().getAttribute("csrfToken");
+        String formToken = request.getParameter("csrfToken");
+
+        if (sessionToken == null || formToken == null || !sessionToken.equals(formToken)) {
+            LOG.warning("CSRF token invalide !");
+            try {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "CSRF token invalide");
+            } catch (Exception e) {
+                throw new RuntimeException("Erreur CSRF", e);
+            }
+            return null;
+        }
+
+        // ============================
+        // Construction du Client
+        // ============================
         final Client client = new Client();
         client.setIdClient(parseInt(getParam(request, "idClient")));
         client.setRaisonSociale(getParam(request, "raisonSociale"));
         client.setTelephone(getParam(request, "telephone"));
         client.setAdresseMail(getParam(request, "adresseMail"));
         client.setCommentaires(getParam(request, "commentaires"));
-        client.setChiffreAffaires(
-                parseLong(getParam(request, "chiffreAffaires")));
-        client.setNombreEmployes(
-                parseInt(getParam(request, "nombreEmployes")));
+        client.setChiffreAffaires(parseLong(getParam(request, "chiffreAffaires")));
+        client.setNombreEmployes(parseInt(getParam(request, "nombreEmployes")));
 
         final Adresse adr = new Adresse();
         adr.setIdAdresse(parseInt(getParam(request, "idAdresse")));
@@ -146,9 +165,10 @@ public final class ClientFormController implements ICommand {
 
         client.setAdresse(adr);
 
+        // ============================
         // Validation Jakarta
-        final Set<ConstraintViolation<Client>> erreurs =
-                validator.validate(client);
+        // ============================
+        final Set<ConstraintViolation<Client>> erreurs = validator.validate(client);
 
         if (!erreurs.isEmpty()) {
             LOG.warning("Erreurs de validation : " + erreurs.size());
@@ -157,35 +177,28 @@ public final class ClientFormController implements ICommand {
             return "/WEB-INF/jsp/clients/ClientForm.jsp";
         }
 
+        // ============================
         // Sauvegarde
+        // ============================
         try {
             if (client.getIdClient() == null) {
                 LOG.info("Création du client.");
                 clientDao.create(client);
             } else {
-                LOG.info("Mise à jour du client ID="
-                        + client.getIdClient());
+                LOG.info("Mise à jour du client ID=" + client.getIdClient());
                 clientDao.update(client);
             }
         } catch (SQLException e) {
-            throw new RuntimeException(
-                    "Erreur lors de la sauvegarde du client", e);
+            throw new RuntimeException("Erreur lors de la sauvegarde du client", e);
         }
 
-        return "FrontController?cmd=clientListe";
+        return "redirect:FrontController?cmd=clientListe";
     }
 
     // ============================================================
     // HELPERS
     // ============================================================
 
-    /**
-     * Récupère un paramètre trim() ou chaîne vide.
-     *
-     * @param request requête HTTP
-     * @param name nom du paramètre
-     * @return valeur nettoyée
-     */
     private String getParam(final HttpServletRequest request,
                             final String name) {
 
@@ -193,12 +206,6 @@ public final class ClientFormController implements ICommand {
         return val != null ? val.trim() : "";
     }
 
-    /**
-     * Convertit une chaîne en Integer.
-     *
-     * @param v valeur brute
-     * @return entier ou null
-     */
     private Integer parseInt(final String v) {
         try {
             return (v == null || v.isBlank())
@@ -208,12 +215,6 @@ public final class ClientFormController implements ICommand {
         }
     }
 
-    /**
-     * Convertit une chaîne en long.
-     *
-     * @param v valeur brute
-     * @return long ou 0
-     */
     private long parseLong(final String v) {
         try {
             return (v == null || v.isBlank())

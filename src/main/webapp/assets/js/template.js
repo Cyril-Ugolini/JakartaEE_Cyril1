@@ -1,36 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-    // Pages protégées
-    const pagesProtegees = [
-        'client-form.jsp',
-        'prospect-form.jsp',
-        'delete-client.jsp',
-        'delete-prospect.jsp'
-    ];
-
-    const pageCourante = window.location.pathname.split('/').pop();
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const params = new URLSearchParams(window.location.search);
-    const mode = params.get('mode');
-    const cmd = params.get('cmd');
-
-    if (pagesProtegees.includes(pageCourante) && !isLoggedIn) {
-        window.location.href = "FrontController?cmd=login";
-        return;
-    }
-
-    if ((mode === 'modifier' || mode === 'supprimer') && !isLoggedIn) {
-        window.location.href = "FrontController?cmd=login";
-        return;
-    }
-
-    if ((cmd === 'clientSuppression' || cmd === 'prospectSuppression') && !isLoggedIn) {
-        window.location.href = "FrontController?cmd=login";
-        return;
-    }
-
-    if ((cmd === 'clientForm' || cmd === 'prospectForm') && !isLoggedIn) {
-        window.location.href = "FrontController?cmd=login";
+    // Si la page indique "pas de header", on ne charge rien
+    if (document.body.dataset.header === "none") {
         return;
     }
 
@@ -75,9 +46,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.adoptNode(footerSource.cloneNode(true))
                 );
             }
-
-            gererConnexion();
         });
+
 
     // Menu burger
     function initBurgerMenu() {
@@ -105,44 +75,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 content.classList.toggle("open");
             });
         });
-    }
-
-    // Connexion
-    function gererConnexion() {
-        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-        const username = localStorage.getItem('username') || '';
-
-        // Menu burger
-        const navConnexion = document.getElementById('nav-connexion');
-        if (navConnexion) {
-            navConnexion.replaceChildren();
-            if (isLoggedIn) {
-                navConnexion.innerHTML = `
-                    <p class="crm-username">👤 ${username}</p>
-                    <a href="FrontController?cmd=logout" class="crm-btn-connexion">Déconnexion</a>
-                `;
-            } else {
-                navConnexion.innerHTML = `
-                    <a href="FrontController?cmd=login" class="crm-btn-connexion">Connexion</a>
-                `;
-            }
-        }
-
-        // Aside
-        const asideConnexion = document.getElementById('aside-connexion');
-        if (asideConnexion) {
-            asideConnexion.replaceChildren();
-            if (isLoggedIn) {
-                asideConnexion.innerHTML = `
-                    <p class="mt-2 mb-1 small">👤 ${username}</p>
-                    <a href="FrontController?cmd=logout" class="btn btn-danger btn-sm w-100">Déconnexion</a>
-                `;
-            } else {
-                asideConnexion.innerHTML = `
-                    <a href="FrontController?cmd=login" class="btn btn-primary btn-sm w-100 mt-2">Connexion</a>
-                `;
-            }
-        }
     }
 
 });

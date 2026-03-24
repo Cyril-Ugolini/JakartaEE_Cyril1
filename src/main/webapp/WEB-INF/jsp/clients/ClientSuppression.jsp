@@ -3,8 +3,12 @@
 
 <!-- ============================================================================
 FICHIER : ClientSuppression.jsp
-ROLE : Confirmation avant suppression d’un client
+ROLE : Confirmation avant suppression d'un client
 ARCHITECTURE : MVC (Jakarta EE)
+DESCRIPTION :
+- Affiche les informations du client a supprimer
+- Demande une confirmation explicite a l'utilisateur
+- Envoie un POST securise (CSRF) vers ClientSuppressionController
 ============================================================================ -->
 
 <!DOCTYPE html>
@@ -12,7 +16,7 @@ ARCHITECTURE : MVC (Jakarta EE)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CRM – Suppression client</title>
+    <title>CRM - Suppression client</title>
 
     <!-- Styles -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -56,7 +60,7 @@ ARCHITECTURE : MVC (Jakarta EE)
                     </p>
 
                     <div class="alert alert-danger mt-4">
-                        <c:out value="Cette action est définitive et ne peut pas être annulée."/>
+                        <c:out value="Cette action est definitive et ne peut pas etre annulee."/>
                     </div>
 
                     <div class="d-flex justify-content-between mt-4">
@@ -69,8 +73,9 @@ ARCHITECTURE : MVC (Jakarta EE)
                         <!-- Formulaire de suppression -->
                         <form method="post" action="FrontController?cmd=clientSuppression" class="d-inline">
                             <input type="hidden" name="idClient" value="${client.idClient}" />
+                            <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
                             <button type="submit" class="btn btn-danger">
-                                <c:out value="Supprimer définitivement"/>
+                                <c:out value="Supprimer definitivement"/>
                             </button>
                         </form>
 

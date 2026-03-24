@@ -75,14 +75,19 @@ ARCHITECTURE : MVC (Jakarta EE)
                                                 Modifier
                                             </a>
 
-                                            <!-- Supprimer -->
-                                            <a href="FrontController?cmd=clientSuppression&idClient=${c.idClient}"
-                                               class="btn btn-danger btn-sm flex-fill"
-                                               onclick="return confirm('Supprimer ce client ?');">
-                                                Supprimer
-                                            </a>
+                                            <!-- Supprimer (POST + CSRF) -->
+                                            <form method="post" action="FrontController?cmd=clientSuppression" class="flex-fill">
+                                                <input type="hidden" name="idClient" value="${c.idClient}">
+                                                <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
+                                                <button type="submit"
+                                                        class="btn btn-danger btn-sm w-100"
+                                                        onclick="return confirm('Supprimer ce client ?');">
+                                                    Supprimer
+                                                </button>
+                                            </form>
 
                                         </div>
+
                                     </div>
                                 </td>
                             </tr>

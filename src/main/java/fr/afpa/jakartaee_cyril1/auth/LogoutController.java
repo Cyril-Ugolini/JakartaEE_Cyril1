@@ -3,46 +3,53 @@ package fr.afpa.jakartaee_cyril1.auth;
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.util.logging.Logger;
 
 /**
- * Contrôleur chargé d'afficher la page de déconnexion.
+ * Controller responsible for displaying the logout confirmation page
+ * and clearing the session on logout.
  *
- * <p>Dans cette version (OPTION A), aucune session serveur
- * n'est utilisée : l'état de connexion est simulé côté client
- * via localStorage. Ce contrôleur affiche la page Logout.jsp
- * qui demande confirmation et supprime localStorage.</p>
+ * <p>Workflow:
+ * <ul>
+ *     <li>GET  -> Display logout confirmation page</li>
+ *     <li>POST -> Invalidate session and redirect to login</li>
+ * </ul>
  *
- * <p>Commande associée : {@code cmd=logout}</p>
- *
- * @author Cyril
- * @version 1.0
+ * <p>Command: cmd=logout</p>
  */
 public final class LogoutController implements ICommand {
 
-    /** Logger du LogoutController. */
+    /** Logger. */
     private static final Logger LOG =
             Logger.getLogger(LogoutController.class.getName());
 
-    /**
-     * Renvoie la page de confirmation de déconnexion.
-     *
-     * @param request  requête HTTP
-     * @param response réponse HTTP
-     * @return chemin de la vue : /WEB-INF/jsp/auth/Logout.jsp
-     * @throws Exception en cas d'erreur interne
-     */
     @Override
     public String execute(
             final HttpServletRequest request,
             final HttpServletResponse response) throws Exception {
-        LOG.info("Affichage de la page de déconnexion.");
-        try {
+
+        LOG.info("LogoutController executed.");
+
+        // --------------------------------------------------------
+        // GET : display logout confirmation page
+        // --------------------------------------------------------
+        if ("GET".equalsIgnoreCase(request.getMethod())) {
             return "/WEB-INF/jsp/auth/Logout.jsp";
-        } catch (Exception e) {
-            LOG.severe("Erreur dans LogoutController : "
-                    + e.getMessage());
-            throw e;
         }
+
+        // --------------------------------------------------------
+        // POST : invalidate session
+        // --------------------------------------------------------
+        LOG.info("Invalidating session and removing CSRF token.");
+
+        try {
+            request.getSession().invalidate();
+        } catch (Exception e) {
+            LOG.warning("Session already invalid or error: " + e.getMessage());
+        }
+
+        // Redirect to login page
+        return "redirect:FrontController?cmd=login";
     }
 }
