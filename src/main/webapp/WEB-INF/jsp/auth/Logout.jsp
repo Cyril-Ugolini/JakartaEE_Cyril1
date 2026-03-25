@@ -17,10 +17,16 @@
     <div class="card p-4 text-center">
 
         <h1 class="mb-3">Deconnexion</h1>
-        <p class="mb-4">Voulez-vous vraiment vous deconnecter ?</p>
+
+        <%-- Affichage du nom de l'utilisateur connecté --%>
+        <p class="mb-4">
+            Voulez-vous vraiment vous deconnecter,
+            <strong><c:out value="${sessionScope.user.username}"/></strong> ?
+        </p>
 
         <!-- Formulaire POST vers LogoutController -->
-        <form method="post" action="${pageContext.request.contextPath}/FrontController?cmd=logout">
+        <form method="post"
+              action="${pageContext.request.contextPath}/FrontController?cmd=logout">
             <button type="submit" class="btn btn-danger w-100">
                 Oui, me deconnecter
             </button>
@@ -41,7 +47,7 @@
 </script>
 
 <script src="${pageContext.request.contextPath}/assets/js/template.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></strong></script>
 
 </body>
 </html>

@@ -30,7 +30,7 @@ public class InitAdminController implements ICommand {
     private static final String ADMIN_USERNAME = "admin";
 
     /** Mot de passe par défaut de l'admin. */
-    private static final String ADMIN_PASSWORD = "admin";
+    private static final String ADMIN_PASSWORD = "password123";
 
     @Override
     public String execute(final HttpServletRequest request,

@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
 </head>
 
-<!-- IMPORTANT : pas de header dynamique sur la page de connexion -->
 <body data-header="none">
 
 <div class="login-page">
@@ -22,34 +21,46 @@
         <form id="login-form"
               method="post"
               action="${pageContext.request.contextPath}/FrontController?cmd=login"
+              autocomplete="off"
               novalidate>
 
             <div class="mb-3">
                 <label for="login-user" class="form-label">Utilisateur *</label>
                 <input type="text" id="login-user" name="username" class="form-control"
-                       placeholder="Votre identifiant" required>
+                       placeholder="Votre identifiant" required autocomplete="username">
                 <div class="invalid-feedback">Identifiant obligatoire.</div>
             </div>
 
             <div class="mb-3">
                 <label for="login-password" class="form-label">Mot de passe *</label>
                 <input type="password" id="login-password" name="password" class="form-control"
-                       placeholder="Votre mot de passe" required minlength="6">
+                       placeholder="Votre mot de passe" required minlength="6"
+                       autocomplete="new-password">
                 <div class="invalid-feedback">Mot de passe obligatoire (6 caracteres minimum).</div>
             </div>
 
-            <!-- Message d'erreur renvoye par LoginController -->
-            <c:if test="${not empty loginError}">
-                <div class="alert alert-danger">${loginError}</div>
+            <!-- Message d’erreur sécurisé -->
+            <c:if test="${not empty error}">
+                <div class="alert alert-danger">
+                    <c:out value="${error}"/>
+                </div>
             </c:if>
 
             <button type="submit" class="btn btn-primary w-100 mt-2">Se connecter</button>
+
+            <!-- ⭐ Bouton Retour Accueil -->
+            <div class="text-center mt-3">
+                <a href="${pageContext.request.contextPath}/FrontController?cmd=accueil"
+                   class="btn btn-secondary w-100">
+                    Retour à l’accueil
+                </a>
+            </div>
+
         </form>
 
     </div>
 </div>
 
-<!-- Pas de header dynamique ici -->
 <div id="tpl-footer"></div>
 
 <script>

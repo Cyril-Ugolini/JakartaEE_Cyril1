@@ -1,55 +1,86 @@
 package fr.afpa.jakartaee_cyril1.auth;
 
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
+import models.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.http.HttpSession;
 import java.util.logging.Logger;
 
 /**
- * Controller responsible for displaying the logout confirmation page
- * and clearing the session on logout.
+ * Contrôleur de déconnexion.
  *
- * <p>Workflow:
- * <ul>
- *     <li>GET  -> Display logout confirmation page</li>
- *     <li>POST -> Invalidate session and redirect to login</li>
- * </ul>
+ * <p>Workflow :
+ * GET  → affichage de la page de confirmation de déconnexion.
+ * POST → invalidation de la session et redirection vers le login.</p>
  *
- * <p>Command: cmd=logout</p>
+ * <p>Commande : cmd=logout</p>
+ *
+ * @author UGOLINI Cyril
+ * @version 0.0.3
+ * @since 24/03/2026
  */
 public final class LogoutController implements ICommand {
 
-    /** Logger. */
+    /** Logger du contrôleur. */
     private static final Logger LOG =
             Logger.getLogger(LogoutController.class.getName());
 
     @Override
-    public String execute(
-            final HttpServletRequest request,
-            final HttpServletResponse response) throws Exception {
+    public String execute(final HttpServletRequest request,
+                          final HttpServletResponse response)
+            throws Exception {
 
-        LOG.info("LogoutController executed.");
+        LOG.info("LogoutController exécuté.");
 
         // --------------------------------------------------------
-        // GET : display logout confirmation page
+        // GET → affichage de la page de confirmation
         // --------------------------------------------------------
         if ("GET".equalsIgnoreCase(request.getMethod())) {
+
+            HttpSession session = request.getSession(false);
+
+            if (session == null
+                    || session.getAttribute("user") == null) {
+                LOG.warning("Logout GET sans session active.");
+                return "redirect:FrontController?cmd=login";
+            }
+
             return "/WEB-INF/jsp/auth/Logout.jsp";
         }
 
         // --------------------------------------------------------
-        // POST : invalidate session
+        // POST → invalidation de la session
         // --------------------------------------------------------
-        LOG.info("Invalidating session and removing CSRF token.");
+        HttpSession session = request.getSession(false);
 
-        try {
-            request.getSession().invalidate();
-        } catch (Exception e) {
-            LOG.warning("Session already invalid or error: " + e.getMessage());
+        if (session != null) {
+
+            // Récupération du user AVANT invalidation
+            User user = (User) session.getAttribute("user");
+            String username = (user != null)
+                    ? user.getUsername() : "inconnu";
+
+            LOG.info("Déconnexion de : " + username);
+
+            // Retrait du registre des utilisateurs connectés
+            if (user != null) {
+                UserRegistry.remove(username);
+                LOG.info("Utilisateur retiré du registre : " + username);
+            }
+
+            try {
+                session.invalidate();
+                LOG.info("Session invalidée.");
+            } catch (Exception e) {
+                LOG.warning("Erreur invalidation session : "
+                        + e.getMessage());
+            }
+
+        } else {
+            LOG.warning("Logout POST sans session active.");
         }
 
-        // Redirect to login page
-        return "redirect:FrontController?cmd=login";
+        return "redirect:FrontController?cmd=accueil";
     }
 }

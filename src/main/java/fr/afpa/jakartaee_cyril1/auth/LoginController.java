@@ -1,54 +1,99 @@
 package fr.afpa.jakartaee_cyril1.auth;
 
+import fr.afpa.jakartaee_cyril1.DAO.UserDao;
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
+import models.User;
+import de.mkammerer.argon2.Argon2;
+import de.mkammerer.argon2.Argon2Factory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
- * Controller responsible for displaying the login page
- * and initializing the CSRF token after login.
+ * Contrôleur de connexion.
  *
- * <p>This controller does not validate credentials (ECF context).
- * It only displays the login form (GET) and initializes the
- * session after a fake login (POST).</p>
+ * <p>Gère l'affichage du formulaire (GET) et
+ * l'authentification Argon2 (POST).</p>
  *
- * <p>Command: cmd=login</p>
+ * @author UGOLINI Cyril
+ * @version 0.0.3
+ * @since 24/03/2026
  */
 public final class LoginController implements ICommand {
 
-    /** Logger. */
+    /** Logger du contrôleur. */
     private static final Logger LOG =
             Logger.getLogger(LoginController.class.getName());
 
     @Override
-    public String execute(
-            final HttpServletRequest request,
-            final HttpServletResponse response) throws Exception {
+    public String execute(final HttpServletRequest request,
+                          final HttpServletResponse response)
+            throws Exception {
 
-        LOG.info("LoginController executed.");
+        LOG.info("LoginController exécuté.");
 
         // --------------------------------------------------------
-        // GET : display login page
+        // GET → afficher la page de login
         // --------------------------------------------------------
         if ("GET".equalsIgnoreCase(request.getMethod())) {
             return "/WEB-INF/jsp/auth/Login.jsp";
         }
 
         // --------------------------------------------------------
-        // POST : fake login + CSRF token creation
+        // POST → authentification
         // --------------------------------------------------------
-        LOG.info("Fake login accepted. Initializing session.");
+        final String username = request.getParameter("username");
+        final String password  = request.getParameter("password");
 
-        // Create CSRF token
-        String csrf = UUID.randomUUID().toString();
+        // Validation basique
+        if (username == null || username.isBlank()
+                || password == null || password.isBlank()) {
+            request.setAttribute("error",
+                    "Identifiant et mot de passe obligatoires.");
+            return "/WEB-INF/jsp/auth/Login.jsp";
+        }
+
+        LOG.info("Tentative de connexion pour : " + username);
+
+        UserDao dao = new UserDao();
+        User user = dao.findByUsername(username);
+
+        if (user == null) {
+            LOG.warning("Utilisateur inconnu : " + username);
+            request.setAttribute("error",
+                    "Identifiant ou mot de passe incorrect.");
+            return "/WEB-INF/jsp/auth/Login.jsp";
+        }
+
+        // Vérification du mot de passe Argon2
+        Argon2 argon2 = Argon2Factory.create();
+        boolean ok = argon2.verify(
+                user.getPasswordHash(),
+                password.toCharArray());
+
+        if (!ok) {
+            LOG.warning("Mot de passe incorrect pour : " + username);
+            request.setAttribute("error",
+                    "Identifiant ou mot de passe incorrect.");
+            return "/WEB-INF/jsp/auth/Login.jsp";
+        }
+
+        // Connexion réussie
+        LOG.info("Connexion réussie pour : " + username);
+
+        // Objet user complet en session
+        request.getSession().setAttribute("user", user);
+
+        // Ajout dans la liste des utilisateurs connectés
+        UserRegistry.add(username);
+        LOG.info("Utilisateur ajouté au registre : " + username);
+
+        // Génération du token CSRF
+        final String csrf = UUID.randomUUID().toString();
         request.getSession().setAttribute("csrfToken", csrf);
+        LOG.info("Token CSRF généré : " + csrf);
 
-        LOG.info("CSRF token generated: " + csrf);
-
-        // Redirect to home page
         return "redirect:FrontController?cmd=accueil";
     }
 }

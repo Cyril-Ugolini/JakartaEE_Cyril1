@@ -99,6 +99,14 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- JUnit 5 Params -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -137,7 +145,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Checkstyle uniquement dans plugins, plus dans dependencies -->
+            <!-- Checkstyle -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
