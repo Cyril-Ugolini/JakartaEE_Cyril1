@@ -13,21 +13,25 @@
 
 <body data-header="retour">
 
+<!-- HEADER injecté -->
 <div id="tpl-header"></div>
 
-<div class="container-fluid">
-    <div class="row justify-content-center">
+<div class="container-fluid mt-3">
+    <div class="row">
 
-        <main class="col-12 col-md-7 p-4">
+        <!-- MAIN -->
+        <main class="col-12 col-md-9 p-3">
 
             <h1 class="mb-4">Liste des clients</h1>
 
-            <!-- Bouton d'ajout -->
-            <div class="d-flex justify-content-end mb-3">
-                <a href="FrontController?cmd=clientForm" class="btn btn-success">
-                    Ajouter un client
-                </a>
-            </div>
+            <!-- Bouton Ajouter (visible si connecté) -->
+            <c:if test="${not empty sessionScope.user}">
+                <div class="d-flex justify-content-end mb-3">
+                    <a href="FrontController?cmd=clientForm" class="btn btn-success">
+                        Ajouter un client
+                    </a>
+                </div>
+            </c:if>
 
             <div class="table-responsive">
                 <table class="table table-dark table-striped align-middle">
@@ -41,7 +45,6 @@
                     </thead>
 
                     <tbody>
-
                     <c:if test="${not empty clients}">
                         <c:forEach var="c" items="${clients}">
                             <tr>
@@ -58,25 +61,28 @@
                                             Voir
                                         </a>
 
-                                        <div class="d-flex gap-1 w-100">
+                                        <!-- Modifier / Supprimer (si connecté) -->
+                                        <c:if test="${not empty sessionScope.user}">
+                                            <div class="d-flex gap-1 w-100">
 
-                                            <!-- Modifier -->
-                                            <a href="FrontController?cmd=clientForm&mode=modifier&idClient=${c.idClient}"
-                                               class="btn btn-warning btn-sm flex-fill">
-                                                Modifier
-                                            </a>
+                                                <!-- Modifier -->
+                                                <a href="FrontController?cmd=clientForm&mode=modifier&idClient=${c.idClient}"
+                                                   class="btn btn-warning btn-sm flex-fill btn-modifier">
+                                                    Modifier
+                                                </a>
 
-                                            <!-- Supprimer (POST + CSRF) -->
-                                            <form method="post" action="FrontController?cmd=clientSuppression" class="flex-fill">
-                                                <input type="hidden" name="idClient" value="${c.idClient}">
-                                                <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
-                                                <button type="submit"
-                                                        class="btn btn-danger btn-sm w-100">
-                                                    Supprimer
-                                                </button>
-                                            </form>
+                                                <!-- Supprimer -->
+                                                <form method="post" action="FrontController?cmd=clientSuppression" class="flex-fill">
+                                                    <input type="hidden" name="idClient" value="${c.idClient}">
+                                                    <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}">
+                                                    <button type="submit"
+                                                            class="btn btn-danger btn-sm w-100 btn-supprimer">
+                                                        Supprimer
+                                                    </button>
+                                                </form>
 
-                                        </div>
+                                            </div>
+                                        </c:if>
 
                                     </div>
                                 </td>
@@ -91,18 +97,21 @@
                             </td>
                         </tr>
                     </c:if>
-
                     </tbody>
                 </table>
             </div>
 
         </main>
 
-        <div id="tpl-aside" class="col-md-3"></div>
+        <!-- ASIDE (caché en mobile, injecté dans la grille) -->
+        <aside class="col-md-3 d-none d-md-block">
+            <div id="tpl-aside"></div>
+        </aside>
 
     </div>
 </div>
 
+<!-- FOOTER injecté -->
 <div id="tpl-footer"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

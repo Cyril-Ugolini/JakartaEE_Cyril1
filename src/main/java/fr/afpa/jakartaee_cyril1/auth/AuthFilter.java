@@ -23,7 +23,8 @@ public class AuthFilter implements Filter {
             "clientListe",
             "clientView",
             "prospectListe",
-            "prospectView"
+            "prospectView",
+            "initAdmin"
     );
 
     @Override
@@ -35,6 +36,7 @@ public class AuthFilter implements Filter {
         HttpSession session = request.getSession(false);
 
         String cmd = request.getParameter("cmd");
+        System.out.println("CMD REÇU = " + cmd);
 
         if (cmd == null) {
             cmd = "accueil";

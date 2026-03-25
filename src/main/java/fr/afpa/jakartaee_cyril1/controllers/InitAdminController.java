@@ -1,11 +1,15 @@
 package fr.afpa.jakartaee_cyril1.controllers;
 
 import fr.afpa.jakartaee_cyril1.DAO.UserDao;
+import fr.afpa.jakartaee_cyril1.security.SecurityConfig;
 import models.User;
+
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
+
 import java.io.IOException;
 import java.util.logging.Logger;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,12 +17,13 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Initialise l'administrateur par défaut.
  *
- * <p>Crée un utilisateur admin avec mot de passe hashé via Argon2.
- * Sans effet si l'admin existe déjà.</p>
+ * <p>Crée un utilisateur admin avec un mot de passe haché via Argon2.
+ * Le hachage inclut automatiquement un sel (géré par Argon2) et ajoute
+ * manuellement un poivre (valeur secrète définie dans SecurityConfig).</p>
  *
- * @author UGOLINI Cyril
- * @version 0.0.3
- * @since 24/03/2026
+ * <p>Si l'administrateur existe déjà, aucune action n'est effectuée.</p>
+ *
+ * @author UGOLINI
  */
 public class InitAdminController implements ICommand {
 
@@ -48,11 +53,19 @@ public class InitAdminController implements ICommand {
                 return "redirect:index.jsp";
             }
 
-            // Hash du mot de passe avec Argon2
-            Argon2 argon2 = Argon2Factory.create();
-            String hash = argon2.hash(10, 65536, 1,
-                    ADMIN_PASSWORD.toCharArray());
+            // ================================
+            // Hachage Argon2 + POIVRE
+            // ================================
+            Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
 
+            String hash = argon2.hash(
+                    3,          // itérations
+                    65536,      // mémoire
+                    1,          // parallélisme
+                    (ADMIN_PASSWORD + SecurityConfig.PEPPER).toCharArray()
+            );
+
+            // Création de l'utilisateur admin
             User admin = new User(null, ADMIN_USERNAME, hash);
             dao.create(admin);
 

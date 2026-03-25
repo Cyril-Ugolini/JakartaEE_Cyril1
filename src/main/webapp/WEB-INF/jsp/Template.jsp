@@ -24,8 +24,6 @@
                 <div class="crm-acc-content" id="acc-clients">
                     <a href="${pageContext.request.contextPath}/FrontController?cmd=clientListe">Liste des clients</a>
                     <a href="${pageContext.request.contextPath}/FrontController?cmd=clientForm">Créer un client</a>
-                    <a href="${pageContext.request.contextPath}/FrontController?cmd=clientListe&mode=modifier">Modifier un client</a>
-                    <a href="${pageContext.request.contextPath}/FrontController?cmd=clientListe&mode=supprimer">Supprimer un client</a>
                 </div>
             </div>
 
@@ -37,8 +35,6 @@
                 <div class="crm-acc-content" id="acc-prospects">
                     <a href="${pageContext.request.contextPath}/FrontController?cmd=prospectListe">Liste des prospects</a>
                     <a href="${pageContext.request.contextPath}/FrontController?cmd=prospectForm">Créer un prospect</a>
-                    <a href="${pageContext.request.contextPath}/FrontController?cmd=prospectListe&mode=modifier">Modifier un prospect</a>
-                    <a href="${pageContext.request.contextPath}/FrontController?cmd=prospectListe&mode=supprimer">Supprimer un prospect</a>
                 </div>
             </div>
 
@@ -75,9 +71,9 @@
     </header>
 </div>
 
-<!-- ASIDE -->
+<!-- ASIDE (contenu uniquement, PAS de classes Bootstrap ici) -->
 <div id="tpl-aside">
-    <aside class="d-none d-md-block col-md-3">
+    <aside>
         <div class="p-3 bg-light border rounded">
             <h5>Menu rapide</h5>
             <ul class="list-unstyled">
@@ -85,17 +81,16 @@
                 <li><a href="${pageContext.request.contextPath}/FrontController?cmd=prospectListe">Prospects</a></li>
             </ul>
 
-            <!-- Connexion dans l’aside (optionnel) -->
-            <div id="aside-connexion">
+            <div id="aside-connexion" class="d-flex justify-content-center mt-3">
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">
-                        <a class="crm-btn-connexion"
+                        <a class="btn btn-primary px-3 py-1"
                            href="${pageContext.request.contextPath}/FrontController?cmd=logout">
                             Déconnexion
                         </a>
                     </c:when>
                     <c:otherwise>
-                        <a class="crm-btn-connexion"
+                        <a class="btn btn-primary px-3 py-1"
                            href="${pageContext.request.contextPath}/FrontController?cmd=login">
                             Connexion
                         </a>

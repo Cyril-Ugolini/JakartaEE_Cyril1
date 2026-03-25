@@ -2,23 +2,26 @@ package fr.afpa.jakartaee_cyril1.auth;
 
 import fr.afpa.jakartaee_cyril1.DAO.UserDao;
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
+import fr.afpa.jakartaee_cyril1.security.SecurityConfig;
 import models.User;
+
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
  * Contrôleur de connexion.
  *
- * <p>Gère l'affichage du formulaire (GET) et
- * l'authentification Argon2 (POST).</p>
+ * <p>Gère l'affichage du formulaire (GET) et l'authentification (POST).
+ * La vérification utilise Argon2 avec sel automatique et poivre
+ * (valeur secrète définie dans SecurityConfig).</p>
  *
- * @author UGOLINI Cyril
- * @version 0.0.3
- * @since 24/03/2026
+ * @author UG
  */
 public final class LoginController implements ICommand {
 
@@ -44,7 +47,7 @@ public final class LoginController implements ICommand {
         // POST → authentification
         // --------------------------------------------------------
         final String username = request.getParameter("username");
-        final String password  = request.getParameter("password");
+        final String password = request.getParameter("password");
 
         // Validation basique
         if (username == null || username.isBlank()
@@ -66,11 +69,15 @@ public final class LoginController implements ICommand {
             return "/WEB-INF/jsp/auth/Login.jsp";
         }
 
-        // Vérification du mot de passe Argon2
-        Argon2 argon2 = Argon2Factory.create();
+        // --------------------------------------------------------
+        // Vérification du mot de passe Argon2 + POIVRE
+        // --------------------------------------------------------
+        Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
+
         boolean ok = argon2.verify(
                 user.getPasswordHash(),
-                password.toCharArray());
+                (password + SecurityConfig.PEPPER).toCharArray()
+        );
 
         if (!ok) {
             LOG.warning("Mot de passe incorrect pour : " + username);
