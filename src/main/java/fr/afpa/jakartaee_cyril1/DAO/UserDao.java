@@ -13,15 +13,19 @@ import java.util.logging.Logger;
  * <p>Version refactorisée : utilise la DataSource JNDI via
  * {@link ConnexionManager} au lieu de DriverManager.</p>
  *
- * <author>UGOLINI Cyril</author>
+ * @author UGOLINI Cyril
  * @version 0.0.3
  * @since 24/03/2026
  */
-public class UserDao {
+public final class UserDao {
 
     /** Logger du DAO User. */
     private static final Logger LOG =
             Logger.getLogger(UserDao.class.getName());
+
+    // ============================================================
+    // CONSTANTES ERREURS SQL
+    // ============================================================
 
     /** Code erreur SQL : doublon (UNIQUE). */
     private static final int ERR_DUPLICATE = 1062;
@@ -29,13 +33,17 @@ public class UserDao {
     /** Code erreur SQL : champ NOT NULL manquant. */
     private static final int ERR_NOT_NULL = 1048;
 
-    // Création de la table une seule fois au chargement de la classe
+    // ============================================================
+    // INITIALISATION TABLE
+    // ============================================================
+
     static {
-        final String sql = "CREATE TABLE IF NOT EXISTS user ("
-                + "id INT PRIMARY KEY AUTO_INCREMENT, "
-                + "username VARCHAR(100) UNIQUE NOT NULL, "
-                + "password_hash VARCHAR(255) NOT NULL"
-                + ")";
+        final String sql =
+                "CREATE TABLE IF NOT EXISTS user ("
+                        + "id INT PRIMARY KEY AUTO_INCREMENT, "
+                        + "username VARCHAR(100) UNIQUE NOT NULL, "
+                        + "password_hash VARCHAR(255) NOT NULL"
+                        + ")";
 
         try (Connection conn = ConnexionManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -49,6 +57,10 @@ public class UserDao {
                     "Impossible d'initialiser la table user", e);
         }
     }
+
+    // ============================================================
+    // CREATE
+    // ============================================================
 
     /**
      * Insère un utilisateur dans la base de données.
@@ -74,27 +86,24 @@ public class UserDao {
 
         } catch (SQLException e) {
 
-            int code = e.getErrorCode();
-            String message;
+            final int code = e.getErrorCode();
+            final String message = switch (code) {
+                case ERR_DUPLICATE ->
+                        "Erreur SQL 1062 : nom d'utilisateur déjà existant.";
+                case ERR_NOT_NULL ->
+                        "Erreur SQL 1048 : champ obligatoire manquant.";
+                default ->
+                        "Erreur SQL inconnue (code " + code + ")";
+            };
 
-            switch (code) {
-                case ERR_DUPLICATE:
-                    message = "Erreur SQL 1062 : nom d'utilisateur déjà existant.";
-                    LOG.warning(message);
-                    break;
-                case ERR_NOT_NULL:
-                    message = "Erreur SQL 1048 : champ obligatoire manquant.";
-                    LOG.warning(message);
-                    break;
-                default:
-                    message = "Erreur SQL inconnue (code " + code + ").";
-                    LOG.severe(message + " - " + e.getMessage());
-                    break;
-            }
-
+            LOG.severe(message + " | " + e.getMessage());
             throw new RuntimeException(message, e);
         }
     }
+
+    // ============================================================
+    // FIND BY USERNAME
+    // ============================================================
 
     /**
      * Recherche un utilisateur par son nom d'utilisateur.
@@ -127,11 +136,14 @@ public class UserDao {
             }
 
         } catch (SQLException e) {
+
+            final int code = e.getErrorCode();
             LOG.severe("Erreur SQL recherche (code "
-                    + e.getErrorCode() + ") : " + e.getMessage());
+                    + code + ") : " + e.getMessage());
+
             throw new RuntimeException(
                     "Erreur SQL lors de la recherche (code "
-                            + e.getErrorCode() + ")", e);
+                            + code + ")", e);
         }
 
         return null;

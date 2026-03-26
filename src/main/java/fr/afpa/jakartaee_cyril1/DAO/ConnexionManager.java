@@ -17,7 +17,7 @@ import javax.sql.DataSource;
  * <p>Version refactorisée : classe utilitaire statique,
  * sans singleton ni connexion persistante.</p>
  *
- * <author>Cyril</author>
+ * @author Cyril
  * @version 2.0
  */
 public final class ConnexionManager {
@@ -33,17 +33,21 @@ public final class ConnexionManager {
     /** DataSource résolue une seule fois. */
     private static DataSource dataSource;
 
-    // Bloc statique exécuté une seule fois au chargement de la classe
+    // ============================================================
+    // INITIALISATION STATIQUE
+    // ============================================================
+
     static {
         try {
             LOG.info("Initialisation de la DataSource JNDI...");
-            Context initCtx = new InitialContext();
+            final Context initCtx = new InitialContext();
             dataSource = (DataSource) initCtx.lookup(JNDI_NAME);
             LOG.info("DataSource initialisée avec succès.");
         } catch (NamingException e) {
             LOG.severe("Erreur JNDI : " + e.getMessage());
             throw new ExceptionInInitializerError(
-                    "Impossible d'initialiser la DataSource : " + e.getMessage());
+                    "Impossible d'initialiser la DataSource : "
+                            + e.getMessage());
         }
     }
 
@@ -51,6 +55,10 @@ public final class ConnexionManager {
     private ConnexionManager() {
         // Classe utilitaire : pas d'instance
     }
+
+    // ============================================================
+    // OBTENTION DE CONNEXION
+    // ============================================================
 
     /**
      * Retourne une nouvelle connexion depuis le pool.

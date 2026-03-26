@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Min;
 
 /**
  * Représente un client dans le CRM.
- *
  * @author Cyril
  * @version 1.0
  */

@@ -10,16 +10,20 @@ import fr.afpa.jakartaee_cyril1.clients.ClientViewController;
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import fr.afpa.jakartaee_cyril1.controllers.MentionsLegalesController;
 import fr.afpa.jakartaee_cyril1.controllers.PageAccueilController;
-import fr.afpa.jakartaee_cyril1.controllers.PolitiqueConfidentialiteController;
+import fr.afpa.jakartaee_cyril1.controllers
+        .PolitiqueConfidentialiteController;
 import fr.afpa.jakartaee_cyril1.controllers.TemplateController;
 import fr.afpa.jakartaee_cyril1.prospects.ProspectFormController;
 import fr.afpa.jakartaee_cyril1.prospects.ProspectListeController;
-import fr.afpa.jakartaee_cyril1.prospects.ProspectSuppressionController;
+import fr.afpa.jakartaee_cyril1.prospects
+        .ProspectSuppressionController;
 import fr.afpa.jakartaee_cyril1.prospects.ProspectViewController;
+
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,27 +31,33 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * FrontController centralisant l'ensemble des requêtes de l'application.
+ * FrontController centralisant l'ensemble des requêtes.
  *
- * <p>Ce servlet implémente le pattern Front Controller : toutes les
- * requêtes transitent par ce point unique, qui délègue le traitement
- * à la commande appropriée via le pattern Command.</p>
+ * <p>Implémente le pattern Front Controller : toutes les requêtes
+ * transitent par ce point unique, qui délègue le traitement à la
+ * commande appropriée via le pattern Command.</p>
  *
  * <p>Chaque action est représentée par une implémentation de
  * {@link ICommand}. Le FrontController sélectionne la commande
- * en fonction du paramètre {@code cmd} présent dans la requête.</p>
+ * en fonction du paramètre {@code cmd}.</p>
  */
-@WebServlet(name = "FrontController", value = "/FrontController")
-public class FrontController extends HttpServlet {
+@WebServlet(name = "FrontController",
+        value = "/FrontController")
+public final class FrontController extends HttpServlet {
 
     /** Logger du FrontController. */
     private static final Logger LOG =
             Logger.getLogger(FrontController.class.getName());
 
-    /** Map associant une commande (clé) à son contrôleur (valeur). */
-    private final Map<String, ICommand> commands = new HashMap<>();
+    /** Map associant une commande à son contrôleur. */
+    private final Map<String, ICommand> commands =
+            new HashMap<>();
 
-    /** Initialise le FrontController et enregistre toutes les commandes. */
+    // ============================================================
+    // INITIALISATION
+    // ============================================================
+
+    /** Initialise le FrontController. */
     @Override
     public void init() {
         LOG.info("Initialisation du FrontController…");
@@ -55,48 +65,75 @@ public class FrontController extends HttpServlet {
         commands.put(null, new PageAccueilController());
         commands.put("accueil", new PageAccueilController());
         commands.put("template", new TemplateController());
+
+        // Clients
         commands.put("clientForm", new ClientFormController());
         commands.put("clientView", new ClientViewController());
         commands.put("clientListe", new ClientListeController());
-        commands.put("clientSuppression", new ClientSuppressionController());
+        commands.put("clientSuppression",
+                new ClientSuppressionController());
+
+        // Prospects
         commands.put("prospectForm", new ProspectFormController());
         commands.put("prospectView", new ProspectViewController());
-        commands.put("prospectListe", new ProspectListeController());
-        commands.put("prospectSuppression", new ProspectSuppressionController());
+        commands.put("prospectListe",
+                new ProspectListeController());
+        commands.put("prospectSuppression",
+                new ProspectSuppressionController());
+
+        // Authentification
         commands.put("login", new LoginController());
         commands.put("logout", new LogoutController());
-        commands.put("mentionsLegales", new MentionsLegalesController());
+
+        // Pages légales
+        commands.put("mentionsLegales",
+                new MentionsLegalesController());
         commands.put("confidentialite",
                 new PolitiqueConfidentialiteController());
+
+        // Initialisation admin
         commands.put("initAdmin", new InitAdminController());
+
         LOG.info("FrontController initialisé avec "
                 + commands.size() + " commandes.");
     }
 
-    /** Libère les ressources lors de la destruction du servlet. */
+    // ============================================================
+    // DESTRUCTION
+    // ============================================================
+
+    /** Libère les ressources. */
     @Override
     public void destroy() {
         LOG.info("Destruction du FrontController.");
         commands.clear();
     }
 
+    // ============================================================
+    // TRAITEMENT CENTRALISÉ
+    // ============================================================
+
     /**
      * Traite la requête en déléguant à la commande appropriée.
      *
-     * @param request  requête HTTP
+     * @param request requête HTTP
      * @param response réponse HTTP
-     * @throws IOException en cas d'erreur d'entrée/sortie
+     * @throws IOException erreur d'E/S
      */
     protected void processRequest(
             final HttpServletRequest request,
-            final HttpServletResponse response) throws IOException {
+            final HttpServletResponse response)
+            throws IOException {
 
         String urlSuite = "";
+
         try {
             final String cmd = request.getParameter("cmd");
+
             LOG.info("Commande reçue : " + cmd);
 
             final ICommand com = commands.get(cmd);
+
             if (com == null) {
                 LOG.warning("Commande inconnue : " + cmd);
                 urlSuite = "/erreur.jsp";
@@ -105,42 +142,61 @@ public class FrontController extends HttpServlet {
                         + com.getClass().getSimpleName());
                 urlSuite = com.execute(request, response);
             }
+
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Erreur dans le FrontController", e);
+            LOG.log(Level.SEVERE,
+                    "Erreur dans le FrontController", e);
             urlSuite = "/erreur.jsp";
         }
 
         try {
-            // Gestion des redirections
-            if (urlSuite != null && urlSuite.startsWith("redirect:")) {
-                String target = urlSuite.substring("redirect:".length());
+            // Redirection
+            if (urlSuite != null
+                    && urlSuite.startsWith("redirect:")) {
+
+                final String target =
+                        urlSuite.substring(
+                                "redirect:".length());
+
                 LOG.info("Redirection vers : " + target);
+
                 response.sendRedirect(target);
                 return;
             }
 
-            // Sinon → forward normal
+            // Forward
             LOG.info("Forward vers : " + urlSuite);
-            request.getRequestDispatcher(urlSuite).forward(request, response);
+
+            request.getRequestDispatcher(urlSuite)
+                    .forward(request, response);
 
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Erreur lors du forward", e);
+            LOG.log(Level.SEVERE,
+                    "Erreur lors du forward", e);
         }
     }
 
-    /** Traite les requêtes HTTP GET. */
+    // ============================================================
+    // MÉTHODES HTTP
+    // ============================================================
+
+    /** Traite les requêtes GET. */
     @Override
     protected void doGet(
             final HttpServletRequest request,
-            final HttpServletResponse response) throws IOException {
+            final HttpServletResponse response)
+            throws IOException {
+
         processRequest(request, response);
     }
 
-    /** Traite les requêtes HTTP POST. */
+    /** Traite les requêtes POST. */
     @Override
     protected void doPost(
             final HttpServletRequest request,
-            final HttpServletResponse response) throws IOException {
+            final HttpServletResponse response)
+            throws IOException {
+
         processRequest(request, response);
     }
 }

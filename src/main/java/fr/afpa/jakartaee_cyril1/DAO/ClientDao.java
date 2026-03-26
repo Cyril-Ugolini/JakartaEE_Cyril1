@@ -13,13 +13,11 @@ import fr.afpa.jakartaee_cyril1.models.Adresse;
 import fr.afpa.jakartaee_cyril1.models.Client;
 
 /**
- * DAO pour la gestion des clients en base de données.
+ * DAO pour la gestion des clients.
  *
- * <p>Permet d'effectuer les opérations CRUD sur la table {@code client},
- * avec gestion des contraintes SQL et journalisation détaillée.</p>
- *
- * <author>Cyril</author>
- * @version 1.0
+ * <p>Permet d'effectuer les opérations CRUD sur la table
+ * {@code client}. Gère les erreurs SQL via les codes MySQL
+ * afin de fournir des logs précis.</p>
  */
 public final class ClientDao {
 
@@ -27,23 +25,44 @@ public final class ClientDao {
     private static final Logger LOG =
             Logger.getLogger(ClientDao.class.getName());
 
-    /** Connexion active. */
-    private Connection connection;
+    // ============================================================
+    // CONSTANTES ERREURS SQL
+    // ============================================================
+
+    /** Doublon MySQL. */
+    private static final int ERR_DUPLICATE = 1062;
+
+    /** Champ NOT NULL manquant. */
+    private static final int ERR_NOT_NULL = 1048;
+
+    /** Contrainte étrangère (delete). */
+    private static final int ERR_FOREIGN_KEY = 1451;
+
+    /** Contrainte étrangère (insert/update). */
+    private static final int ERR_FOREIGN_KEY_INSERT = 1452;
+
+    // ============================================================
+    // CONSTRUCTEUR
+    // ============================================================
 
     /**
-     * Constructeur : initialise la connexion.
+     * Constructeur.
      *
-     * @throws SQLException en cas d'erreur de connexion
+     * @throws SQLException si erreur de connexion
      */
     public ClientDao() throws SQLException {
-        this.connection = ConnexionManager.getConnection();
         LOG.info("ClientDao initialisé.");
     }
+
+    // ============================================================
+    // FIND ALL
+    // ============================================================
+
     /**
      * Retourne tous les clients.
      *
      * @return liste de clients
-     * @throws SQLException en cas d'erreur SQL
+     * @throws SQLException erreur SQL
      */
     public List<Client> findAll() throws SQLException {
 
@@ -51,11 +70,13 @@ public final class ClientDao {
 
         final String sql =
                 "SELECT c.id_client, c.raison_sociale, c.telephone, "
-                        + "c.adresse_mail, c.commentaires, c.chiffre_affaires, "
-                        + "c.nombre_employes, a.id_adresse, a.numero_rue, "
-                        + "a.nom_rue, a.code_postal, a.ville "
+                        + "c.adresse_mail, c.commentaires, "
+                        + "c.chiffre_affaires, c.nombre_employes, "
+                        + "a.id_adresse, a.numero_rue, a.nom_rue, "
+                        + "a.code_postal, a.ville "
                         + "FROM client c "
-                        + "INNER JOIN adresse a ON c.id_adresse = a.id_adresse";
+                        + "INNER JOIN adresse a "
+                        + "ON c.id_adresse = a.id_adresse";
 
         try (Connection conn = ConnexionManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -65,15 +86,19 @@ public final class ClientDao {
                 liste.add(mapResultSet(rs));
             }
 
-            LOG.info("findAll() : " + liste.size() + " client(s).");
+            LOG.info("findAll() : " + liste.size()
+                    + " client(s).");
 
         } catch (SQLException e) {
-            LOG.severe("Erreur findAll() : " + e.getMessage());
+
+            LOG.severe("Erreur findAll() : "
+                    + e.getMessage());
             throw e;
         }
 
         return liste;
     }
+
     // ============================================================
     // FIND BY ID
     // ============================================================
@@ -81,19 +106,21 @@ public final class ClientDao {
     /**
      * Retourne un client par son identifiant.
      *
-     * @param id identifiant du client
-     * @return client ou {@code null} si non trouvé
-     * @throws SQLException en cas d'erreur SQL
+     * @param id identifiant
+     * @return client ou null
+     * @throws SQLException erreur SQL
      */
     public Client findById(final int id) throws SQLException {
 
         final String sql =
                 "SELECT c.id_client, c.raison_sociale, c.telephone, "
-                        + "c.adresse_mail, c.commentaires, c.chiffre_affaires, "
-                        + "c.nombre_employes, a.id_adresse, a.numero_rue, "
-                        + "a.nom_rue, a.code_postal, a.ville "
+                        + "c.adresse_mail, c.commentaires, "
+                        + "c.chiffre_affaires, c.nombre_employes, "
+                        + "a.id_adresse, a.numero_rue, a.nom_rue, "
+                        + "a.code_postal, a.ville "
                         + "FROM client c "
-                        + "INNER JOIN adresse a ON c.id_adresse = a.id_adresse "
+                        + "INNER JOIN adresse a "
+                        + "ON c.id_adresse = a.id_adresse "
                         + "WHERE c.id_client = ?";
 
         try (Connection conn = ConnexionManager.getConnection();
@@ -102,25 +129,34 @@ public final class ClientDao {
             stmt.setInt(1, id);
 
             try (ResultSet rs = stmt.executeQuery()) {
+
                 if (rs.next()) {
-                    LOG.info("findById(" + id + ") : trouvé.");
+                    LOG.info("findById(" + id
+                            + ") : trouvé.");
                     return mapResultSet(rs);
                 }
             }
 
         } catch (SQLException e) {
-            LOG.severe("Erreur findById() : " + e.getMessage());
+
+            LOG.severe("Erreur findById() : "
+                    + e.getMessage());
             throw e;
         }
 
-        LOG.warning("findById(" + id + ") : non trouvé.");
+        LOG.warning("findById(" + id
+                + ") : non trouvé.");
         return null;
     }
+    // ============================================================
+    // CREATE
+    // ============================================================
+
     /**
      * Crée un nouveau client en base de données.
      *
      * @param client client à créer
-     * @return {@code true} si la création a réussi
+     * @return true si la création a réussi
      * @throws SQLException en cas d'erreur SQL
      */
     public boolean create(final Client client) throws SQLException {
@@ -129,11 +165,12 @@ public final class ClientDao {
 
             conn.setAutoCommit(false);
 
-            // 1. Créer l'adresse
-            final int idAdresse = creerAdresse(conn, client.getAdresse());
+            // 1. Création de l'adresse
+            final int idAdresse =
+                    creerAdresse(conn, client.getAdresse());
             client.getAdresse().setIdAdresse(idAdresse);
 
-            // 2. Créer le client
+            // 2. Création du client
             final String sql =
                     "INSERT INTO client (raison_sociale, id_adresse, "
                             + "telephone, adresse_mail, commentaires, "
@@ -141,7 +178,9 @@ public final class ClientDao {
                             + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement stmt =
-                         conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                         conn.prepareStatement(
+                                 sql,
+                                 Statement.RETURN_GENERATED_KEYS)) {
 
                 stmt.setString(1, client.getRaisonSociale());
                 stmt.setInt(2, idAdresse);
@@ -154,13 +193,18 @@ public final class ClientDao {
                 final int rows = stmt.executeUpdate();
 
                 if (rows > 0) {
-                    try (ResultSet keys = stmt.getGeneratedKeys()) {
+                    try (ResultSet keys =
+                                 stmt.getGeneratedKeys()) {
                         if (keys.next()) {
                             client.setIdClient(keys.getInt(1));
                         }
                     }
+
                     conn.commit();
-                    LOG.info("Client créé : ID=" + client.getIdClient());
+
+                    LOG.info("Client créé : ID="
+                            + client.getIdClient());
+
                     return true;
                 }
             }
@@ -171,26 +215,39 @@ public final class ClientDao {
         } catch (SQLException e) {
 
             final int code = e.getErrorCode();
+
             final String message = switch (code) {
-                case 1062 -> "Doublon détecté lors de la création du client "
-                        + "(code=1062)";
-                case 1048 -> "Champ obligatoire manquant lors de la création "
-                        + "du client (code=1048)";
-                case 1452 -> "Contrainte étrangère violée lors de la création "
-                        + "du client (code=1452)";
-                default -> "Erreur SQL dans create() (code=" + code + ")";
+                case ERR_DUPLICATE ->
+                        "Doublon détecté lors de la création "
+                                + "du client";
+                case ERR_NOT_NULL ->
+                        "Champ obligatoire manquant lors de la "
+                                + "création du client";
+                case ERR_FOREIGN_KEY_INSERT ->
+                        "Contrainte étrangère violée lors de la "
+                                + "création du client";
+                default ->
+                        "Erreur SQL dans create() (code="
+                                + code + ")";
             };
 
-            LOG.severe(message + " | " + e.getMessage());
+            LOG.severe(message + " | "
+                    + e.getMessage());
+
             throw new SQLException(message, e);
 
         } finally {
-            // Toujours remettre l'autocommit à true
-            try (Connection conn = ConnexionManager.getConnection()) {
+            try (Connection conn =
+                         ConnexionManager.getConnection()) {
                 conn.setAutoCommit(true);
             }
         }
     }
+
+    // ============================================================
+    // UPDATE
+    // ============================================================
+
     /**
      * Met à jour un client existant.
      *
@@ -198,7 +255,8 @@ public final class ClientDao {
      * @return true si la mise à jour a réussi
      * @throws SQLException en cas d'erreur SQL
      */
-    public boolean update(final Client client) throws SQLException {
+    public boolean update(final Client client)
+            throws SQLException {
 
         try (Connection conn = ConnexionManager.getConnection()) {
 
@@ -207,26 +265,36 @@ public final class ClientDao {
             // 1. Mise à jour de l'adresse
             final String sqlAdr =
                     "UPDATE adresse SET numero_rue=?, nom_rue=?, "
-                            + "code_postal=?, ville=? WHERE id_adresse=?";
+                            + "code_postal=?, ville=? "
+                            + "WHERE id_adresse=?";
 
-            try (PreparedStatement stmt = conn.prepareStatement(sqlAdr)) {
+            try (PreparedStatement stmt =
+                         conn.prepareStatement(sqlAdr)) {
 
-                stmt.setString(1, client.getAdresse().getNumeroRue());
-                stmt.setString(2, client.getAdresse().getNomRue());
-                stmt.setString(3, client.getAdresse().getCodePostal());
-                stmt.setString(4, client.getAdresse().getVille());
-                stmt.setInt(5, client.getAdresse().getIdAdresse());
+                stmt.setString(1,
+                        client.getAdresse().getNumeroRue());
+                stmt.setString(2,
+                        client.getAdresse().getNomRue());
+                stmt.setString(3,
+                        client.getAdresse().getCodePostal());
+                stmt.setString(4,
+                        client.getAdresse().getVille());
+                stmt.setInt(5,
+                        client.getAdresse().getIdAdresse());
 
                 stmt.executeUpdate();
             }
 
             // 2. Mise à jour du client
             final String sql =
-                    "UPDATE client SET raison_sociale=?, telephone=?, "
-                            + "adresse_mail=?, commentaires=?, chiffre_affaires=?, "
-                            + "nombre_employes=? WHERE id_client=?";
+                    "UPDATE client SET raison_sociale=?, "
+                            + "telephone=?, adresse_mail=?, "
+                            + "commentaires=?, chiffre_affaires=?, "
+                            + "nombre_employes=? "
+                            + "WHERE id_client=?";
 
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (PreparedStatement stmt =
+                         conn.prepareStatement(sql)) {
 
                 stmt.setString(1, client.getRaisonSociale());
                 stmt.setString(2, client.getTelephone());
@@ -237,33 +305,46 @@ public final class ClientDao {
                 stmt.setInt(7, client.getIdClient());
 
                 final int rows = stmt.executeUpdate();
+
                 conn.commit();
 
-                LOG.info("Client modifié : ID=" + client.getIdClient());
+                LOG.info("Client modifié : ID="
+                        + client.getIdClient());
+
                 return rows > 0;
             }
 
         } catch (SQLException e) {
 
             final int code = e.getErrorCode();
+
             final String message = switch (code) {
-                case 1048 -> "Champ obligatoire manquant lors de la mise à "
-                        + "jour (code=1048)";
-                case 1062 -> "Doublon détecté lors de la mise à jour "
-                        + "(code=1062)";
-                default -> "Erreur SQL dans update() (code=" + code + ")";
+                case ERR_NOT_NULL ->
+                        "Champ obligatoire manquant lors de la "
+                                + "mise à jour";
+                case ERR_DUPLICATE ->
+                        "Doublon détecté lors de la mise à jour";
+                default ->
+                        "Erreur SQL dans update() (code="
+                                + code + ")";
             };
 
-            LOG.severe(message + " | " + e.getMessage());
+            LOG.severe(message + " | "
+                    + e.getMessage());
+
             throw new SQLException(message, e);
 
         } finally {
-            // Toujours remettre l'autocommit à true
-            try (Connection conn = ConnexionManager.getConnection()) {
+            try (Connection conn =
+                         ConnexionManager.getConnection()) {
                 conn.setAutoCommit(true);
             }
         }
     }
+    // ============================================================
+    // DELETE
+    // ============================================================
+
     /**
      * Supprime un client par son identifiant.
      *
@@ -280,16 +361,21 @@ public final class ClientDao {
             final Client client = findById(id);
 
             if (client == null) {
-                LOG.warning("delete() : client ID=" + id + " non trouvé.");
+                LOG.warning("delete() : client ID="
+                        + id + " non trouvé.");
                 return false;
             }
 
-            final int idAdresse = client.getAdresse().getIdAdresse();
+            final int idAdresse =
+                    client.getAdresse().getIdAdresse();
 
             // 1. Suppression du client
-            final String sqlClient = "DELETE FROM client WHERE id_client=?";
+            final String sqlClient =
+                    "DELETE FROM client WHERE id_client=?";
 
-            try (PreparedStatement stmt = conn.prepareStatement(sqlClient)) {
+            try (PreparedStatement stmt =
+                         conn.prepareStatement(sqlClient)) {
+
                 stmt.setInt(1, id);
                 stmt.executeUpdate();
             }
@@ -298,34 +384,81 @@ public final class ClientDao {
             final String sqlAdr =
                     "DELETE FROM adresse WHERE id_adresse=?";
 
-            try (PreparedStatement stmt = conn.prepareStatement(sqlAdr)) {
+            try (PreparedStatement stmt =
+                         conn.prepareStatement(sqlAdr)) {
+
                 stmt.setInt(1, idAdresse);
                 stmt.executeUpdate();
             }
 
             conn.commit();
+
             LOG.info("Client supprimé : ID=" + id);
+
             return true;
 
         } catch (SQLException e) {
 
             final int code = e.getErrorCode();
+
             final String message = switch (code) {
-                case 1451 -> "Suppression impossible : contrainte étrangère "
-                        + "(code=1451)";
-                default -> "Erreur SQL dans delete() (code=" + code + ")";
+                case ERR_FOREIGN_KEY ->
+                        "Suppression impossible : "
+                                + "contrainte étrangère";
+                default ->
+                        "Erreur SQL dans delete() (code="
+                                + code + ")";
             };
 
-            LOG.severe(message + " | " + e.getMessage());
+            LOG.severe(message + " | "
+                    + e.getMessage());
+
             throw new SQLException(message, e);
 
         } finally {
-            // Toujours remettre l'autocommit à true
-            try (Connection conn = ConnexionManager.getConnection()) {
+            try (Connection conn =
+                         ConnexionManager.getConnection()) {
                 conn.setAutoCommit(true);
             }
         }
     }
+
+    // ============================================================
+    // MAPPING
+    // ============================================================
+
+    /**
+     * Construit un objet Client depuis un ResultSet.
+     *
+     * @param rs résultat SQL
+     * @return client construit
+     * @throws SQLException erreur SQL
+     */
+    private Client mapResultSet(final ResultSet rs)
+            throws SQLException {
+
+        final Adresse adresse = new Adresse();
+
+        adresse.setIdAdresse(rs.getInt("id_adresse"));
+        adresse.setNumeroRue(rs.getString("numero_rue"));
+        adresse.setNomRue(rs.getString("nom_rue"));
+        adresse.setCodePostal(rs.getString("code_postal"));
+        adresse.setVille(rs.getString("ville"));
+
+        final Client client = new Client();
+
+        client.setIdClient(rs.getInt("id_client"));
+        client.setRaisonSociale(rs.getString("raison_sociale"));
+        client.setTelephone(rs.getString("telephone"));
+        client.setAdresseMail(rs.getString("adresse_mail"));
+        client.setCommentaires(rs.getString("commentaires"));
+        client.setChiffreAffaires(rs.getLong("chiffre_affaires"));
+        client.setNombreEmployes(rs.getInt("nombre_employes"));
+        client.setAdresse(adresse);
+
+        return client;
+    }
+
     // ============================================================
     // OUTILS INTERNES
     // ============================================================
@@ -336,17 +469,20 @@ public final class ClientDao {
      * @param conn connexion SQL
      * @param adresse adresse à créer
      * @return identifiant généré
-     * @throws SQLException en cas d'erreur SQL
+     * @throws SQLException erreur SQL
      */
     private int creerAdresse(final Connection conn,
-                             final Adresse adresse) throws SQLException {
+                             final Adresse adresse)
+            throws SQLException {
 
         final String sql =
-                "INSERT INTO adresse (numero_rue, nom_rue, code_postal, ville) "
+                "INSERT INTO adresse (numero_rue, nom_rue, "
+                        + "code_postal, ville) "
                         + "VALUES (?, ?, ?, ?)";
 
         try (PreparedStatement stmt =
-                     conn.prepareStatement(sql,
+                     conn.prepareStatement(
+                             sql,
                              Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, adresse.getNumeroRue());
@@ -365,49 +501,23 @@ public final class ClientDao {
         } catch (SQLException e) {
 
             final int code = e.getErrorCode();
+
             final String message = switch (code) {
-                case 1048 -> "Champ obligatoire manquant lors de la création "
-                        + "d'adresse (code=1048)";
-                default -> "Erreur SQL dans creerAdresse() (code=" + code + ")";
+                case ERR_NOT_NULL ->
+                        "Champ obligatoire manquant lors de "
+                                + "la création d'adresse";
+                default ->
+                        "Erreur SQL dans creerAdresse() "
+                                + "(code=" + code + ")";
             };
 
-            LOG.severe(message + " | " + e.getMessage());
+            LOG.severe(message + " | "
+                    + e.getMessage());
+
             throw new SQLException(message, e);
         }
 
-        throw new SQLException("Impossible de récupérer l'ID adresse.");
-    }
-
-    // ============================================================
-    // MAPPING
-    // ============================================================
-
-    /**
-     * Construit un objet Client depuis un ResultSet.
-     *
-     * @param rs résultat SQL
-     * @return client construit
-     * @throws SQLException en cas d'erreur SQL
-     */
-    private Client mapResultSet(final ResultSet rs) throws SQLException {
-
-        final Adresse adresse = new Adresse();
-        adresse.setIdAdresse(rs.getInt("id_adresse"));
-        adresse.setNumeroRue(rs.getString("numero_rue"));
-        adresse.setNomRue(rs.getString("nom_rue"));
-        adresse.setCodePostal(rs.getString("code_postal"));
-        adresse.setVille(rs.getString("ville"));
-
-        final Client client = new Client();
-        client.setIdClient(rs.getInt("id_client"));
-        client.setRaisonSociale(rs.getString("raison_sociale"));
-        client.setTelephone(rs.getString("telephone"));
-        client.setAdresseMail(rs.getString("adresse_mail"));
-        client.setCommentaires(rs.getString("commentaires"));
-        client.setChiffreAffaires(rs.getLong("chiffre_affaires"));
-        client.setNombreEmployes(rs.getInt("nombre_employes"));
-        client.setAdresse(adresse);
-
-        return client;
+        throw new SQLException(
+                "Impossible de récupérer l'ID adresse.");
     }
 }

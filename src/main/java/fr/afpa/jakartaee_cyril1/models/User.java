@@ -3,11 +3,16 @@ package fr.afpa.jakartaee_cyril1.models;
 /**
  * Représente un utilisateur de l'application.
  *
- * @author UGOLINI Cyril
+ * <p>Contient l'identifiant, le nom d'utilisateur et le mot de
+ * passe hashé (Argon2).</p>
+ *
+ * <p>Utilisé pour l'authentification et la gestion des comptes.</p>
+ *
+ * author UGOLINI Cyril
  * @version 0.0.2
  * @since 24/03/2026
  */
-public class User {
+public final class User {
 
     /** Identifiant unique de l'utilisateur. */
     private Integer id;
@@ -18,32 +23,86 @@ public class User {
     /** Mot de passe hashé (Argon2). */
     private String passwordHash;
 
+    // ============================================================
+    // CONSTRUCTEURS
+    // ============================================================
+
     /** Constructeur par défaut. */
-    public User() { }
+    public User() {
+        // Nécessaire pour le mapping JDBC
+    }
 
     /**
      * Constructeur complet.
      *
-     * @param id           identifiant unique
-     * @param username     nom d'utilisateur
-     * @param passwordHash mot de passe hashé
+     * @param newId identifiant unique
+     * @param newUsername nom d'utilisateur
+     * @param newPasswordHash mot de passe hashé
      */
-    public User(final Integer id,
-                final String username,
-                final String passwordHash) {
-        this.id = id;
-        this.username = username;
-        this.passwordHash = passwordHash;
+    public User(final Integer newId,
+                final String newUsername,
+                final String newPasswordHash) {
+
+        this.id = newId;
+        this.username = newUsername;
+        this.passwordHash = newPasswordHash;
     }
 
-    public Integer getId() { return id; }
-    public void setId(final Integer id) { this.id = id; }
+    // ============================================================
+    // GETTERS / SETTERS
+    // ============================================================
 
-    public String getUsername() { return username; }
-    public void setUsername(final String username) { this.username = username; }
+    /**
+     * Retourne l'identifiant de l'utilisateur.
+     *
+     * @return identifiant
+     */
+    public Integer getId() {
+        return id;
+    }
 
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(final String passwordHash) {
-        this.passwordHash = passwordHash;
+    /**
+     * Définit l'identifiant de l'utilisateur.
+     *
+     * @param newId nouvel identifiant
+     */
+    public void setId(final Integer newId) {
+        this.id = newId;
+    }
+
+    /**
+     * Retourne le nom d'utilisateur.
+     *
+     * @return nom d'utilisateur
+     */
+    public String getUsername() {
+        return username;
+    }
+
+    /**
+     * Définit le nom d'utilisateur.
+     *
+     * @param newUsername nouveau nom d'utilisateur
+     */
+    public void setUsername(final String newUsername) {
+        this.username = newUsername;
+    }
+
+    /**
+     * Retourne le mot de passe hashé.
+     *
+     * @return hash du mot de passe
+     */
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    /**
+     * Définit le mot de passe hashé.
+     *
+     * @param newPasswordHash nouveau hash
+     */
+    public void setPasswordHash(final String newPasswordHash) {
+        this.passwordHash = newPasswordHash;
     }
 }
