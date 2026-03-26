@@ -176,4 +176,4 @@ Chaque formulaire POST inclut :
 ---
  12. Auteur
 Projet réalisé par Cyril,
-dans le cadre de la formation Développeur Java – AFPA 2025–2026.
+dans le cadre de la formation Développeur Java – AFPA 2025–2026
