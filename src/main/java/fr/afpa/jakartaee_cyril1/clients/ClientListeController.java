@@ -14,9 +14,6 @@ import fr.afpa.jakartaee_cyril1.models.Client;
  * <p>Ce contrôleur est invoqué par le FrontController lorsque
  * la commande {@code cmd=clientListe} est reçue. Il récupère
  * la liste des clients via la DAO et la passe à la JSP.</p>
- *
- * @author Cyril
- * @version 1.1
  */
 public final class ClientListeController implements ICommand {
 
@@ -27,19 +24,30 @@ public final class ClientListeController implements ICommand {
     /** DAO Client (instancié une seule fois). */
     private final ClientDao clientDao;
 
-    /** Constructeur. */
+    /**
+     * Constructeur.
+     */
     public ClientListeController() {
         try {
             this.clientDao = new ClientDao();
         } catch (Exception e) {
-            throw new RuntimeException("Impossible d'initialiser ClientDao", e);
+            throw new RuntimeException(
+                    "Impossible d'initialiser ClientDao", e);
         }
     }
 
+    /**
+     * Exécute la commande d'affichage de la liste des clients.
+     *
+     * @param request  requête HTTP
+     * @param response réponse HTTP
+     * @return chemin de la JSP de liste
+     * @throws Exception si une erreur survient
+     */
     @Override
-    public String execute(
-            final HttpServletRequest request,
-            final HttpServletResponse response) throws Exception {
+    public String execute(final HttpServletRequest request,
+                          final HttpServletResponse response)
+            throws Exception {
 
         LOG.info("Affichage de la liste des clients.");
 
@@ -52,7 +60,8 @@ public final class ClientListeController implements ICommand {
             return "/WEB-INF/jsp/clients/ClientListe.jsp";
 
         } catch (Exception e) {
-            LOG.severe("Erreur dans ClientListeController : " + e.getMessage());
+            LOG.severe("Erreur dans ClientListeController : "
+                    + e.getMessage());
             throw e;
         }
     }

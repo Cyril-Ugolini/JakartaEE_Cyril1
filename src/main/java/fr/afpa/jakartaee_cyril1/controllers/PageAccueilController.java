@@ -10,9 +10,6 @@ import java.util.logging.Logger;
  * <p>Ce contrôleur est invoqué par le FrontController lorsque
  * la commande {@code cmd=accueil} est reçue. Il renvoie la vue
  * JSP correspondant à la page d'accueil du site.</p>
- *
- * @author Cyril
- * @version 1.0
  */
 public final class PageAccueilController implements ICommand {
 
@@ -23,18 +20,18 @@ public final class PageAccueilController implements ICommand {
     /**
      * Exécute la commande et renvoie la page d'accueil.
      *
-     * @param request  l'objet {@link HttpServletRequest}
-     *                 contenant les données de la requête HTTP
-     * @param response l'objet {@link HttpServletResponse}
-     *                 permettant de construire la réponse HTTP
-     * @return le chemin de la JSP à afficher
+     * @param request  requête HTTP
+     * @param response réponse HTTP
+     * @return chemin de la JSP à afficher
      * @throws Exception si une erreur survient lors du traitement
      */
     @Override
-    public String execute(
-            final HttpServletRequest request,
-            final HttpServletResponse response) throws Exception {
+    public String execute(final HttpServletRequest request,
+                          final HttpServletResponse response)
+            throws Exception {
+
         LOG.info("Affichage de la page d'accueil.");
+
         try {
             return "/WEB-INF/jsp/Accueil.jsp";
         } catch (Exception e) {

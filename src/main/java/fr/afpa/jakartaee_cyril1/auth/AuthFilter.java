@@ -1,6 +1,11 @@
 package fr.afpa.jakartaee_cyril1.auth;
 
-import jakarta.servlet.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -11,19 +16,18 @@ import java.util.logging.Logger;
 /**
  * Filtre d'authentification.
  *
- * <p>Autorise certaines commandes publiques (accueil, login, listes…)
- * et bloque toutes les autres si l'utilisateur n'est pas connecté.</p>
+ * <p>Ce filtre vérifie si l'utilisateur est connecté avant d'accéder
+ * aux commandes protégées. Certaines commandes publiques restent
+ * accessibles sans authentification.</p>
  */
 @WebFilter("/FrontController")
-public class AuthFilter implements Filter {
+public final class AuthFilter implements Filter {
 
     /** Logger du filtre. */
     private static final Logger LOG =
             Logger.getLogger(AuthFilter.class.getName());
 
-    /**
-     * Commandes accessibles sans authentification.
-     */
+    /** Commandes accessibles sans authentification. */
     private static final Set<String> PUBLIC_CMDS = Set.of(
             "login",
             "accueil",
@@ -32,7 +36,7 @@ public class AuthFilter implements Filter {
             "prospectListe",
             "prospectView",
             "initAdmin",
-            "template"   // ⚠️ souvent nécessaire pour ton header/footer
+            "template"
     );
 
     @Override
@@ -68,5 +72,15 @@ public class AuthFilter implements Filter {
                 "Vous devez être connecté pour accéder à cette page.");
         request.getRequestDispatcher("/WEB-INF/jsp/auth/Login.jsp")
                 .forward(req, res);
+    }
+
+    @Override
+    public void init(final FilterConfig filterConfig) {
+        // Rien à initialiser
+    }
+
+    @Override
+    public void destroy() {
+        // Rien à détruire
     }
 }

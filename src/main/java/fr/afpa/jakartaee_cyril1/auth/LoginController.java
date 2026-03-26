@@ -20,8 +20,6 @@ import java.util.logging.Logger;
  * <p>Gère l'affichage du formulaire (GET) et l'authentification (POST).
  * La vérification utilise Argon2 avec sel automatique et poivre
  * (valeur secrète définie dans SecurityConfig).</p>
- *
- * @author UG
  */
 public final class LoginController implements ICommand {
 
@@ -29,6 +27,14 @@ public final class LoginController implements ICommand {
     private static final Logger LOG =
             Logger.getLogger(LoginController.class.getName());
 
+    /**
+     * Exécute la commande de connexion.
+     *
+     * @param request  requête HTTP contenant les paramètres utilisateur
+     * @param response réponse HTTP
+     * @return chemin de la vue ou redirection
+     * @throws Exception si une erreur survient pendant le traitement
+     */
     @Override
     public String execute(final HttpServletRequest request,
                           final HttpServletResponse response)
@@ -59,8 +65,8 @@ public final class LoginController implements ICommand {
 
         LOG.info("Tentative de connexion pour : " + username);
 
-        UserDao dao = new UserDao();
-        User user = dao.findByUsername(username);
+        final UserDao dao = new UserDao();
+        final User user = dao.findByUsername(username);
 
         if (user == null) {
             LOG.warning("Utilisateur inconnu : " + username);
@@ -72,9 +78,10 @@ public final class LoginController implements ICommand {
         // --------------------------------------------------------
         // Vérification du mot de passe Argon2 + POIVRE
         // --------------------------------------------------------
-        Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
+        final Argon2 argon2 =
+                Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
 
-        boolean ok = argon2.verify(
+        final boolean ok = argon2.verify(
                 user.getPasswordHash(),
                 (password + SecurityConfig.PEPPER).toCharArray()
         );

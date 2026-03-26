@@ -22,10 +22,8 @@ import jakarta.servlet.http.HttpServletResponse;
  * manuellement un poivre (valeur secrète définie dans SecurityConfig).</p>
  *
  * <p>Si l'administrateur existe déjà, aucune action n'est effectuée.</p>
- *
- * @author UGOLINI
  */
-public class InitAdminController implements ICommand {
+public final class InitAdminController implements ICommand {
 
     /** Logger du contrôleur. */
     private static final Logger LOG =
@@ -34,19 +32,36 @@ public class InitAdminController implements ICommand {
     /** Nom d'utilisateur de l'admin. */
     private static final String ADMIN_USERNAME = "admin";
 
+    /** Paramètre Argon2 : itérations. */
+    private static final int ARGON_ITER = 3;
+
+    /** Paramètre Argon2 : mémoire. */
+    private static final int ARGON_MEMORY = 65536;
+
+    /** Paramètre Argon2 : parallélisme. */
+    private static final int ARGON_PARALLELISM = 1;
+
     /** Mot de passe admin lu depuis variable d'environnement. */
     private static final String ADMIN_PASSWORD;
 
     static {
-        String env = System.getenv("ADMIN_PASSWORD");
+        final String env = System.getenv("ADMIN_PASSWORD");
         if (env == null || env.isBlank()) {
-            // Fallback sécurisé si la variable n'est pas définie
             ADMIN_PASSWORD = "voici_mon_nouveau_code_!2026";
         } else {
             ADMIN_PASSWORD = env;
         }
     }
 
+    /**
+     * Exécute l'initialisation de l'administrateur.
+     *
+     * @param request  requête HTTP
+     * @param response réponse HTTP
+     * @return redirection vers index.jsp
+     * @throws ServletException si une erreur survient
+     * @throws IOException si une erreur d'E/S survient
+     */
     @Override
     public String execute(final HttpServletRequest request,
                           final HttpServletResponse response)
@@ -55,7 +70,7 @@ public class InitAdminController implements ICommand {
         LOG.info("Initialisation de l'administrateur...");
 
         try {
-            UserDao dao = new UserDao();
+            final UserDao dao = new UserDao();
 
             // Vérifie si l'admin existe déjà
             if (dao.findByUsername(ADMIN_USERNAME) != null) {
@@ -66,17 +81,18 @@ public class InitAdminController implements ICommand {
             // ================================
             // Hachage Argon2 + POIVRE
             // ================================
-            Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
+            final Argon2 argon2 =
+                    Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
 
-            String hash = argon2.hash(
-                    3,          // itérations
-                    65536,      // mémoire
-                    1,          // parallélisme
+            final String hash = argon2.hash(
+                    ARGON_ITER,
+                    ARGON_MEMORY,
+                    ARGON_PARALLELISM,
                     (ADMIN_PASSWORD + SecurityConfig.PEPPER).toCharArray()
             );
 
             // Création de l'utilisateur admin
-            User admin = new User(null, ADMIN_USERNAME, hash);
+            final User admin = new User(null, ADMIN_USERNAME, hash);
             dao.create(admin);
 
             LOG.info("Administrateur créé avec succès.");

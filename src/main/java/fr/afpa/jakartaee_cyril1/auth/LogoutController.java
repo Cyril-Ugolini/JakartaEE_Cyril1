@@ -15,10 +15,6 @@ import java.util.logging.Logger;
  * POST → invalidation de la session et redirection vers le login.</p>
  *
  * <p>Commande : cmd=logout</p>
- *
- * @author UGOLINI Cyril
- * @version 0.0.3
- * @since 24/03/2026
  */
 public final class LogoutController implements ICommand {
 
@@ -26,6 +22,14 @@ public final class LogoutController implements ICommand {
     private static final Logger LOG =
             Logger.getLogger(LogoutController.class.getName());
 
+    /**
+     * Exécute la commande de déconnexion.
+     *
+     * @param request  requête HTTP
+     * @param response réponse HTTP
+     * @return chemin de la vue ou redirection
+     * @throws Exception si une erreur survient
+     */
     @Override
     public String execute(final HttpServletRequest request,
                           final HttpServletResponse response)
@@ -33,15 +37,14 @@ public final class LogoutController implements ICommand {
 
         LOG.info("LogoutController exécuté.");
 
+        final HttpSession session = request.getSession(false);
+
         // --------------------------------------------------------
         // GET → affichage de la page de confirmation
         // --------------------------------------------------------
         if ("GET".equalsIgnoreCase(request.getMethod())) {
 
-            HttpSession session = request.getSession(false);
-
-            if (session == null
-                    || session.getAttribute("user") == null) {
+            if (session == null || session.getAttribute("user") == null) {
                 LOG.warning("Logout GET sans session active.");
                 return "redirect:FrontController?cmd=login";
             }
@@ -52,13 +55,11 @@ public final class LogoutController implements ICommand {
         // --------------------------------------------------------
         // POST → invalidation de la session
         // --------------------------------------------------------
-        HttpSession session = request.getSession(false);
-
         if (session != null) {
 
             // Récupération du user AVANT invalidation
-            User user = (User) session.getAttribute("user");
-            String username = (user != null)
+            final User user = (User) session.getAttribute("user");
+            final String username = (user != null)
                     ? user.getUsername() : "inconnu";
 
             LOG.info("Déconnexion de : " + username);

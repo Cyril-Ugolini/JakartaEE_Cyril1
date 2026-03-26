@@ -15,6 +15,7 @@ import fr.afpa.jakartaee_cyril1.models.Client;
 
 import java.sql.SQLException;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
@@ -111,7 +112,7 @@ public final class ClientFormController implements ICommand {
         }
 
         // Nouveau token CSRF à chaque affichage
-        String csrf = java.util.UUID.randomUUID().toString();
+        final String csrf = UUID.randomUUID().toString();
         request.getSession().setAttribute("csrfToken", csrf);
 
         request.setAttribute("client", client);
@@ -131,9 +132,9 @@ public final class ClientFormController implements ICommand {
         LOG.info("Traitement du formulaire client (POST).");
 
         // Vérification CSRF
-        String sessionToken =
+        final String sessionToken =
                 (String) request.getSession().getAttribute("csrfToken");
-        String formToken = request.getParameter("csrfToken");
+        final String formToken = request.getParameter("csrfToken");
 
         if (sessionToken == null
                 || formToken == null

@@ -39,15 +39,13 @@ public final class ClientSuppressionController implements ICommand {
         try {
             this.clientDao = new ClientDao();
         } catch (Exception e) {
-            throw new RuntimeException("Unable to initialize ClientDao", e);
+            throw new RuntimeException(
+                    "Unable to initialize ClientDao", e);
         }
     }
 
     /**
      * Traite la requête HTTP pour la suppression d'un client.
-     *
-     * <p>GET : affiche la page de confirmation.<br>
-     * POST : vérifie le token CSRF, supprime le client et redirige.</p>
      *
      * @param request  requête HTTP
      * @param response réponse HTTP
@@ -55,14 +53,14 @@ public final class ClientSuppressionController implements ICommand {
      * @throws Exception en cas d’erreur interne
      */
     @Override
-    public String execute(
-            final HttpServletRequest request,
-            final HttpServletResponse response) throws Exception {
+    public String execute(final HttpServletRequest request,
+                          final HttpServletResponse response)
+            throws Exception {
 
         LOG.info("ClientSuppressionController executed.");
 
         // Retrieve client ID
-        String idParam = request.getParameter("idClient");
+        final String idParam = request.getParameter("idClient");
         if (idParam == null || idParam.isBlank()) {
             LOG.warning("Missing idClient parameter.");
             response.sendError(
@@ -71,7 +69,7 @@ public final class ClientSuppressionController implements ICommand {
             return null;
         }
 
-        int id;
+        final int id;
         try {
             id = Integer.parseInt(idParam);
         } catch (NumberFormatException e) {
@@ -86,9 +84,9 @@ public final class ClientSuppressionController implements ICommand {
         if ("POST".equalsIgnoreCase(request.getMethod())) {
 
             // CSRF validation
-            String tokenSession =
+            final String tokenSession =
                     (String) request.getSession().getAttribute("csrfToken");
-            String tokenForm = request.getParameter("csrfToken");
+            final String tokenForm = request.getParameter("csrfToken");
 
             if (tokenSession == null || !tokenSession.equals(tokenForm)) {
                 LOG.warning("Invalid CSRF token.");
@@ -107,7 +105,7 @@ public final class ClientSuppressionController implements ICommand {
         }
 
         // GET = display confirmation page
-        Client client = clientDao.findById(id);
+        final Client client = clientDao.findById(id);
         request.setAttribute("client", client);
 
         return "/WEB-INF/jsp/clients/ClientSuppression.jsp";

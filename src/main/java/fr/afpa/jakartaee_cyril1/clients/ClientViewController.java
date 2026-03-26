@@ -1,7 +1,7 @@
 package fr.afpa.jakartaee_cyril1.clients;
 
-import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import fr.afpa.jakartaee_cyril1.DAO.ClientDao;
+import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.logging.Logger;
@@ -13,9 +13,6 @@ import fr.afpa.jakartaee_cyril1.models.Client;
  * <p>Ce contrôleur est invoqué par le FrontController lorsque
  * la commande {@code cmd=clientView} est reçue. Il renvoie la
  * vue JSP affichant les informations complètes d'un client.</p>
- *
- * @author Cyril
- * @version 1.2
  */
 public final class ClientViewController implements ICommand {
 
@@ -50,9 +47,9 @@ public final class ClientViewController implements ICommand {
      * @throws Exception en cas d’erreur interne
      */
     @Override
-    public String execute(
-            final HttpServletRequest request,
-            final HttpServletResponse response) throws Exception {
+    public String execute(final HttpServletRequest request,
+                          final HttpServletResponse response)
+            throws Exception {
 
         LOG.info("Affichage des détails d'un client.");
 
@@ -69,7 +66,7 @@ public final class ClientViewController implements ICommand {
             }
 
             // Conversion sécurisée
-            int id;
+            final int id;
             try {
                 id = Integer.parseInt(idParam);
             } catch (NumberFormatException e) {
@@ -83,7 +80,7 @@ public final class ClientViewController implements ICommand {
             LOG.info("Chargement du client ID=" + id);
 
             // Récupération du client
-            Client client = clientDao.findById(id);
+            final Client client = clientDao.findById(id);
 
             if (client == null) {
                 LOG.warning("Client introuvable pour ID=" + id);
