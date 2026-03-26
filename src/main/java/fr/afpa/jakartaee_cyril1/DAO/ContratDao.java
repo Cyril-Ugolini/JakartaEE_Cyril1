@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import models.Contrat;
+import fr.afpa.jakartaee_cyril1.models.Contrat;
 
 /**
  * DAO pour la gestion des contrats en base de données.
@@ -19,7 +19,7 @@ import models.Contrat;
  * codes d'erreurs MySQL afin de fournir des messages techniques précis
  * dans les logs, sans exposer ces détails à l'utilisateur.</p>
  *
- * @author Cyril
+ * <author>Cyril</author>
  * @version 2.0
  */
 public final class ContratDao {
@@ -28,8 +28,8 @@ public final class ContratDao {
     private static final Logger LOG =
             Logger.getLogger(ContratDao.class.getName());
 
-    /** Gestionnaire de connexion. */
-    private final ConnexionManager db;
+    /** Connexion active. */
+    private Connection connection;
 
     /**
      * Constructeur : initialise la connexion.
@@ -37,14 +37,12 @@ public final class ContratDao {
      * @throws SQLException en cas d'erreur de connexion
      */
     public ContratDao() throws SQLException {
-        this.db = ConnexionManager.getInstance();
+        this.connection = ConnexionManager.getConnection();
         LOG.info("ContratDao initialisé.");
     }
-
     // ============================================================
     // FIND ALL
     // ============================================================
-
     /**
      * Retourne tous les contrats présents en base.
      *
@@ -59,8 +57,8 @@ public final class ContratDao {
                 "SELECT identifiant, id_client, nom_contrat, montant "
                         + "FROM contrat";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql);
+        try (Connection conn = ConnexionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -84,11 +82,6 @@ public final class ContratDao {
 
         return liste;
     }
-
-    // ============================================================
-    // FIND BY ID
-    // ============================================================
-
     /**
      * Retourne un contrat par son identifiant.
      *
@@ -102,8 +95,8 @@ public final class ContratDao {
                 "SELECT identifiant, id_client, nom_contrat, montant "
                         + "FROM contrat WHERE identifiant = ?";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql)) {
+        try (Connection conn = ConnexionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
 
@@ -131,11 +124,6 @@ public final class ContratDao {
             throw new SQLException(message, e);
         }
     }
-
-    // ============================================================
-    // CREATE
-    // ============================================================
-
     /**
      * Crée un nouveau contrat en base.
      *
@@ -149,9 +137,9 @@ public final class ContratDao {
                 "INSERT INTO contrat (id_client, nom_contrat, montant) "
                         + "VALUES (?, ?, ?)";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql,
-                             Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = ConnexionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(
+                     sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setInt(1, c.getIdClient());
             stmt.setString(2, c.getNomContrat());
@@ -188,11 +176,6 @@ public final class ContratDao {
             throw new SQLException(message, e);
         }
     }
-
-    // ============================================================
-    // UPDATE
-    // ============================================================
-
     /**
      * Met à jour un contrat existant.
      *
@@ -206,8 +189,8 @@ public final class ContratDao {
                 "UPDATE contrat SET id_client=?, nom_contrat=?, montant=? "
                         + "WHERE identifiant=?";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql)) {
+        try (Connection conn = ConnexionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, c.getIdClient());
             stmt.setString(2, c.getNomContrat());
@@ -241,11 +224,6 @@ public final class ContratDao {
             throw new SQLException(message, e);
         }
     }
-
-    // ============================================================
-    // DELETE
-    // ============================================================
-
     /**
      * Supprime un contrat par son identifiant.
      *
@@ -256,13 +234,12 @@ public final class ContratDao {
     public boolean delete(final int id) throws SQLException {
 
         final String sql = "DELETE FROM contrat WHERE identifiant=?";
-        final Connection conn = db.getConnection();
 
-        try {
+        try (Connection conn = ConnexionManager.getConnection()) {
+
             conn.setAutoCommit(false);
 
-            try (PreparedStatement stmt =
-                         conn.prepareStatement(sql)) {
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setInt(1, id);
                 final int rows = stmt.executeUpdate();
@@ -292,10 +269,12 @@ public final class ContratDao {
             }
 
         } finally {
-            conn.setAutoCommit(true);
+            // Toujours remettre l'autocommit à true
+            try (Connection conn = ConnexionManager.getConnection()) {
+                conn.setAutoCommit(true);
+            }
         }
     }
-
     // ============================================================
     // MAPPING
     // ============================================================

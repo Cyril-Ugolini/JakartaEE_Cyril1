@@ -5,7 +5,7 @@ import fr.afpa.jakartaee_cyril1.DAO.ClientDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.logging.Logger;
-import models.Client;
+import fr.afpa.jakartaee_cyril1.models.Client;
 
 /**
  * Contrôleur chargé d'afficher la visualisation détaillée d'un client.

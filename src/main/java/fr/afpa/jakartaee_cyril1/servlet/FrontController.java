@@ -45,7 +45,7 @@ public class FrontController extends HttpServlet {
             Logger.getLogger(FrontController.class.getName());
 
     /** Map associant une commande (clé) à son contrôleur (valeur). */
-    private Map<String, ICommand> commands = new HashMap<>();
+    private final Map<String, ICommand> commands = new HashMap<>();
 
     /** Initialise le FrontController et enregistre toutes les commandes. */
     @Override
@@ -111,10 +111,9 @@ public class FrontController extends HttpServlet {
         }
 
         try {
-            // 🔥 Gestion des redirections
+            // Gestion des redirections
             if (urlSuite != null && urlSuite.startsWith("redirect:")) {
-                String target =
-                        urlSuite.substring("redirect:".length());
+                String target = urlSuite.substring("redirect:".length());
                 LOG.info("Redirection vers : " + target);
                 response.sendRedirect(target);
                 return;
@@ -122,8 +121,7 @@ public class FrontController extends HttpServlet {
 
             // Sinon → forward normal
             LOG.info("Forward vers : " + urlSuite);
-            request.getRequestDispatcher(urlSuite)
-                    .forward(request, response);
+            request.getRequestDispatcher(urlSuite).forward(request, response);
 
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Erreur lors du forward", e);

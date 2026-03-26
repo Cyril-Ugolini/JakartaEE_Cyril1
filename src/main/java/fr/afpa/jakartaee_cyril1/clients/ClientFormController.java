@@ -10,8 +10,8 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
-import models.Adresse;
-import models.Client;
+import fr.afpa.jakartaee_cyril1.models.Adresse;
+import fr.afpa.jakartaee_cyril1.models.Client;
 
 import java.sql.SQLException;
 import java.util.Set;

@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import models.Adresse;
-import models.Client;
+import fr.afpa.jakartaee_cyril1.models.Adresse;
+import fr.afpa.jakartaee_cyril1.models.Client;
 
 /**
  * DAO pour la gestion des clients en base de données.
@@ -18,7 +18,7 @@ import models.Client;
  * <p>Permet d'effectuer les opérations CRUD sur la table {@code client},
  * avec gestion des contraintes SQL et journalisation détaillée.</p>
  *
- * @author Cyril
+ * <author>Cyril</author>
  * @version 1.0
  */
 public final class ClientDao {
@@ -27,8 +27,8 @@ public final class ClientDao {
     private static final Logger LOG =
             Logger.getLogger(ClientDao.class.getName());
 
-    /** Gestionnaire de connexion. */
-    private final ConnexionManager db;
+    /** Connexion active. */
+    private Connection connection;
 
     /**
      * Constructeur : initialise la connexion.
@@ -36,14 +36,9 @@ public final class ClientDao {
      * @throws SQLException en cas d'erreur de connexion
      */
     public ClientDao() throws SQLException {
-        this.db = ConnexionManager.getInstance();
+        this.connection = ConnexionManager.getConnection();
         LOG.info("ClientDao initialisé.");
     }
-
-    // ============================================================
-    // FIND ALL
-    // ============================================================
-
     /**
      * Retourne tous les clients.
      *
@@ -62,8 +57,8 @@ public final class ClientDao {
                         + "FROM client c "
                         + "INNER JOIN adresse a ON c.id_adresse = a.id_adresse";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql);
+        try (Connection conn = ConnexionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -79,7 +74,6 @@ public final class ClientDao {
 
         return liste;
     }
-
     // ============================================================
     // FIND BY ID
     // ============================================================
@@ -102,8 +96,8 @@ public final class ClientDao {
                         + "INNER JOIN adresse a ON c.id_adresse = a.id_adresse "
                         + "WHERE c.id_client = ?";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql)) {
+        try (Connection conn = ConnexionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
 
@@ -122,11 +116,6 @@ public final class ClientDao {
         LOG.warning("findById(" + id + ") : non trouvé.");
         return null;
     }
-
-    // ============================================================
-    // CREATE
-    // ============================================================
-
     /**
      * Crée un nouveau client en base de données.
      *
@@ -136,9 +125,8 @@ public final class ClientDao {
      */
     public boolean create(final Client client) throws SQLException {
 
-        final Connection conn = db.getConnection();
+        try (Connection conn = ConnexionManager.getConnection()) {
 
-        try {
             conn.setAutoCommit(false);
 
             // 1. Créer l'adresse
@@ -153,8 +141,7 @@ public final class ClientDao {
                             + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement stmt =
-                         conn.prepareStatement(sql,
-                                 Statement.RETURN_GENERATED_KEYS)) {
+                         conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
                 stmt.setString(1, client.getRaisonSociale());
                 stmt.setInt(2, idAdresse);
@@ -183,8 +170,6 @@ public final class ClientDao {
 
         } catch (SQLException e) {
 
-            conn.rollback();
-
             final int code = e.getErrorCode();
             final String message = switch (code) {
                 case 1062 -> "Doublon détecté lors de la création du client "
@@ -200,14 +185,12 @@ public final class ClientDao {
             throw new SQLException(message, e);
 
         } finally {
-            conn.setAutoCommit(true);
+            // Toujours remettre l'autocommit à true
+            try (Connection conn = ConnexionManager.getConnection()) {
+                conn.setAutoCommit(true);
+            }
         }
     }
-
-    // ============================================================
-    // UPDATE
-    // ============================================================
-
     /**
      * Met à jour un client existant.
      *
@@ -217,9 +200,8 @@ public final class ClientDao {
      */
     public boolean update(final Client client) throws SQLException {
 
-        final Connection conn = db.getConnection();
+        try (Connection conn = ConnexionManager.getConnection()) {
 
-        try {
             conn.setAutoCommit(false);
 
             // 1. Mise à jour de l'adresse
@@ -263,8 +245,6 @@ public final class ClientDao {
 
         } catch (SQLException e) {
 
-            conn.rollback();
-
             final int code = e.getErrorCode();
             final String message = switch (code) {
                 case 1048 -> "Champ obligatoire manquant lors de la mise à "
@@ -278,14 +258,12 @@ public final class ClientDao {
             throw new SQLException(message, e);
 
         } finally {
-            conn.setAutoCommit(true);
+            // Toujours remettre l'autocommit à true
+            try (Connection conn = ConnexionManager.getConnection()) {
+                conn.setAutoCommit(true);
+            }
         }
     }
-
-    // ============================================================
-    // DELETE
-    // ============================================================
-
     /**
      * Supprime un client par son identifiant.
      *
@@ -295,9 +273,8 @@ public final class ClientDao {
      */
     public boolean delete(final int id) throws SQLException {
 
-        final Connection conn = db.getConnection();
+        try (Connection conn = ConnexionManager.getConnection()) {
 
-        try {
             conn.setAutoCommit(false);
 
             final Client client = findById(id);
@@ -312,8 +289,7 @@ public final class ClientDao {
             // 1. Suppression du client
             final String sqlClient = "DELETE FROM client WHERE id_client=?";
 
-            try (PreparedStatement stmt =
-                         conn.prepareStatement(sqlClient)) {
+            try (PreparedStatement stmt = conn.prepareStatement(sqlClient)) {
                 stmt.setInt(1, id);
                 stmt.executeUpdate();
             }
@@ -322,8 +298,7 @@ public final class ClientDao {
             final String sqlAdr =
                     "DELETE FROM adresse WHERE id_adresse=?";
 
-            try (PreparedStatement stmt =
-                         conn.prepareStatement(sqlAdr)) {
+            try (PreparedStatement stmt = conn.prepareStatement(sqlAdr)) {
                 stmt.setInt(1, idAdresse);
                 stmt.executeUpdate();
             }
@@ -333,8 +308,6 @@ public final class ClientDao {
             return true;
 
         } catch (SQLException e) {
-
-            conn.rollback();
 
             final int code = e.getErrorCode();
             final String message = switch (code) {
@@ -347,10 +320,12 @@ public final class ClientDao {
             throw new SQLException(message, e);
 
         } finally {
-            conn.setAutoCommit(true);
+            // Toujours remettre l'autocommit à true
+            try (Connection conn = ConnexionManager.getConnection()) {
+                conn.setAutoCommit(true);
+            }
         }
     }
-
     // ============================================================
     // OUTILS INTERNES
     // ============================================================

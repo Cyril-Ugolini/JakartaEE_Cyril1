@@ -14,8 +14,11 @@ import javax.sql.DataSource;
  * <p>Utilise une DataSource JNDI configurée dans Tomcat
  * pour obtenir les connexions depuis un pool.</p>
  *
- * @author Cyril
- * @version 1.0
+ * <p>Version refactorisée : classe utilitaire statique,
+ * sans singleton ni connexion persistante.</p>
+ *
+ * <author>Cyril</author>
+ * @version 2.0
  */
 public final class ConnexionManager {
 
@@ -27,54 +30,35 @@ public final class ConnexionManager {
     private static final String JNDI_NAME =
             "java:comp/env/jdbc/clientsProspects";
 
-    /** Instance unique du ConnexionManager. */
-    private static ConnexionManager instance;
+    /** DataSource résolue une seule fois. */
+    private static DataSource dataSource;
 
-    /** Connexion à la base de données. */
-    private Connection connection;
-
-    /**
-     * Constructeur privé — obtient une connexion via la DataSource JNDI.
-     *
-     * @throws SQLException en cas d'erreur de connexion
-     */
-    private ConnexionManager() throws SQLException {
-        LOG.info("Connexion via DataSource JNDI...");
+    // Bloc statique exécuté une seule fois au chargement de la classe
+    static {
         try {
+            LOG.info("Initialisation de la DataSource JNDI...");
             Context initCtx = new InitialContext();
-            Context envCtx = (Context) initCtx.lookup("java:comp/env");
-            DataSource ds = (DataSource) envCtx.lookup("jdbc/clientsProspects");
-            this.connection = ds.getConnection();
-            LOG.info("Connexion établie avec succès.");
+            dataSource = (DataSource) initCtx.lookup(JNDI_NAME);
+            LOG.info("DataSource initialisée avec succès.");
         } catch (NamingException e) {
             LOG.severe("Erreur JNDI : " + e.getMessage());
-            throw new SQLException("Erreur DataSource JNDI", e);
-        } catch (SQLException e) {
-            LOG.severe("ERREUR CONNEXION : " + e.getMessage());
-            throw e;
+            throw new ExceptionInInitializerError(
+                    "Impossible d'initialiser la DataSource : " + e.getMessage());
         }
     }
 
-    /**
-     * Retourne l'instance unique du ConnexionManager.
-     *
-     * @return instance du ConnexionManager
-     * @throws SQLException en cas d'erreur de connexion
-     */
-    public static ConnexionManager getInstance() throws SQLException {
-        if (instance == null
-                || instance.getConnection().isClosed()) {
-            instance = new ConnexionManager();
-        }
-        return instance;
+    /** Constructeur privé — empêche l'instanciation. */
+    private ConnexionManager() {
+        // Classe utilitaire : pas d'instance
     }
 
     /**
-     * Retourne la connexion active.
+     * Retourne une nouvelle connexion depuis le pool.
      *
      * @return connexion SQL
+     * @throws SQLException en cas d'erreur d'obtention de connexion
      */
-    public Connection getConnection() {
-        return connection;
+    public static Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
     }
 }

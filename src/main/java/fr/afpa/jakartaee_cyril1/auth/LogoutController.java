@@ -1,7 +1,7 @@
 package fr.afpa.jakartaee_cyril1.auth;
 
 import fr.afpa.jakartaee_cyril1.controllers.ICommand;
-import models.User;
+import fr.afpa.jakartaee_cyril1.models.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;

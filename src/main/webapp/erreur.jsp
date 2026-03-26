@@ -42,7 +42,8 @@
                     : "La page demandée est introuvable ou une commande est inconnue." %>
         </p>
 
-        <a href="FrontController" class="btn btn-primary">
+        <a href="${pageContext.request.contextPath}/FrontController?cmd=accueil"
+           class="btn btn-primary">
             Retour à l'accueil
         </a>
     </div>

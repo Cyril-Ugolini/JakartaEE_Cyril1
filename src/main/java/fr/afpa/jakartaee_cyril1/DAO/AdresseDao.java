@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import models.Adresse;
+import fr.afpa.jakartaee_cyril1.models.Adresse;
 
 /**
  * DAO pour la gestion des adresses en base de données.
@@ -28,16 +28,16 @@ public final class AdresseDao {
     private static final Logger LOG =
             Logger.getLogger(AdresseDao.class.getName());
 
-    /** Gestionnaire de connexion. */
-    private final ConnexionManager db;
+    /** Connexion active (obtenue à chaque opération). */
+    private Connection connection;
 
     /**
-     * Constructeur : initialise la connexion.
+     * Constructeur : initialise une connexion depuis le pool.
      *
      * @throws SQLException en cas d'erreur de connexion
      */
     public AdresseDao() throws SQLException {
-        this.db = ConnexionManager.getInstance();
+        this.connection = ConnexionManager.getConnection();
         LOG.info("AdresseDao initialisé.");
     }
 
@@ -58,8 +58,8 @@ public final class AdresseDao {
                 "SELECT id_adresse, numero_rue, nom_rue, code_postal, ville "
                         + "FROM adresse";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql);
+        try (Connection conn = ConnexionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -87,7 +87,6 @@ public final class AdresseDao {
     // ============================================================
     // FIND BY ID
     // ============================================================
-
     /**
      * Retourne une adresse par son identifiant.
      *
@@ -101,8 +100,8 @@ public final class AdresseDao {
                 "SELECT id_adresse, numero_rue, nom_rue, code_postal, ville "
                         + "FROM adresse WHERE id_adresse = ?";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql)) {
+        try (Connection conn = ConnexionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
 
@@ -134,162 +133,166 @@ public final class AdresseDao {
     // ============================================================
     // CREATE
     // ============================================================
+/**
+ * Crée une nouvelle adresse en base.
+ *
+ * @param a adresse à créer
+ * @return {@code true} si la création a réussi
+ * @throws SQLException en cas d'erreur SQL
+ */
+public boolean create(final Adresse a) throws SQLException {
 
-    /**
-     * Crée une nouvelle adresse en base.
-     *
-     * @param a adresse à créer
-     * @return {@code true} si la création a réussi
-     * @throws SQLException en cas d'erreur SQL
-     */
-    public boolean create(final Adresse a) throws SQLException {
+    final String sql =
+            "INSERT INTO adresse (numero_rue, nom_rue, code_postal, ville) "
+                    + "VALUES (?, ?, ?, ?)";
 
-        final String sql =
-                "INSERT INTO adresse (numero_rue, nom_rue, code_postal, ville) "
-                        + "VALUES (?, ?, ?, ?)";
+    try (Connection conn = ConnexionManager.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(
+                 sql, Statement.RETURN_GENERATED_KEYS)) {
 
-        try (PreparedStatement stmt = db.getConnection().prepareStatement(
-                sql, Statement.RETURN_GENERATED_KEYS)) {
+        stmt.setString(1, a.getNumeroRue());
+        stmt.setString(2, a.getNomRue());
+        stmt.setString(3, a.getCodePostal());
+        stmt.setString(4, a.getVille());
 
-            stmt.setString(1, a.getNumeroRue());
-            stmt.setString(2, a.getNomRue());
-            stmt.setString(3, a.getCodePostal());
-            stmt.setString(4, a.getVille());
+        final int rows = stmt.executeUpdate();
 
-            final int rows = stmt.executeUpdate();
-
-            if (rows > 0) {
-                try (ResultSet keys = stmt.getGeneratedKeys()) {
-                    if (keys.next()) {
-                        a.setIdAdresse(keys.getInt(1));
-                    }
+        if (rows > 0) {
+            try (ResultSet keys = stmt.getGeneratedKeys()) {
+                if (keys.next()) {
+                    a.setIdAdresse(keys.getInt(1));
                 }
-                LOG.info("Adresse créée : ID=" + a.getIdAdresse());
-                return true;
             }
-
-            return false;
-
-        } catch (SQLException e) {
-
-            final int code = e.getErrorCode();
-            final String message = switch (code) {
-                case 1048 -> "Champ obligatoire manquant lors de la création "
-                        + "(code=1048)";
-                case 1062 -> "Doublon détecté lors de la création "
-                        + "(code=1062)";
-                default -> "Erreur SQL dans create() (code=" + code + ")";
-            };
-
-            LOG.severe(message + " | " + e.getMessage());
-            throw new SQLException(message, e);
+            LOG.info("Adresse créée : ID=" + a.getIdAdresse());
+            return true;
         }
+
+        return false; // ← placé au bon endroit
+
+    } catch (SQLException e) {
+
+        final int code = e.getErrorCode();
+        final String message = switch (code) {
+            case 1048 -> "Champ obligatoire manquant lors de la création "
+                    + "(code=1048)";
+            case 1062 -> "Doublon détecté lors de la création "
+                    + "(code=1062)";
+            default -> "Erreur SQL dans create() (code=" + code + ")";
+        };
+
+        LOG.severe(message + " | " + e.getMessage());
+        throw new SQLException(message, e);
     }
+}
 
     // ============================================================
     // UPDATE
     // ============================================================
 
-    /**
-     * Met à jour une adresse existante.
-     *
-     * @param a adresse à mettre à jour
-     * @return {@code true} si la mise à jour a réussi
-     * @throws SQLException en cas d'erreur SQL
-     */
-    public boolean update(final Adresse a) throws SQLException {
+/**
+ * Met à jour une adresse existante.
+ *
+ * @param a adresse à mettre à jour
+ * @return {@code true} si la mise à jour a réussi
+ * @throws SQLException en cas d'erreur SQL
+ */
+public boolean update(final Adresse a) throws SQLException {
 
-        final String sql =
-                "UPDATE adresse SET numero_rue=?, nom_rue=?, code_postal=?, "
-                        + "ville=? WHERE id_adresse=?";
+    final String sql =
+            "UPDATE adresse SET numero_rue=?, nom_rue=?, code_postal=?, "
+                    + "ville=? WHERE id_adresse=?";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql)) {
+    try (Connection conn = ConnexionManager.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, a.getNumeroRue());
-            stmt.setString(2, a.getNomRue());
-            stmt.setString(3, a.getCodePostal());
-            stmt.setString(4, a.getVille());
-            stmt.setInt(5, a.getIdAdresse());
+        stmt.setString(1, a.getNumeroRue());
+        stmt.setString(2, a.getNomRue());
+        stmt.setString(3, a.getCodePostal());
+        stmt.setString(4, a.getVille());
+        stmt.setInt(5, a.getIdAdresse());
 
-            final int rows = stmt.executeUpdate();
+        final int rows = stmt.executeUpdate();
 
-            if (rows > 0) {
-                LOG.info("Adresse modifiée : ID=" + a.getIdAdresse());
-                return true;
-            }
-
-            LOG.warning("Adresse inexistante : ID=" + a.getIdAdresse());
-            return false;
-
-        } catch (SQLException e) {
-
-            final int code = e.getErrorCode();
-            final String message = switch (code) {
-                case 1048 -> "Champ obligatoire manquant lors de la mise à "
-                        + "jour (code=1048)";
-                case 1062 -> "Doublon détecté lors de la mise à jour "
-                        + "(code=1062)";
-                default -> "Erreur SQL dans update() (code=" + code + ")";
-            };
-
-            LOG.severe(message + " | " + e.getMessage());
-            throw new SQLException(message, e);
+        if (rows > 0) {
+            LOG.info("Adresse modifiée : ID=" + a.getIdAdresse());
+            return true;
         }
+
+        LOG.warning("Adresse inexistante : ID=" + a.getIdAdresse());
+        return false;
+
+    } catch (SQLException e) {
+
+        final int code = e.getErrorCode();
+        final String message = switch (code) {
+            case 1048 -> "Champ obligatoire manquant lors de la mise à "
+                    + "jour (code=1048)";
+            case 1062 -> "Doublon détecté lors de la mise à jour "
+                    + "(code=1062)";
+            default -> "Erreur SQL dans update() (code=" + code + ")";
+        };
+
+        LOG.severe(message + " | " + e.getMessage());
+        throw new SQLException(message, e);
     }
+}
 
     // ============================================================
     // DELETE
     // ============================================================
 
-    /**
-     * Supprime une adresse par son identifiant.
-     *
-     * @param id identifiant de l'adresse
-     * @return {@code true} si la suppression a réussi
-     * @throws SQLException en cas d'erreur SQL
-     */
-    public boolean delete(final int id) throws SQLException {
+/**
+ * Supprime une adresse par son identifiant.
+ *
+ * @param id identifiant de l'adresse
+ * @return {@code true} si la suppression a réussi
+ * @throws SQLException en cas d'erreur SQL
+ */
+public boolean delete(final int id) throws SQLException {
 
-        final String sql = "DELETE FROM adresse WHERE id_adresse=?";
-        final Connection conn = db.getConnection();
+    final String sql = "DELETE FROM adresse WHERE id_adresse=?";
 
-        try {
-            conn.setAutoCommit(false);
+    try (Connection conn = ConnexionManager.getConnection()) {
 
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        conn.setAutoCommit(false);
 
-                stmt.setInt(1, id);
-                final int rows = stmt.executeUpdate();
-                conn.commit();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-                if (rows > 0) {
-                    LOG.info("Adresse supprimée : ID=" + id);
-                    return true;
-                }
+            stmt.setInt(1, id);
+            final int rows = stmt.executeUpdate();
+            conn.commit();
 
-                LOG.warning("Adresse inexistante : ID=" + id);
-                return false;
-
-            } catch (SQLException e) {
-                conn.rollback();
-
-                final int code = e.getErrorCode();
-                final String message = switch (code) {
-                    case 1451 -> "Suppression impossible : contrainte "
-                            + "étrangère (code=1451)";
-                    default -> "Erreur SQL dans delete() (code=" + code + ")";
-                };
-
-                LOG.severe(message + " | " + e.getMessage());
-                throw new SQLException(message, e);
+            if (rows > 0) {
+                LOG.info("Adresse supprimée : ID=" + id);
+                return true;
             }
 
-        } finally {
+            LOG.warning("Adresse inexistante : ID=" + id);
+            return false;
+
+        } catch (SQLException e) {
+
+            conn.rollback();
+
+            final int code = e.getErrorCode();
+            final String message = switch (code) {
+                case 1451 -> "Suppression impossible : contrainte "
+                        + "étrangère (code=1451)";
+                default -> "Erreur SQL dans delete() (code=" + code + ")";
+            };
+
+            LOG.severe(message + " | " + e.getMessage());
+            throw new SQLException(message, e);
+        }
+
+    } finally {
+        // Toujours remettre l'autocommit à true
+        // (la connexion retourne au pool dans un état propre)
+        try (Connection conn = ConnexionManager.getConnection()) {
             conn.setAutoCommit(true);
         }
     }
-
+}
     // ============================================================
     // MAPPING
     // ============================================================

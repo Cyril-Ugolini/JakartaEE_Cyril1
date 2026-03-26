@@ -1,4 +1,4 @@
-package models;
+package fr.afpa.jakartaee_cyril1.models;
 
 import jakarta.validation.constraints.Min;
 

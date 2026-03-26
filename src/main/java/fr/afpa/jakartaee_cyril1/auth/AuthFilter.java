@@ -6,17 +6,24 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Filtre d'authentification.
  *
- * <p>Laisse passer certaines commandes publiques (listes + vues),
- * mais bloque toutes les autres si l'utilisateur n'est pas connecté.</p>
+ * <p>Autorise certaines commandes publiques (accueil, login, listes…)
+ * et bloque toutes les autres si l'utilisateur n'est pas connecté.</p>
  */
 @WebFilter("/FrontController")
 public class AuthFilter implements Filter {
 
-    /** Commandes accessibles sans être connecté. */
+    /** Logger du filtre. */
+    private static final Logger LOG =
+            Logger.getLogger(AuthFilter.class.getName());
+
+    /**
+     * Commandes accessibles sans authentification.
+     */
     private static final Set<String> PUBLIC_CMDS = Set.of(
             "login",
             "accueil",
@@ -24,21 +31,23 @@ public class AuthFilter implements Filter {
             "clientView",
             "prospectListe",
             "prospectView",
-            "initAdmin"
+            "initAdmin",
+            "template"   // ⚠️ souvent nécessaire pour ton header/footer
     );
 
     @Override
-    public void doFilter(ServletRequest req, ServletResponse res,
-                         FilterChain chain)
+    public void doFilter(final ServletRequest req,
+                         final ServletResponse res,
+                         final FilterChain chain)
             throws IOException, ServletException {
 
-        HttpServletRequest request = (HttpServletRequest) req;
-        HttpSession session = request.getSession(false);
+        final HttpServletRequest request = (HttpServletRequest) req;
+        final HttpSession session = request.getSession(false);
 
         String cmd = request.getParameter("cmd");
-        System.out.println("CMD REÇU = " + cmd);
+        LOG.fine("Commande reçue par le filtre : " + cmd);
 
-        if (cmd == null) {
+        if (cmd == null || cmd.isBlank()) {
             cmd = "accueil";
         }
 
@@ -54,7 +63,7 @@ public class AuthFilter implements Filter {
             return;
         }
 
-        // Sinon → message + redirection vers login
+        // Sinon → redirection vers login
         request.setAttribute("error",
                 "Vous devez être connecté pour accéder à cette page.");
         request.getRequestDispatcher("/WEB-INF/jsp/auth/Login.jsp")

@@ -1,8 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="jakarta.validation.ConstraintViolation" %>
-<%@ page import="models.Prospect" %>
-<%@ page import="models.Adresse" %>
+<%@ page import="fr.afpa.jakartaee_cyril1.models.Prospect" %>
+<%@ page import="fr.afpa.jakartaee_cyril1.models.Adresse" %>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -40,6 +40,9 @@
             </h1>
 
             <form class="row g-3" method="post" action="FrontController?cmd=prospectForm">
+
+                <!-- TOKEN CSRF -->
+                <input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 
                 <!-- ========================= -->
                 <!-- RAISON SOCIALE -->

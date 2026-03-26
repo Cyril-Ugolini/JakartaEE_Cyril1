@@ -1,4 +1,4 @@
-import models.Interesse;
+import fr.afpa.jakartaee_cyril1.models.Interesse;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

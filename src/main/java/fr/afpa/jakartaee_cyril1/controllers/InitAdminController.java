@@ -2,7 +2,7 @@ package fr.afpa.jakartaee_cyril1.controllers;
 
 import fr.afpa.jakartaee_cyril1.DAO.UserDao;
 import fr.afpa.jakartaee_cyril1.security.SecurityConfig;
-import models.User;
+import fr.afpa.jakartaee_cyril1.models.User;
 
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;

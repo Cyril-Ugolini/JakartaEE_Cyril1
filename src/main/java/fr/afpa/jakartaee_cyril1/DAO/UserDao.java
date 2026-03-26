@@ -1,8 +1,7 @@
 package fr.afpa.jakartaee_cyril1.DAO;
 
-import models.User;
+import fr.afpa.jakartaee_cyril1.models.User;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,8 +10,11 @@ import java.util.logging.Logger;
 /**
  * DAO pour la gestion des utilisateurs.
  *
- * @author UGOLINI Cyril
- * @version 0.0.2
+ * <p>Version refactorisée : utilise la DataSource JNDI via
+ * {@link ConnexionManager} au lieu de DriverManager.</p>
+ *
+ * <author>UGOLINI Cyril</author>
+ * @version 0.0.3
  * @since 24/03/2026
  */
 public class UserDao {
@@ -27,16 +29,6 @@ public class UserDao {
     /** Code erreur SQL : champ NOT NULL manquant. */
     private static final int ERR_NOT_NULL = 1048;
 
-    /** URL de connexion JDBC. */
-    private static final String URL =
-            "jdbc:mysql://localhost:3306/clients_prospects";
-
-    /** Nom d'utilisateur MySQL. */
-    private static final String DB_USER = "root";
-
-    /** Mot de passe MySQL. */
-    private static final String PASSWORD = "";
-
     // Création de la table une seule fois au chargement de la classe
     static {
         final String sql = "CREATE TABLE IF NOT EXISTS user ("
@@ -45,8 +37,7 @@ public class UserDao {
                 + "password_hash VARCHAR(255) NOT NULL"
                 + ")";
 
-        try (Connection conn = DriverManager.getConnection(
-                URL, DB_USER, PASSWORD);
+        try (Connection conn = ConnexionManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.executeUpdate();
@@ -72,8 +63,7 @@ public class UserDao {
                 "INSERT INTO user (username, password_hash) "
                         + "VALUES (?, ?)";
 
-        try (Connection conn = DriverManager.getConnection(
-                URL, DB_USER, PASSWORD);
+        try (Connection conn = ConnexionManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, user.getUsername());
@@ -120,8 +110,7 @@ public class UserDao {
                 "SELECT id, username, password_hash "
                         + "FROM user WHERE username = ?";
 
-        try (Connection conn = DriverManager.getConnection(
-                URL, DB_USER, PASSWORD);
+        try (Connection conn = ConnexionManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);

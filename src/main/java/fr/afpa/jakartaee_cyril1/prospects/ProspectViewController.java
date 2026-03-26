@@ -5,7 +5,7 @@ import fr.afpa.jakartaee_cyril1.controllers.ICommand;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.logging.Logger;
-import models.Prospect;
+import fr.afpa.jakartaee_cyril1.models.Prospect;
 
 /**
  * Contrôleur chargé d'afficher la visualisation détaillée

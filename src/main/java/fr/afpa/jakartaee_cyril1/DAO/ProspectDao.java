@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import models.Adresse;
-import models.Interesse;
-import models.Prospect;
+import fr.afpa.jakartaee_cyril1.models.Adresse;
+import fr.afpa.jakartaee_cyril1.models.Interesse;
+import fr.afpa.jakartaee_cyril1.models.Prospect;
 
 /**
  * DAO pour la gestion des prospects en base de données.
@@ -30,22 +30,14 @@ public final class ProspectDao {
     private static final Logger LOG =
             Logger.getLogger(ProspectDao.class.getName());
 
-    /** Gestionnaire de connexion. */
-    private final ConnexionManager db;
-
-    /**
-     * Constructeur : initialise la connexion.
-     *
-     * @throws SQLException en cas d'erreur de connexion
-     */
-    public ProspectDao() throws SQLException {
-        this.db = ConnexionManager.getInstance();
+    public ProspectDao() {
         LOG.info("ProspectDao initialisé.");
     }
 
+
     // ============================================================
-    // FIND ALL
-    // ============================================================
+// FIND ALL
+// ============================================================
 
     /**
      * Retourne tous les prospects présents en base.
@@ -65,8 +57,8 @@ public final class ProspectDao {
                         + "FROM prospect p "
                         + "INNER JOIN adresse a ON p.id_adresse = a.id_adresse";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql);
+        try (Connection conn = ConnexionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -79,8 +71,7 @@ public final class ProspectDao {
 
             final int code = e.getErrorCode();
             final String message = switch (code) {
-                case 1064 -> "Erreur SQL dans findAll() : syntaxe incorrecte "
-                        + "(code=1064)";
+                case 1064 -> "Erreur SQL dans findAll() : syntaxe incorrecte (code=1064)";
                 default -> "Erreur SQL dans findAll() (code=" + code + ")";
             };
 
@@ -90,10 +81,9 @@ public final class ProspectDao {
 
         return liste;
     }
-
     // ============================================================
-    // FIND BY ID
-    // ============================================================
+// FIND BY ID
+// ============================================================
 
     /**
      * Retourne un prospect par son identifiant.
@@ -113,8 +103,8 @@ public final class ProspectDao {
                         + "INNER JOIN adresse a ON p.id_adresse = a.id_adresse "
                         + "WHERE p.id_prospect = ?";
 
-        try (PreparedStatement stmt =
-                     db.getConnection().prepareStatement(sql)) {
+        try (Connection conn = ConnexionManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
 
@@ -142,10 +132,9 @@ public final class ProspectDao {
         LOG.warning("findById(" + id + ") : non trouvé.");
         return null;
     }
-
     // ============================================================
-    // CREATE
-    // ============================================================
+// CREATE
+// ============================================================
 
     /**
      * Crée un nouveau prospect en base.
@@ -156,9 +145,8 @@ public final class ProspectDao {
      */
     public boolean create(final Prospect prospect) throws SQLException {
 
-        final Connection conn = db.getConnection();
+        try (Connection conn = ConnexionManager.getConnection()) {
 
-        try {
             conn.setAutoCommit(false);
 
             // 1. Création de l'adresse
@@ -172,19 +160,16 @@ public final class ProspectDao {
                             + "date_prospection, interesse) "
                             + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-            try (PreparedStatement stmt =
-                         conn.prepareStatement(sql,
-                                 Statement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    sql, Statement.RETURN_GENERATED_KEYS)) {
 
                 stmt.setString(1, prospect.getRaisonSociale());
                 stmt.setInt(2, idAdresse);
                 stmt.setString(3, prospect.getTelephone());
                 stmt.setString(4, prospect.getAdresseMail());
                 stmt.setString(5, prospect.getCommentaires());
-                stmt.setDate(6,
-                        java.sql.Date.valueOf(prospect.getDateProspection()));
-                stmt.setInt(7,
-                        prospect.getInteresse() == Interesse.OUI ? 1 : 0);
+                stmt.setDate(6, java.sql.Date.valueOf(prospect.getDateProspection()));
+                stmt.setInt(7, prospect.getInteresse() == Interesse.OUI ? 1 : 0);
 
                 final int rows = stmt.executeUpdate();
 
@@ -195,8 +180,7 @@ public final class ProspectDao {
                         }
                     }
                     conn.commit();
-                    LOG.info("Prospect créé : ID="
-                            + prospect.getIdProspect());
+                    LOG.info("Prospect créé : ID=" + prospect.getIdProspect());
                     return true;
                 }
             }
@@ -205,8 +189,6 @@ public final class ProspectDao {
             return false;
 
         } catch (SQLException e) {
-
-            conn.rollback();
 
             final int code = e.getErrorCode();
             final String message = switch (code) {
@@ -221,15 +203,11 @@ public final class ProspectDao {
 
             LOG.severe(message + " | " + e.getMessage());
             throw new SQLException(message, e);
-
-        } finally {
-            conn.setAutoCommit(true);
         }
     }
-
     // ============================================================
-    // UPDATE
-    // ============================================================
+// UPDATE
+// ============================================================
 
     /**
      * Met à jour un prospect existant.
@@ -240,9 +218,8 @@ public final class ProspectDao {
      */
     public boolean update(final Prospect prospect) throws SQLException {
 
-        final Connection conn = db.getConnection();
+        try (Connection conn = ConnexionManager.getConnection()) {
 
-        try {
             conn.setAutoCommit(false);
 
             // 1. Mise à jour de l'adresse
@@ -250,8 +227,7 @@ public final class ProspectDao {
                     "UPDATE adresse SET numero_rue=?, nom_rue=?, "
                             + "code_postal=?, ville=? WHERE id_adresse=?";
 
-            try (PreparedStatement stmt =
-                         conn.prepareStatement(sqlAdr)) {
+            try (PreparedStatement stmt = conn.prepareStatement(sqlAdr)) {
 
                 stmt.setString(1, prospect.getAdresse().getNumeroRue());
                 stmt.setString(2, prospect.getAdresse().getNomRue());
@@ -268,53 +244,40 @@ public final class ProspectDao {
                             + "adresse_mail=?, commentaires=?, date_prospection=?, "
                             + "interesse=? WHERE id_prospect=?";
 
-            try (PreparedStatement stmt =
-                         conn.prepareStatement(sql)) {
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setString(1, prospect.getRaisonSociale());
                 stmt.setString(2, prospect.getTelephone());
                 stmt.setString(3, prospect.getAdresseMail());
                 stmt.setString(4, prospect.getCommentaires());
-                stmt.setDate(5,
-                        java.sql.Date.valueOf(prospect.getDateProspection()));
-                stmt.setInt(6,
-                        prospect.getInteresse() == Interesse.OUI ? 1 : 0);
+                stmt.setDate(5, java.sql.Date.valueOf(prospect.getDateProspection()));
+                stmt.setInt(6, prospect.getInteresse() == Interesse.OUI ? 1 : 0);
                 stmt.setInt(7, prospect.getIdProspect());
 
                 final int rows = stmt.executeUpdate();
                 conn.commit();
 
-                LOG.info("Prospect modifié : ID="
-                        + prospect.getIdProspect());
+                LOG.info("Prospect modifié : ID=" + prospect.getIdProspect());
                 return rows > 0;
             }
 
         } catch (SQLException e) {
 
-            conn.rollback();
-
             final int code = e.getErrorCode();
             final String message = switch (code) {
-                case 1048 -> "Champ obligatoire manquant lors de la mise à "
-                        + "jour (code=1048)";
-                case 1452 -> "Contrainte étrangère violée lors de la mise à "
-                        + "jour (code=1452)";
-                case 1062 -> "Doublon détecté lors de la mise à jour "
-                        + "(code=1062)";
+                case 1048 -> "Champ obligatoire manquant lors de la mise à jour (code=1048)";
+                case 1452 -> "Contrainte étrangère violée lors de la mise à jour (code=1452)";
+                case 1062 -> "Doublon détecté lors de la mise à jour (code=1062)";
                 default -> "Erreur SQL dans update() (code=" + code + ")";
             };
 
             LOG.severe(message + " | " + e.getMessage());
             throw new SQLException(message, e);
-
-        } finally {
-            conn.setAutoCommit(true);
         }
     }
-
     // ============================================================
-    // DELETE
-    // ============================================================
+// DELETE
+// ============================================================
 
     /**
      * Supprime un prospect par son identifiant.
@@ -325,9 +288,8 @@ public final class ProspectDao {
      */
     public boolean delete(final int id) throws SQLException {
 
-        final Connection conn = db.getConnection();
+        try (Connection conn = ConnexionManager.getConnection()) {
 
-        try {
             conn.setAutoCommit(false);
 
             final Prospect prospect = findById(id);
@@ -343,9 +305,7 @@ public final class ProspectDao {
             final String sqlProspect =
                     "DELETE FROM prospect WHERE id_prospect=?";
 
-            try (PreparedStatement stmt =
-                         conn.prepareStatement(sqlProspect)) {
-
+            try (PreparedStatement stmt = conn.prepareStatement(sqlProspect)) {
                 stmt.setInt(1, id);
                 stmt.executeUpdate();
             }
@@ -354,9 +314,7 @@ public final class ProspectDao {
             final String sqlAdr =
                     "DELETE FROM adresse WHERE id_adresse=?";
 
-            try (PreparedStatement stmt =
-                         conn.prepareStatement(sqlAdr)) {
-
+            try (PreparedStatement stmt = conn.prepareStatement(sqlAdr)) {
                 stmt.setInt(1, idAdresse);
                 stmt.executeUpdate();
             }
@@ -367,23 +325,16 @@ public final class ProspectDao {
 
         } catch (SQLException e) {
 
-            conn.rollback();
-
             final int code = e.getErrorCode();
             final String message = switch (code) {
-                case 1451 -> "Suppression impossible : contrainte étrangère "
-                        + "(code=1451)";
+                case 1451 -> "Suppression impossible : contrainte étrangère (code=1451)";
                 default -> "Erreur SQL dans delete() (code=" + code + ")";
             };
 
             LOG.severe(message + " | " + e.getMessage());
             throw new SQLException(message, e);
-
-        } finally {
-            conn.setAutoCommit(true);
         }
     }
-
     // ============================================================
     // CREER ADRESSE
     // ============================================================

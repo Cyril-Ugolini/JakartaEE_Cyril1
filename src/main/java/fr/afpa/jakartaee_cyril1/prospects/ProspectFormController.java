@@ -10,9 +10,9 @@ import jakarta.validation.ValidatorFactory;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.logging.Logger;
-import models.Adresse;
-import models.Interesse;
-import models.Prospect;
+import fr.afpa.jakartaee_cyril1.models.Adresse;
+import fr.afpa.jakartaee_cyril1.models.Interesse;
+import fr.afpa.jakartaee_cyril1.models.Prospect;
 
 /**
  * Contrôleur chargé d'afficher et de traiter le formulaire
