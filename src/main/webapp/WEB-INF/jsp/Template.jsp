@@ -42,11 +42,19 @@
             <div class="crm-nav-connexion" id="nav-connexion">
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">
+
+                        <!-- Icône utilisateur -->
+                        <div class="crm-user-icon">
+                            👤 <span>${sessionScope.user.username}</span>
+                        </div>
+
                         <a class="crm-btn-connexion"
                            href="${pageContext.request.contextPath}/FrontController?cmd=logout">
                             Déconnexion
                         </a>
+
                     </c:when>
+
                     <c:otherwise>
                         <a class="crm-btn-connexion"
                            href="${pageContext.request.contextPath}/FrontController?cmd=login">
@@ -71,10 +79,18 @@
     </header>
 </div>
 
-<!-- ASIDE (contenu uniquement, PAS de classes Bootstrap ici) -->
+<!-- ASIDE -->
 <div id="tpl-aside">
     <aside>
         <div class="p-3 bg-light border rounded">
+
+            <!-- Icône utilisateur si connecté -->
+            <c:if test="${not empty sessionScope.user}">
+                <div class="aside-user-icon mb-3">
+                    👤 <span>${sessionScope.user.username}</span>
+                </div>
+            </c:if>
+
             <h5>Menu rapide</h5>
             <ul class="list-unstyled">
                 <li><a href="${pageContext.request.contextPath}/FrontController?cmd=clientListe">Clients</a></li>

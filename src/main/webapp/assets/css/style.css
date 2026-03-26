@@ -403,6 +403,23 @@ body > main {
 /* --- Bouton Connexion --- */
 .crm-nav-connexion { padding: 16px 20px; }
 
+/* --- Icône utilisateur connecté --- */
+.crm-user-icon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 212, 255, 0.08);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    color: var(--cyan);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+    box-shadow: 0 0 12px rgba(0, 212, 255, 0.15);
+}
+
 .crm-btn-connexion,
 .crm-btn-connexion:link,
 .crm-btn-connexion:visited {
@@ -506,6 +523,21 @@ aside a:hover {
     #tpl-aside aside {
         display: block;
     }
+}
+/* --- Icône utilisateur dans l'aside --- */
+.aside-user-icon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 212, 255, 0.08);
+    border: 1px solid rgba(0, 212, 255, 0.25);
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    color: var(--cyan);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+    box-shadow: 0 0 12px rgba(0, 212, 255, 0.15);
 }
 /* ============================================================
    FORMULAIRES

@@ -34,8 +34,18 @@ public class InitAdminController implements ICommand {
     /** Nom d'utilisateur de l'admin. */
     private static final String ADMIN_USERNAME = "admin";
 
-    /** Mot de passe par défaut de l'admin. */
-    private static final String ADMIN_PASSWORD = "password123";
+    /** Mot de passe admin lu depuis variable d'environnement. */
+    private static final String ADMIN_PASSWORD;
+
+    static {
+        String env = System.getenv("ADMIN_PASSWORD");
+        if (env == null || env.isBlank()) {
+            // Fallback sécurisé si la variable n'est pas définie
+            ADMIN_PASSWORD = "voici_mon_nouveau_code_!2026";
+        } else {
+            ADMIN_PASSWORD = env;
+        }
+    }
 
     @Override
     public String execute(final HttpServletRequest request,
